@@ -57,6 +57,7 @@ if ($_REQUEST['action'] === 'merge') {
     if (isset($_REQUEST['item_ids']) && is_array($_REQUEST['item_ids'])) {
         $failures = 0;
         $successes = 0;
+        $error_msg = [];
         foreach ($_REQUEST['item_ids'] as $glpi_id => $data) {
             if (!isset($data['jamf_id'], $data['itemtype'])) {
                 continue;
@@ -77,80 +78,113 @@ if ($_REQUEST['action'] === 'merge') {
                 $plugin_sync_itemtype = 'PluginJamfMobileSync';
             }
 
-            $jamf_item = PluginJamfAPI::getMobileDeviceByID($jamf_id, true);
-            if ($jamf_item === null) {
-                // API error or device no longer exists in Jamf
-                throw new RuntimeException('Jamf API error or item no longer exists!');
-            }
-
-            // Run import rules on merged devices manually since this doesn't go through the usual import process
-            $rules = new PluginJamfRuleImportCollection();
-
-            //WTF is this, Jamf?
-            $os_details = $jamf_item['ios'] ?? $jamf_item['tvos'];
-            $ruleinput = [
-                'name' => $jamf_item['name'],
-                'itemtype' => $itemtype,
-                'last_inventory' => $jamf_item['lastInventoryUpdateTimestamp'],
-                'managed' => $jamf_item['managed'] ?? $os_details['managed'],
-                'supervised' => $jamf_item['supervised'] ?? $os_details['supervised'],
-            ];
-            $ruleinput = $rules->processAllRules($ruleinput, $ruleinput, ['recursive' => true]);
-            $import = isset($ruleinput['_import']) ? $ruleinput['_import'] : 'NS';
-
-            if (isset($ruleinput['_import']) && !$ruleinput['_import']) {
-                // Dropped by rules
-                continue;
-            }
-
-            $DB->beginTransaction();
             try {
-                // Partial import
-                $r = $DB->insert('glpi_plugin_jamf_devices', [
-                    'itemtype' => $itemtype,
-                    'items_id' => $glpi_id,
-                    'udid' => $jamf_item['udid'],
-                    'jamf_type' => $data['jamf_type'],
-                    'jamf_items_id' => $data['jamf_id'],
-                ]);
-                if ($r === false) {
-                    throw new \RuntimeException('Failed to import the device data!');
+                $jamf_item = PluginJamfAPI::getMobileDeviceByID($jamf_id, true);
+
+                if ($jamf_item === null) {
+                    // API error or device no longer exists in Jamf
+                    $failures++;
+                    continue;
                 }
-                // Link
-                $plugin_item = new $plugin_itemtype();
-                $plugin_items_id = $plugin_item->add([
-                    'glpi_plugin_jamf_devices_id' => $DB->insertId(),
-                ]);
 
-                // Sync
-                $sync_result = $plugin_sync_itemtype::sync($itemtype, $glpi_id, false);
+                 // Run import rules on merged devices manually since this doesn't go through the usual import process
+                $rules = new PluginJamfRuleImportCollection();
 
-                // Update merged device and then delete the pending import
-                if ($sync_result) {
-                    $DB->update($plugin_itemtype::getTable(), [
-                        'import_date' => $_SESSION['glpi_currenttime']
-                    ], [
-                        'itemtype' => $itemtype,
-                        'items_id' => $glpi_id
+                //WTF is this, Jamf?
+                $os_details = $jamf_item['ios'] ?? $jamf_item['tvos'];
+                $ruleinput = [
+                    'name' => $jamf_item['name'],
+                    'itemtype' => $itemtype,
+                    'last_inventory' => $jamf_item['lastInventoryUpdateTimestamp'],
+                    'managed' => $jamf_item['managed'] ?? $os_details['managed'],
+                    'supervised' => $jamf_item['supervised'] ?? $os_details['supervised'],
+                ];
+                $ruleinput = $rules->processAllRules($ruleinput, $ruleinput, ['recursive' => true]);
+                $import = isset($ruleinput['_import']) ? $ruleinput['_import'] : 'NS';
+
+                if (isset($ruleinput['_import']) && !$ruleinput['_import']) {
+                    // Dropped by rules
+                    continue;
+                }
+
+                $DB->beginTransaction();
+                try {
+
+                    // before insert check if a row already exist
+                    $iterator = $DB->request([
+                        'SELECT' => [
+                            '*'
+                        ],
+                        'FROM' => 'glpi_plugin_jamf_devices',
+                        'WHERE' => [
+                            'itemtype' => $itemtype,
+                            'items_id' => $glpi_id,
+                            'udid' => $jamf_item['udid'],
+                            'jamf_type' => $data['jamf_type'],
+                            'jamf_items_id' => $data['jamf_id'],
+                        ]
                     ]);
-                    $DB->delete(PluginJamfImport::getTable(), [
-                        'jamf_type' => $data['jamf_type'],
-                        'jamf_items_id' => $jamf_id
+
+                    if (!count($iterator)) {
+                        // Partial import
+                        $r = $DB->insert('glpi_plugin_jamf_devices', [
+                            'itemtype' => $itemtype,
+                            'items_id' => $glpi_id,
+                            'udid' => $jamf_item['udid'],
+                            'jamf_type' => $data['jamf_type'],
+                            'jamf_items_id' => $data['jamf_id'],
+                        ]);
+                        if ($r === false) {
+                            throw new \RuntimeException('Failed to import the device data!');
+                        }
+                    }
+
+                    // Link
+                    $plugin_item = new $plugin_itemtype();
+                    $plugin_items_id = $plugin_item->add([
+                        'glpi_plugin_jamf_devices_id' => $DB->insertId(),
                     ]);
-                    $DB->commit();
-                    $successes++;
-                } else {
+
+                    // Sync
+                    $sync_result = $plugin_sync_itemtype::sync($itemtype, $glpi_id, false);
+
+                    // Update merged device and then delete the pending import
+                    if ($sync_result) {
+                        $DB->update('glpi_plugin_jamf_devices', [
+                            'import_date' => $_SESSION['glpi_currenttime']
+                        ], [
+                            'itemtype' => $itemtype,
+                            'items_id' => $glpi_id
+                        ]);
+                        $DB->delete(PluginJamfImport::getTable(), [
+                            'jamf_type' => $data['jamf_type'],
+                            'jamf_items_id' => $jamf_id
+                        ]);
+                        $DB->commit();
+                        $successes++;
+                    } else {
+                        $failures++;
+                        $DB->rollBack();
+                    }
+                } catch (Exception $e) {
+                    trigger_error($e->getMessage(), E_USER_WARNING);
                     $failures++;
                     $DB->rollBack();
                 }
-            } catch (Exception $e) {
+            } catch (\Throwable $e) {
                 trigger_error($e->getMessage(), E_USER_WARNING);
                 $failures++;
-                $DB->rollBack();
+                $error_msg[] = sprintf(__("API error or device no longer exists in Jamf '%s'", 'jamf'), $jamf_id);
+                continue;
             }
+
         }
         if ($failures) {
             Session::addMessageAfterRedirect(sprintf(__('An error occurred while merging %d devices!', 'jamf'), $failures), false, ERROR);
+        }
+
+        if (count($error_msg)) {
+            Session::addMessageAfterRedirect(implode('<br>', $error_msg), false, ERROR);
         }
     } else {
         throw new RuntimeException('Required argument missing!');
