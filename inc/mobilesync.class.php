@@ -390,14 +390,14 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
                 $this->jamfplugin_item_changes['lost_location_date'] = $lost_location_date;
             }
             $this->commondevice_changes['activation_lock_enabled'] = $security['activation_lock_enabled'];
-            $this->jamfplugin_item_changes['lost_mode_enabled'] = $security['lost_mode_enabled'];
-            $this->jamfplugin_item_changes['lost_mode_enforced'] = $security['lost_mode_enforced'];
-            $this->jamfplugin_item_changes['lost_mode_message'] = $security['lost_mode_message'];
-            $this->jamfplugin_item_changes['lost_mode_phone'] = $security['lost_mode_phone'];
-            $this->jamfplugin_item_changes['lost_location_latitude'] = $security['lost_location_latitude'];
-            $this->jamfplugin_item_changes['lost_location_longitude'] = $security['lost_location_longitude'];
-            $this->jamfplugin_item_changes['lost_location_altitude'] = $security['lost_location_altitude'];
-            $this->jamfplugin_item_changes['lost_location_speed'] = $security['lost_location_speed'];
+            $this->jamfplugin_item_changes['lost_mode_enabled'] = $security['lost_mode_enabled'] ?? '';
+            $this->jamfplugin_item_changes['lost_mode_enforced'] = $security['lost_mode_enforced'] ?? 0;
+            $this->jamfplugin_item_changes['lost_mode_message'] = $security['lost_mode_message'] ?? '';
+            $this->jamfplugin_item_changes['lost_mode_phone'] = $security['lost_mode_phone'] ?? '';
+            $this->jamfplugin_item_changes['lost_location_latitude'] = $security['lost_location_latitude'] ?? '';
+            $this->jamfplugin_item_changes['lost_location_longitude'] = $security['lost_location_longitude'] ?? '';
+            $this->jamfplugin_item_changes['lost_location_altitude'] = $security['lost_location_altitude'] ?? '';
+            $this->jamfplugin_item_changes['lost_location_speed'] = $security['lost_location_speed'] ?? '';
         } catch (Exception $e) {
             $this->status['syncSecurity'] = self::STATUS_ERROR;
             return $this;
