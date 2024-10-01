@@ -77,7 +77,11 @@ if ($_REQUEST['action'] === 'merge') {
                 $plugin_sync_itemtype = 'PluginJamfMobileSync';
             }
 
-            $jamf_item = PluginJamfAPI::getMobileDeviceByID($jamf_id, true);
+            if ($data['jamf_type'] === 'MobileDevice') {
+                $jamf_item = PluginJamfAPI::getMobileDeviceByID($jamf_id, true);
+            } else {
+                $jamf_item = PluginJamfAPI::getComputerByID($jamf_id, true);
+            }
             if ($jamf_item === null) {
                 // API error or device no longer exists in Jamf
                 throw new RuntimeException('Jamf API error or item no longer exists!');
