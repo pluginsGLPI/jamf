@@ -403,7 +403,6 @@ class PluginJamfAPI
      */
     public static function getAllMobileDevices()
     {
-        var_dump((new Exception())->getTraceAsString());
         if (!static::$connection) {
             static::$connection = new static::$connection_class();
         }
