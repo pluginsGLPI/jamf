@@ -54,6 +54,7 @@ class AbstractDBTest extends TestCase
 
     public static function setUpBeforeClass(): void
     {
+        /** @var DBmysql $DB */
         global $DB;
         $DB->beginTransaction();
         static::resetSession();
@@ -98,6 +99,7 @@ class AbstractDBTest extends TestCase
 
     public static function tearDownAfterClass(): void
     {
+        /** @var DBmysql $DB */
         global $DB;
         $DB->rollback();
     }
@@ -110,7 +112,9 @@ class AbstractDBTest extends TestCase
         $_SESSION['glpi_use_mode']     = Session::NORMAL_MODE;
         $_SESSION['glpiactive_entity'] = 0;
 
+        /** @var array $CFG_GLPI */
         global $CFG_GLPI;
+
         foreach ($CFG_GLPI['user_pref_field'] as $field) {
             if (!isset($_SESSION['glpi' . $field]) && isset($CFG_GLPI[$field])) {
                 $_SESSION['glpi' . $field] = $CFG_GLPI[$field];

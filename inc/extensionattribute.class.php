@@ -44,6 +44,7 @@ class PluginJamfExtensionAttribute extends CommonDBTM
 
     public function addOrUpdate($input)
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         if (!isset($input['jamf_id'])) {
@@ -58,6 +59,7 @@ class PluginJamfExtensionAttribute extends CommonDBTM
 
     public static function dashboardCards()
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         $table    = self::getTable();
@@ -82,6 +84,7 @@ class PluginJamfExtensionAttribute extends CommonDBTM
 
     public static function cardProvider($name, array $params = [])
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         $rel_table = PluginJamfItem_ExtensionAttribute::getTable();

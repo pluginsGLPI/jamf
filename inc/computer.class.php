@@ -56,6 +56,9 @@ class PluginJamfComputer extends PluginJamfAbstractDevice
      */
     public static function showForItem(array $params)
     {
+        /** @var array $CFG_GLPI */
+        global $CFG_GLPI;
+
         $item = $params['item'];
 
         if (!self::canView() || $item::getType() !== 'Computer') {
@@ -74,7 +77,7 @@ class PluginJamfComputer extends PluginJamfAbstractDevice
 
         $js = '';
         if ($item->canUpdate()) {
-            $ajax_url = Plugin::getWebDir('jamf') . '/ajax/sync.php';
+            $ajax_url = $CFG_GLPI['root_doc'] . '/plugins/jamf/ajax/sync.php';
             $js       = <<<JAVASCRIPT
                function syncDevice(itemtype, items_id) {
                   $.ajax({

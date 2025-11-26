@@ -38,6 +38,7 @@ class PluginJamfDBUtil
 {
     public static function dropTable(string $table)
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         return $DB->query('DROP TABLE' . $DB::quoteName($table));
@@ -45,6 +46,7 @@ class PluginJamfDBUtil
 
     public static function dropTableOrDie(string $table, string $message = '')
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         if (!$DB->tableExists($table)) {
@@ -73,6 +75,7 @@ class PluginJamfDBUtil
 
     public static function truncate($table)
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         $table_name = $DB::quoteName($table);

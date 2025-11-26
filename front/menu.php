@@ -39,9 +39,10 @@ if (!$plugin->isActivated('jamf')) {
 
 Html::header('Jamf Plugin', '', 'tools', 'PluginJamfMenu', 'import');
 
+/** @var array $CFG_GLPI */
 global $CFG_GLPI;
 
-$plugin_dir = Plugin::getWebDir('jamf');
+$plugin_dir = $CFG_GLPI['root_doc'] . '/plugins/jamf';
 $links      = [];
 if (Session::haveRight('plugin_jamf_mobiledevice', CREATE)) {
     $links[] = [

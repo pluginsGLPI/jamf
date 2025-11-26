@@ -30,6 +30,7 @@
  * -------------------------------------------------------------------------
  */
 
+/** @var array $CFG_GLPI */
 global $CFG_GLPI;
 
 define('GLPI_ROOT', dirname(__DIR__, 3));

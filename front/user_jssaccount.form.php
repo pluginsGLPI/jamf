@@ -39,6 +39,7 @@ if (!$plugin->isActivated('jamf')) {
 
 Session::checkRight(PluginJamfUser_JSSAccount::$rightname, UPDATE);
 
+/** @var DBmysql $DB */
 global $DB;
 if ($_POST['jssaccounts_id'] == 0) {
     $DB->delete(PluginJamfUser_JSSAccount::getTable(), ['users_id' => $_POST['users_id']]);

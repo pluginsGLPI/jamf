@@ -70,8 +70,6 @@ class PluginJamfProfile extends Profile
      */
     public function showForm($profiles_id = 0, $openform = true, $closeform = true)
     {
-        global $CFG_GLPI;
-
         if (!self::canView()) {
             return false;
         }
@@ -139,8 +137,6 @@ class PluginJamfProfile extends Profile
      */
     public function showFormHelpdesk($profiles_id = 0, $openform = true, $closeform = true)
     {
-        global $CFG_GLPI;
-
         if (!self::canView()) {
             return false;
         }

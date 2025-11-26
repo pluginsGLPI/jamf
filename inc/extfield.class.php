@@ -53,6 +53,7 @@ class PluginJamfExtField extends CommonDBTM
 
     public static function setValue($itemtype, $items_id, $name, $value)
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         $DB->updateOrInsert(self::getTable(), [

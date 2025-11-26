@@ -65,6 +65,7 @@ abstract class PluginJamfAbstractDevice extends CommonDBChild
      */
     private static function purgeItemCommon(CommonDBTM $item)
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         $jamf_class = static::getJamfItemClassForGLPIItem($item::getType(), $item->getID());
@@ -103,6 +104,7 @@ abstract class PluginJamfAbstractDevice extends CommonDBChild
      */
     public static function plugin_jamf_purgePhone(Phone $item)
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         self::purgeItemCommon($item);
@@ -121,6 +123,7 @@ abstract class PluginJamfAbstractDevice extends CommonDBChild
 
     public static function getJamfItemClassForGLPIItem(string $itemtype, $items_id): ?string
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         $iterator = $DB->request([
@@ -149,6 +152,7 @@ abstract class PluginJamfAbstractDevice extends CommonDBChild
 
     public static function getJamfItemForGLPIItem(CommonDBTM $item, $limit_to_type = false): ?PluginJamfAbstractDevice
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         $found_type = static::class;
@@ -210,6 +214,7 @@ abstract class PluginJamfAbstractDevice extends CommonDBChild
 
     public function getJamfDeviceData()
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         $iterator = $DB->request([
@@ -227,6 +232,7 @@ abstract class PluginJamfAbstractDevice extends CommonDBChild
 
     public function getExtensionAttributes()
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         $ext_table      = PluginJamfExtensionAttribute::getTable();

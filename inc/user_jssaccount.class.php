@@ -56,6 +56,7 @@ class PluginJamfUser_JSSAccount extends CommonDBChild
 
     public function prepareInputForUpdate($input)
     {
+        /** @var DBmysql $DB */
         global $DB;
         if ($input['jssaccounts_id'] === 0) {
             $DB->delete(self::getTable(), ['id' => $this->fields['id']]);

@@ -49,6 +49,7 @@ class PluginJamfMobileSync extends AbstractDBTest
 {
     public function testDiscover()
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         PluginJamfMobileTestSync::discover();
@@ -62,6 +63,7 @@ class PluginJamfMobileSync extends AbstractDBTest
 
     public function testSyncExtensionAttributeDefinitions()
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         PluginJamfMobileTestSync::syncExtensionAttributeDefinitions();
@@ -88,6 +90,7 @@ class PluginJamfMobileSync extends AbstractDBTest
 
     public function testImportAsComputer()
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         // Force sync extension attribute definitions
@@ -143,6 +146,7 @@ class PluginJamfMobileSync extends AbstractDBTest
 
     public function testImportAsPhone()
     {
+        /** @var DBmysql $DB */
         global $DB;
         PluginJamfMobileTestSync::import('Phone', 5, false);
 

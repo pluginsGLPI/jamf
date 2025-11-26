@@ -74,6 +74,7 @@ class PluginJamfMobileDevice extends PluginJamfAbstractDevice
      */
     private static function purgeItemCommon(CommonDBTM $item)
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         $DB->delete(self::getTable(), [
@@ -96,6 +97,7 @@ class PluginJamfMobileDevice extends PluginJamfAbstractDevice
      */
     public static function plugin_jamf_purgePhone(Phone $item)
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         self::purgeItemCommon($item);
@@ -196,6 +198,7 @@ class PluginJamfMobileDevice extends PluginJamfAbstractDevice
 
     public static function cardLostModeProvider($params = [])
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         $table    = self::getTable();
@@ -215,6 +218,7 @@ class PluginJamfMobileDevice extends PluginJamfAbstractDevice
 
     public static function cardManagedProvider($params = [])
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         $iterator = $DB->request([
@@ -233,6 +237,7 @@ class PluginJamfMobileDevice extends PluginJamfAbstractDevice
 
     public static function cardSupervisedProvider($params = [])
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         $iterator = $DB->request([
@@ -251,6 +256,9 @@ class PluginJamfMobileDevice extends PluginJamfAbstractDevice
 
     public static function showForItem(array $params)
     {
+        /** @var array $CFG_GLPI */
+        global $CFG_GLPI;
+
         /** @var CommonDBTM $item */
         $item = $params['item'];
 
@@ -271,7 +279,7 @@ class PluginJamfMobileDevice extends PluginJamfAbstractDevice
 
         $js = '';
         if ($item->canUpdate()) {
-            $ajax_url = Plugin::getWebDir('jamf') . '/ajax/sync.php';
+            $ajax_url = $CFG_GLPI['root_doc'] . '/plugins/jamf/ajax/sync.php';
             $js       = <<<JAVASCRIPT
                function syncDevice(itemtype, items_id) {
                   $.ajax({

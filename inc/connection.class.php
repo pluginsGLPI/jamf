@@ -70,8 +70,6 @@ class PluginJamfConnection
      */
     public function setConnectionConfig($jssserver, $jssuser, $jsspassword)
     {
-        global $DB;
-
         $glpikey = new GLPIKey();
         $enc     = $glpikey->encrypt($jsspassword);
         Config::setConfigurationValues('plugin:Jamf', [
@@ -210,9 +208,7 @@ class PluginJamfConnection
      */
     public function getClient()
     {
-        /**
-         * @var array $CFG_GLPI
-         */
+        /** @var array $CFG_GLPI */
         global $CFG_GLPI;
 
         if ($this->client === null) {

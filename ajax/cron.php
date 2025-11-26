@@ -40,6 +40,7 @@ Html::header_nocache();
 
 Session::checkLoginUser();
 
+/** @var DBmysql $DB */
 global $DB;
 
 // Get AJAX input and load it into $_REQUEST

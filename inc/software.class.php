@@ -47,6 +47,7 @@ class PluginJamfSoftware extends CommonDBTM
      */
     public static function plugin_jamf_purgeSoftware(Software $item)
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         $software_classes = [PluginJamfComputerSoftware::class, PluginJamfMobileDeviceSoftware::class];
@@ -60,6 +61,7 @@ class PluginJamfSoftware extends CommonDBTM
 
     public static function getForGlpiItem(CommonDBTM $item): array
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         $iterator = $DB->request([

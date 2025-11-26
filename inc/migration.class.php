@@ -59,6 +59,7 @@ final class PluginJamfMigration
      */
     public function __construct($version)
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         $this->glpiMigration = new Migration($version);

@@ -44,6 +44,7 @@ class PluginJamfComputerSync extends AbstractDBTest
 {
     public function testDiscover()
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         PluginJamfComputerTestSync::discover();
@@ -56,6 +57,7 @@ class PluginJamfComputerSync extends AbstractDBTest
 
     public function testSyncExtensionAttributeDefinitions()
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         PluginJamfComputerTestSync::syncExtensionAttributeDefinitions();
@@ -82,6 +84,7 @@ class PluginJamfComputerSync extends AbstractDBTest
 
     public function testImport()
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         PluginJamfComputerTestSync::syncExtensionAttributeDefinitions();

@@ -147,6 +147,7 @@ abstract class PluginJamfDeviceSync extends PluginJamfSync
 
     public static function syncExtensionAttributeDefinitions(): void
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         switch (static::$jamf_itemtype) {
@@ -183,6 +184,7 @@ abstract class PluginJamfDeviceSync extends PluginJamfSync
 
     public static function syncAll(): int
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         $volume = 0;
@@ -227,6 +229,7 @@ abstract class PluginJamfDeviceSync extends PluginJamfSync
      */
     public static function sync(string $itemtype, int $items_id, bool $use_transaction = true): bool
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         /** @var CommonDBTM $item */

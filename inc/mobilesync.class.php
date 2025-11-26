@@ -172,6 +172,7 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
 
     protected function syncSoftware(): PluginJamfDeviceSync
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         if (!$this->config['sync_software'] || $this->item === null || !isset($this->data['applications'])) {
@@ -707,6 +708,7 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
 
     public static function discover(): bool
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         $volume       = 0;
@@ -769,6 +771,7 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
 
     public static function import(string $itemtype, int $jamf_items_id, $use_transaction = true): bool
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         if (!self::isSupportedGlpiItemtype($itemtype)) {
@@ -909,6 +912,7 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
 
     protected static function getJamfDataForSyncingByGlpiItem(string $itemtype, int $items_id): array
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         $iterator = $DB->request([
