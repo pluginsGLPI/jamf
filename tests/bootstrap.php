@@ -33,8 +33,8 @@
 /** @var array $CFG_GLPI */
 require __DIR__ . '/../../../tests/bootstrap.php';
 
-if (!Plugin::isPluginActive("tag")) {
-    throw new RuntimeException("Plugin tag is not active in the test database");
+if (!Plugin::isPluginActive("jamf")) {
+    throw new RuntimeException("Plugin jamf is not active in the test database");
 }
 
 include_once __DIR__ . '/PluginJamfApiTest.php';
