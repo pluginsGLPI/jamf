@@ -110,7 +110,6 @@ function plugin_jamf_check_prerequisites()
             return false;
         }
     }
-
     return true;
 }
 
