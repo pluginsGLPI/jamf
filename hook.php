@@ -254,6 +254,7 @@ function plugin_jamf_showJamfInfoForItem(array $params)
     if ($jamf_class !== null) {
         return $jamf_class::showForItem($params);
     }
+
     return null;
 }
 

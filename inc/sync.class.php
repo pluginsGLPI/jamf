@@ -213,8 +213,6 @@ abstract class PluginJamfSync
 
     protected function applyDesiredState($itemtype, $match_criteria, $state, $options = []): CommonDBTM
     {
-        $opts = [];
-
         /** @var CommonDBTM $item */
         $item         = new $itemtype();
         $item_matches = $item->find($match_criteria);

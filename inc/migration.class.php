@@ -68,7 +68,7 @@ final class PluginJamfMigration
     public function applyMigrations()
     {
         $rc                      = new ReflectionClass($this);
-        $otherMigrationFunctions = array_map(static fn($rm) => $rm->getShortName(), array_filter($rc->getMethods(), static fn($m) => preg_match('/(?<=^apply_)(.*)(?=_migration$)/', (string) $m->getShortName())));
+        $otherMigrationFunctions = array_map(static fn($rm) => $rm->getShortName(), array_filter($rc->getMethods(), static fn($m) => preg_match('/(?<=^apply_)(.*)(?=_migration$)/', $m->getShortName())));
 
         if ($otherMigrationFunctions !== []) {
             // Map versions to functions

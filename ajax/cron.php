@@ -30,7 +30,6 @@
  * -------------------------------------------------------------------------
  */
 
-include(__DIR__ . '/../../../inc/includes.php');
 
 $plugin = new Plugin();
 if (!$plugin->isActivated('jamf')) {

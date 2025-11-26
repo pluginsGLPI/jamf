@@ -85,7 +85,7 @@ final class PluginJamfCron extends CommonGLPI
 
         try {
             $json = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
-        } catch (JsonException $jsonException) {
+        } catch (JsonException) {
             $task->log(__('Retrieved malformed PMV JSON', 'jamf'));
 
             return 0;
