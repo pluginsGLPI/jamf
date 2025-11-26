@@ -29,7 +29,7 @@
  * @link      https://github.com/pluginsGLPI/jamf
  * -------------------------------------------------------------------------
  */
-
+use DBmysql;
 use Glpi\Application\View\TemplateRenderer;
 
 /**

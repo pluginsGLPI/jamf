@@ -31,6 +31,7 @@
  */
 
 use Glpi\Event;
+use DBmysql;
 
 class PluginJamfMobileSync extends PluginJamfDeviceSync
 {

@@ -33,6 +33,7 @@
 namespace GlpiPlugin\Jamf\Tests\units;
 
 use Computer;
+use DBmysql;
 use GlpiPlugin\Jamf\Tests\AbstractDBTest;
 use GlpiPlugin\Jamf\Tests\PluginJamfComputerTestSync;
 use PluginJamfComputer;

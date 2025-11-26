@@ -29,6 +29,7 @@
  * @link      https://github.com/pluginsGLPI/jamf
  * -------------------------------------------------------------------------
  */
+use DBmysql;
 
 /**
  * DB utilities for Jamf plugin.

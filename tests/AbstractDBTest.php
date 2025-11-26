@@ -41,6 +41,7 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use ReflectionClass;
 use Session;
+use DBmysql;
 
 class AbstractDBTest extends TestCase
 {

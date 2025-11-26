@@ -31,6 +31,7 @@
  */
 
 use Glpi\Application\View\TemplateRenderer;
+use DBmysql;
 
 /**
  * User_JSSAccount class. Links GLPI users to a JSS account for the purpose of managing permissions.

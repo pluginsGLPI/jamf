@@ -30,6 +30,8 @@
  * -------------------------------------------------------------------------
  */
 
+use DBmysql;
+
 /**
  * Abstraction for all Jamf device types (Mobile device and Computer for now)
  * @since 2.0.0

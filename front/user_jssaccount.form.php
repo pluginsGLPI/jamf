@@ -31,6 +31,7 @@
  */
 use Glpi\Exception\Http\BadRequestHttpException;
 use Glpi\Event;
+use DBmysql;
 use Glpi\Exception\Http\NotFoundHttpException;
 
 $plugin = new Plugin();

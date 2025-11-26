@@ -30,6 +30,8 @@
  * -------------------------------------------------------------------------
  */
 
+use DBmysql;
+
 /**
  * Handles migrating between plugin versions.
  *
