@@ -71,4 +71,4 @@ if ($_POST['jssaccounts_id'] == 0) {
     }
 }
 
-Html::displayErrorAndDie('lost');
+throw new \Glpi\Exception\Http\BadRequestHttpException();

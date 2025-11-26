@@ -67,7 +67,9 @@ foreach ($linked_devices as $data) {
 
 foreach ($pending as &$data) {
     $itemtype = $data['type'];
-    /** @var CommonDBTM $item */
+    if (is_a($itemtype, 'CommonDBTM', true) === false) {
+        throw new \Glpi\Exception\Http\BadRequestHttpException();
+    }
     $item     = new $itemtype();
     $jamftype = ('PluginJamf' . $data['jamf_type']);
     $guesses  = $DB->request([
@@ -81,7 +83,7 @@ foreach ($pending as &$data) {
             'is_deleted'  => 0,
             'is_template' => 0,
         ],
-        'ORDER' => new QueryExpression("CASE WHEN uuid='" . $data['udid'] . "' THEN 0 ELSE 1 END"),
+        'ORDER' => new \Glpi\DBAL\QueryExpression("CASE WHEN uuid='" . $data['udid'] . "' THEN 0 ELSE 1 END"),
         'LIMIT' => 1,
     ]);
     $data['guessed_item'] = count($guesses) > 0 ? $guesses->current()['id'] : 0;

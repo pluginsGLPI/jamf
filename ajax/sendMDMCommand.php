@@ -62,18 +62,17 @@ if (isset($_POST['fields'])) {
 $valid_types = ['MobileDevice'];
 
 if (!in_array($_POST['itemtype'], $valid_types, true)) {
-    die('Invalid itemtype. Cannot send Jamf MDM command.');
+    throw new \Glpi\Exception\Http\BadRequestHttpException();
 }
 
 $items = [];
-if ($_POST['itemtype'] === 'MobileDevice') {
-    foreach ($_POST['items_id'] as $items_id) {
-        /** @var PluginJamfMobileDevice $item */
-        $item = new PluginJamfMobileDevice();
-        $item->getFromDB((int) $items_id);
-        $items[] = $item;
-    }
+foreach ($_POST['items_id'] as $items_id) {
+    /** @var PluginJamfMobileDevice $item */
+    $item = new PluginJamfMobileDevice();
+    $item->getFromDB((int) $items_id);
+    $items[] = $item;
 }
+
 
 foreach ($items as $k => $item) {
     $commands      = PluginJamfItem_MDMCommand::getApplicableCommands($item);

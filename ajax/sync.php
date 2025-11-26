@@ -31,6 +31,7 @@
  */
 
 use Glpi\Exception\Http\NotFoundHttpException;
+use function Safe\file_get_contents;
 
 $plugin = new Plugin();
 if (!$plugin->isActivated('jamf')) {
@@ -58,7 +59,7 @@ try {
     if ($jamf_class !== null) {
         $sync_class = PluginJamfSync::getDeviceSyncEngines()[$jamf_class] ?? null;
         if ($sync_class !== null) {
-            $sync_class::sync($_REQUEST['itemtype'], $_REQUEST['items_id']);
+            $sync_class::sync($_REQUEST['itemtype'], (int) $_REQUEST['items_id']);
         }
     }
 } catch (Exception $exception) {

@@ -31,6 +31,7 @@
  */
 
 use Glpi\Exception\Http\NotFoundHttpException;
+use function Safe\file_get_contents;
 
 $plugin = new Plugin();
 if (!$plugin->isActivated('jamf')) {
@@ -75,9 +76,9 @@ if ($_REQUEST['action'] === 'merge') {
             }
 
             $item = new $itemtype();
-            /** @var PluginJamfAbstractDevice $plugin_itemtype */
+            /** @var class-string<PluginJamfAbstractDevice> $plugin_itemtype */
             $plugin_itemtype = 'PluginJamf' . $data['jamf_type'];
-            /** @var PluginJamfDeviceSync $plugin_sync_itemtype */
+            /** @var class-string<PluginJamfDeviceSync> $plugin_sync_itemtype */
             $plugin_sync_itemtype = 'PluginJamf' . $data['jamf_type'] . 'Sync';
             if ($data['jamf_type'] === 'MobileDevice') {
                 $plugin_sync_itemtype = 'PluginJamfMobileSync';
@@ -129,6 +130,11 @@ if ($_REQUEST['action'] === 'merge') {
                 }
 
                 // Link
+
+                if (is_a($plugin_itemtype, 'CommonDBTM', true) === false) {
+                    throw new RuntimeException('Invalid plugin itemtype!');
+                }
+
                 $plugin_item     = new $plugin_itemtype();
                 $plugin_items_id = $plugin_item->add([
                     'glpi_plugin_jamf_devices_id' => $DB->insertId(),
