@@ -62,7 +62,7 @@
                 this.jamf_id = args.jamf_id;
                 this.itemtype = args.itemtype;
                 this.items_id = args.items_id;
-                this.ajax_root = args.ajax_root || CFG_GLPI.root_doc + "/" + GLPI_PLUGINS_PATH.jamf + "/ajax/";
+                this.ajax_root = args.ajax_root || CFG_GLPI.root_doc + "/plugins/myplugin/ajax/";
             }
         };
 
