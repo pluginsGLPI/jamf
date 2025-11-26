@@ -31,6 +31,7 @@
  */
 
 use Glpi\Exception\Http\NotFoundHttpException;
+
 use function Safe\file_get_contents;
 
 $plugin = new Plugin();
@@ -169,7 +170,7 @@ if ($_REQUEST['action'] === 'merge') {
         }
 
         if ($failures !== 0) {
-            Session::addMessageAfterRedirect(sprintf(__('An error occurred while merging %d devices!', 'jamf'), $failures), false, ERROR);
+            Session::addMessageAfterRedirect(sprintf(__s('An error occurred while merging %d devices!', 'jamf'), $failures), false, ERROR);
         }
     } else {
         throw new RuntimeException('Required argument missing!');

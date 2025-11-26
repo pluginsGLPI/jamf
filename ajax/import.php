@@ -31,6 +31,7 @@
  */
 
 use Glpi\Exception\Http\NotFoundHttpException;
+
 use function Safe\file_get_contents;
 
 $plugin = new Plugin();

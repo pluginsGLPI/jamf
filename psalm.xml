@@ -5,7 +5,6 @@
     <projectFiles>
         <directory name="ajax" />
         <directory name="inc" />
-        <directory name="stubs" />
         <directory name="tests" />
         <file name="hook.php" />
         <file name="setup.php" />

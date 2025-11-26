@@ -29,7 +29,7 @@
  * @link      https://github.com/pluginsGLPI/jamf
  * -------------------------------------------------------------------------
  */
-
+use Glpi\Exception\Http\BadRequestHttpException;
 use Glpi\Event;
 use Glpi\Exception\Http\NotFoundHttpException;
 
@@ -71,4 +71,4 @@ if ($_POST['jssaccounts_id'] == 0) {
     }
 }
 
-throw new \Glpi\Exception\Http\BadRequestHttpException();
+throw new BadRequestHttpException();

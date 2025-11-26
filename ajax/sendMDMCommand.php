@@ -29,7 +29,7 @@
  * @link      https://github.com/pluginsGLPI/jamf
  * -------------------------------------------------------------------------
  */
-
+use Glpi\Exception\Http\BadRequestHttpException;
 use Glpi\Exception\Http\NotFoundHttpException;
 
 $plugin = new Plugin();
@@ -62,7 +62,7 @@ if (isset($_POST['fields'])) {
 $valid_types = ['MobileDevice'];
 
 if (!in_array($_POST['itemtype'], $valid_types, true)) {
-    throw new \Glpi\Exception\Http\BadRequestHttpException();
+    throw new BadRequestHttpException();
 }
 
 $items = [];
