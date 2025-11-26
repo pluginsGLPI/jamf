@@ -154,7 +154,7 @@ class AbstractDBTest extends TestCase
         string $user_name = TU_USER,
         string $user_pass = TU_PASS,
         bool $noauto = true,
-        bool $expected = true
+        bool $expected = true,
     ): Auth {
         Session::destroy();
         Session::start();
