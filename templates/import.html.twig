@@ -87,16 +87,18 @@
                 const import_ids = $(':checkbox:checked').filter(':not([name^="_checkall"])').map(function() {
                     return this.name.replace("import","").substring(1).split('_');
                 }).toArray();
+
                 $.ajax({
                     type: "POST",
-                    url: "{{ path('/plugins/jamf/ajax/import.php')",
+                    url: "{{ path('/plugins/jamf/ajax/import.php') }}",
                     data: {
                         action: "import",
                         import_ids: import_ids
                     },
                     contentType: 'application/json',
                     beforeSend: () => {
-                        $('button[name="import"]').prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>{{ _x('action', 'Importing', 'jamf') }}');
+                        $('button[name="import"]').prop('disabled', true)
+                            .html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>{{ _x("action", "Importing", "jamf") }}');
                         $('button[name="discover"]').prop('disabled', true);
                         $('button[name="clear"]').prop('disabled', true);
                     },
@@ -105,15 +107,17 @@
                     }
                 });
             }
+
             function discoverNow() {
                 $.ajax({
                     type: "POST",
                     url: "{{ path('/plugins/jamf/ajax/cron.php') }}",
-                    data: {crontask: "importJamf"},
+                    data: { crontask: "importJamf" },
                     contentType: 'application/json',
                     beforeSend: () => {
                         $('button[name="import"]').prop('disabled', true);
-                        $('button[name="discover"]').prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>{{ _x('action', 'Discovering', 'jamf') }}');
+                        $('button[name="discover"]').prop('disabled', true)
+                            .html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>{{ _x("action", "Discovering", "jamf") }}');
                         $('button[name="clear"]').prop('disabled', true);
                     },
                     complete: () => {
@@ -121,6 +125,7 @@
                     }
                 });
             }
+
             function clearPendingImports() {
                 $.ajax({
                     type: "POST",
@@ -132,13 +137,15 @@
                     beforeSend: () => {
                         $('button[name="import"]').prop('disabled', true);
                         $('button[name="discover"]').prop('disabled', true);
-                        $('button[name="clear"]').prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>{{ _x('action', 'Clearing', 'jamf') }}');
+                        $('button[name="clear"]').prop('disabled', true)
+                            .html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>{{ _x("action", "Clearing", "jamf") }}');
                     },
                     complete: () => {
                         window.location.reload();
                     }
                 });
             }
+
         </script>
     </div>
 </form>
