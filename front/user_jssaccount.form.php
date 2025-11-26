@@ -31,10 +31,11 @@
  */
 
 use Glpi\Event;
+use Glpi\Exception\Http\NotFoundHttpException;
 
 $plugin = new Plugin();
 if (!$plugin->isActivated('jamf')) {
-    Html::displayNotFoundError();
+    throw new NotFoundHttpException();
 }
 
 Session::checkRight(PluginJamfUser_JSSAccount::$rightname, UPDATE);

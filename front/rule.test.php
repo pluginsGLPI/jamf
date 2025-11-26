@@ -30,11 +30,13 @@
  * -------------------------------------------------------------------------
  */
 
+use Glpi\Exception\Http\NotFoundHttpException;
+
 include __DIR__ . '/../../../inc/includes.php';
 
 $plugin = new Plugin();
 if (!$plugin->isActivated('jamf')) {
-    Html::displayNotFoundError();
+    throw new NotFoundHttpException();
 }
 
 require __DIR__ . '/../../../front/rule.test.php';

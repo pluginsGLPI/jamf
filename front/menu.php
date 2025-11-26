@@ -31,10 +31,11 @@
  */
 
 use Glpi\Application\View\TemplateRenderer;
+use Glpi\Exception\Http\NotFoundHttpException;
 
 $plugin = new Plugin();
 if (!$plugin->isActivated('jamf')) {
-    Html::displayNotFoundError();
+    throw new NotFoundHttpException();
 }
 
 Html::header('Jamf Plugin', '', 'tools', 'PluginJamfMenu', 'import');
