@@ -86,7 +86,7 @@ foreach ($items as $k => $item) {
 
 if ($items === []) {
     // No applicable items or no right to send command
-    exit();
+    return;
 }
 
 // The API endpoint for sending MDM commands only accepts XML, so we need to build the XML payload
