@@ -31,37 +31,13 @@
  */
 
 /** @var array $CFG_GLPI */
-global $CFG_GLPI;
+require __DIR__ . '/../../../tests/bootstrap.php';
 
-define('GLPI_ROOT', dirname(__DIR__, 3));
-
-if (file_exists('vendor/autoload.php')) {
-    require_once __DIR__ . '/vendor/autoload.php';
+if (!Plugin::isPluginActive("tag")) {
+    throw new RuntimeException("Plugin tag is not active in the test database");
 }
 
-include GLPI_ROOT . '/inc/includes.php';
-//include_once GLPI_ROOT . '/tests/GLPITestCase.php';
-//include_once GLPI_ROOT . '/tests/DbTestCase.php';
-include_once __DIR__ . '/AbstractDBTest.php';
-
-$plugin = new Plugin();
-$plugin->checkPluginState('jamf');
-$plugin->getFromDBbyDir('jamf');
-
-if (!plugin_jamf_check_prerequisites()) {
-    echo "\nPrerequisites are not met!";
-    die(1);
-}
-
-if (!$plugin->isInstalled('jamf')) {
-    $plugin->install($plugin->getID());
-}
-
-if (!$plugin->isActivated('jamf')) {
-    $plugin->activate($plugin->getID());
-}
-
-include_once __DIR__ . '/apitest.class.php';
-include_once __DIR__ . '/connectiontest.class.php';
-include_once __DIR__ . '/mobiletestsync.class.php';
-include_once __DIR__ . '/computertestsync.class.php';
+include_once __DIR__ . '/PluginJamfApiTest.php';
+include_once __DIR__ . '/PluginJamfConnectionTest.php';
+include_once __DIR__ . '/PluginJamfMobileTestSync.php';
+include_once __DIR__ . '/PluginJamfComputerTestSync.php';
