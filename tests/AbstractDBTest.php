@@ -36,7 +36,6 @@ use Auth;
 use CommonDBTM;
 use PHPUnit\Framework\TestCase;
 use Glpi\Tests\Log\TestHandler;
-use Glpi\Toolbox\Sanitizer;
 use Psr\Log\LogLevel;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;

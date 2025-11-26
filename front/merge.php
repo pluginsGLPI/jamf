@@ -31,7 +31,6 @@
  */
 
 use Glpi\Application\View\TemplateRenderer;
-use Glpi\Toolbox\Sanitizer;
 
 include('../../../inc/includes.php');
 
@@ -76,7 +75,7 @@ foreach ($pending as &$data) {
         'WHERE'  => [
             'OR' => [
                 'uuid' => $data['udid'],
-                'name' => Sanitizer::sanitize($data['name']),
+                'name' => $data['name'],
             ],
             'is_deleted'  => 0,
             'is_template' => 0,
