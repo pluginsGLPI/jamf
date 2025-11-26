@@ -49,6 +49,7 @@ class PluginJamfExtensionAttribute extends CommonDBTM
         if (!isset($input['jamf_id'])) {
             return false;
         }
+
         $jamf_id = $input['jamf_id'];
         unset($input['jamf_id']);
 
@@ -68,7 +69,7 @@ class PluginJamfExtensionAttribute extends CommonDBTM
 
         foreach ($iterator as $data) {
             $slug                                            = strtolower(str_replace(' ', '_', $data['name']));
-            $cards["plugin_jamf_extensionattribute_{$slug}"] = [
+            $cards['plugin_jamf_extensionattribute_' . $slug] = [
                 'widgettype' => ['halfdonut'],
                 'label'      => sprintf(_x('dashboard', 'Jamf Attribute - %s', 'jamf'), $data['name']),
                 'provider'   => 'PluginJamfExtensionAttribute::cardProvider',
@@ -88,7 +89,7 @@ class PluginJamfExtensionAttribute extends CommonDBTM
         $iterator  = $DB->request([
             'SELECT' => [
                 'value',
-                'COUNT' => "{$rel_table}.id as cpt",
+                'COUNT' => $rel_table . '.id as cpt',
             ],
             'FROM' => $table,
             'JOIN' => [
@@ -100,7 +101,7 @@ class PluginJamfExtensionAttribute extends CommonDBTM
                 ],
             ],
             'WHERE' => ['name' => $name],
-            'GROUP' => "{$rel_table}.value",
+            'GROUP' => $rel_table . '.value',
         ]);
 
         $card_data = [];

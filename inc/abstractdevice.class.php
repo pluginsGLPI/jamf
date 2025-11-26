@@ -37,13 +37,15 @@
 abstract class PluginJamfAbstractDevice extends CommonDBChild
 {
     public static $itemtype       = 'itemtype';
+
     public static $items_id       = 'items_id';
-    public static $jamftype_name  = null;
+
+    public static $jamftype_name;
+
     public static $mustBeAttached = false;
 
     /**
      * Display the extra information for Jamf devices on the main Computer or Phone tab.
-     * @param array $params
      * @return void|bool Displays HTML only if a supported item is in the params parameter. If there is any issue, false is returned.
      * @since 1.0.0
      * @since 2.0.0 Renamed from showForComputerOrPhoneMain to showForItem
@@ -59,7 +61,6 @@ abstract class PluginJamfAbstractDevice extends CommonDBChild
 
     /**
      * Cleanup relations when an item is purged.
-     * @param CommonDBTM $item
      * @global DBmysql $DB
      */
     private static function purgeItemCommon(CommonDBTM $item)
@@ -70,10 +71,12 @@ abstract class PluginJamfAbstractDevice extends CommonDBChild
         if (!is_string($jamf_class)) {
             return;
         }
+
         $jamf_item = $jamf_class::getJamfItemForGLPIItem($item);
         if ($jamf_item === null) {
             return;
         }
+
         $device = $jamf_item->getJamfDeviceData();
         if (!empty($device)) {
             $DB->delete('glpi_plugin_jamf_devices', [
@@ -87,24 +90,22 @@ abstract class PluginJamfAbstractDevice extends CommonDBChild
 
     /**
      * Cleanup relations when a Computer is purged.
-     * @param Computer $item
      * @global DBmysql $DB
      */
     public static function plugin_jamf_purgeComputer(Computer $item)
     {
-        static::purgeItemCommon($item);
+        self::purgeItemCommon($item);
     }
 
     /**
      * Cleanup relations when a Phone is purged.
-     * @param Phone $item
      * @global DBmysql $DB
      */
     public static function plugin_jamf_purgePhone(Phone $item)
     {
         global $DB;
 
-        static::purgeItemCommon($item);
+        self::purgeItemCommon($item);
         $DB->delete(Item_OperatingSystem::getTable(), [
             'itemtype' => $item::getType(),
             'items_id' => $item->getID(),
@@ -132,7 +133,7 @@ abstract class PluginJamfAbstractDevice extends CommonDBChild
                 'items_id' => $items_id,
             ],
         ]);
-        if (count($iterator)) {
+        if (count($iterator) > 0) {
             $jamf_type = $iterator->current()['jamf_type'];
             if ($jamf_type === 'Computer') {
                 return PluginJamfComputer::class;
@@ -176,7 +177,7 @@ abstract class PluginJamfAbstractDevice extends CommonDBChild
                     'items_id' => $item->getID(),
                 ],
             ]);
-            if (count($iterator)) {
+            if (count($iterator) > 0) {
                 $jamf_data = $iterator->current();
                 if ($jamf_data['jamf_type'] === 'Computer') {
                     $found_type = PluginJamfComputer::class;
@@ -215,7 +216,7 @@ abstract class PluginJamfAbstractDevice extends CommonDBChild
             'FROM'  => 'glpi_plugin_jamf_devices',
             'WHERE' => ['id' => $this->fields['glpi_plugin_jamf_devices_id']],
         ]);
-        if (count($iterator)) {
+        if (count($iterator) > 0) {
             return $iterator->current();
         }
 

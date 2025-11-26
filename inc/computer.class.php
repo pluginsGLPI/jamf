@@ -49,8 +49,7 @@ class PluginJamfComputer extends PluginJamfAbstractDevice
 
     /**
      * Display the extra information for Jamf computers on the main Computer tab.
-     * @param array $params
-     * @return void|bool Displays HTML only if a supported item is in the params parameter. If there is any issue, false is returned.
+     * @return bool|null Displays HTML only if a supported item is in the params parameter. If there is any issue, false is returned.
      * @throws Exception
      * @since 2.0.0 Renamed from showForComputerOrPhoneMain to showForItem
      * @since 1.0.0
@@ -63,14 +62,13 @@ class PluginJamfComputer extends PluginJamfAbstractDevice
             return false;
         }
 
-        $getYesNo = static function ($value) {
-            return $value ? __('Yes') : __('No');
-        };
+        $getYesNo = (static fn($value) => $value ? __('Yes') : __('No'));
 
         $jamf_item = static::getJamfItemForGLPIItem($item);
-        if ($jamf_item === null) {
+        if (!$jamf_item instanceof PluginJamfAbstractDevice) {
             return false;
         }
+
         $match = $jamf_item->fields;
         $match = array_merge($match, $jamf_item->getJamfDeviceData());
 
@@ -91,6 +89,7 @@ class PluginJamfComputer extends PluginJamfAbstractDevice
                }
 JAVASCRIPT;
         }
+
         $info = [
             'general' => [
                 'caption' => _x('form_section', 'Jamf General Information', 'jamf'),
@@ -135,7 +134,7 @@ JAVASCRIPT;
                     ],
                     'sync' => [
                         'caption'  => _x('action', 'Sync now', 'jamf'),
-                        'on_click' => "syncDevice(\"{$item::getType()}\", {$item->getID()}); return false;",
+                        'on_click' => sprintf('syncDevice("%s", %s); return false;', $item::getType(), $item->getID()),
                     ],
                 ],
                 'extra_js' => $js,
@@ -145,6 +144,7 @@ JAVASCRIPT;
         TemplateRenderer::getInstance()->display('@jamf/inventory_info.html.twig', [
             'info' => $info,
         ]);
+        return null;
     }
 
     /**
@@ -156,7 +156,7 @@ JAVASCRIPT;
     {
         $config = PluginJamfConfig::getConfig();
 
-        return "{$config['jssserver']}/computers.html?id={$jamf_id}";
+        return sprintf('%s/computers.html?id=%d', $config['jssserver'], $jamf_id);
     }
 
     public function getMDMCommands()

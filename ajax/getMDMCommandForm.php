@@ -30,7 +30,7 @@
  * -------------------------------------------------------------------------
  */
 
-include('../../../inc/includes.php');
+include(__DIR__ . '/../../../inc/includes.php');
 
 $plugin = new Plugin();
 if (!$plugin->isActivated('jamf')) {
@@ -53,5 +53,6 @@ if (isset($_GET['itemtype'], $_GET['items_id'])) {
 } else {
     $device = null;
 }
+
 $form = PluginJamfMDMCommand::getFormForCommand($_GET['command'], $device);
 echo $form;

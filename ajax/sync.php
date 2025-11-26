@@ -30,7 +30,7 @@
  * -------------------------------------------------------------------------
  */
 
-include('../../../inc/includes.php');
+include(__DIR__ . '/../../../inc/includes.php');
 
 $plugin = new Plugin();
 if (!$plugin->isActivated('jamf')) {
@@ -60,6 +60,6 @@ try {
             $sync_class::sync($_REQUEST['itemtype'], $_REQUEST['items_id']);
         }
     }
-} catch (Exception $e) {
-    trigger_error($e->getMessage(), E_USER_ERROR);
+} catch (Exception $exception) {
+    trigger_error($exception->getMessage(), E_USER_ERROR);
 }

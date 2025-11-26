@@ -39,9 +39,6 @@ use Glpi\Application\View\TemplateRenderer;
  */
 class PluginJamfMDMCommand
 {
-    /**
-     * @return array
-     */
     public static function getAvailableCommands(): array
     {
         static $allcommands = null;

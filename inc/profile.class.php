@@ -66,7 +66,7 @@ class PluginJamfProfile extends Profile
      * @param bool $openform Open the form (true by default)
      * @param bool $closeform Close the form (true by default)
      *
-     * @return bool|void
+     * @return bool|null
      */
     public function showForm($profiles_id = 0, $openform = true, $closeform = true)
     {
@@ -79,6 +79,7 @@ class PluginJamfProfile extends Profile
         echo "<div class='spaced'>";
         $profile = new Profile();
         $profile->getFromDB($profiles_id);
+
         $canedit = Session::haveRightsOr(self::$rightname, [CREATE, UPDATE, PURGE]);
         if ($openform && $canedit) {
             echo "<form method='post' action='" . $profile::getFormURL() . "'>";
@@ -122,7 +123,9 @@ class PluginJamfProfile extends Profile
             echo "</div>\n";
             Html::closeForm();
         }
+
         echo '</div>';
+        return null;
     }
 
     /**
@@ -132,7 +135,7 @@ class PluginJamfProfile extends Profile
      * @param bool $openform Open the form (true by default)
      * @param bool $closeform Close the form (true by default)
      *
-     * @return bool|void
+     * @return bool|null
      */
     public function showFormHelpdesk($profiles_id = 0, $openform = true, $closeform = true)
     {
@@ -170,6 +173,8 @@ class PluginJamfProfile extends Profile
         } else {
             echo "</table>\n";
         }
+
         echo '</div>';
+        return null;
     }
 }

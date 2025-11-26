@@ -30,7 +30,7 @@
  * -------------------------------------------------------------------------
  */
 
-include('../../../inc/includes.php');
+include(__DIR__ . '/../../../inc/includes.php');
 
 $plugin = new Plugin();
 if (!$plugin->isActivated('jamf')) {
@@ -84,7 +84,7 @@ foreach ($items as $k => $item) {
     }
 }
 
-if (!count($items)) {
+if ($items === []) {
     // No applicable items or no right to send command
     exit();
 }
@@ -102,4 +102,5 @@ foreach ($items as $item) {
     $m           = $mobile_devices->addChild('mobile_device');
     $m->addChild('id', $jamf_id);
 }
+
 echo PluginJamfAPI::sendMDMCommand($payload->asXML(), true);

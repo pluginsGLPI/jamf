@@ -38,6 +38,7 @@
 class PluginJamfRuleImport extends Rule
 {
     public static $rightname = 'plugin_jamf_ruleimport';
+
     public $can_sort         = true;
 
     public function getTitle()
@@ -90,16 +91,13 @@ class PluginJamfRuleImport extends Rule
 
     public function displayAdditionalRuleCondition($condition, $crit, $name, $value, $test = false)
     {
-        if (isset($crit['field'])) {
-            switch ($crit['field']) {
-                case 'itemtype':
-                    Dropdown::showFromArray($name, [
-                        Computer::getType() => Computer::getTypeName(1),
-                        Phone::getType()    => Phone::getTypeName(1),
-                    ]);
-
-                    return true;
-            }
+        if (isset($crit['field']) && $crit['field'] === 'itemtype') {
+            Dropdown::showFromArray($name, [
+                Computer::getType() => Computer::getTypeName(1),
+                Phone::getType()    => Phone::getTypeName(1),
+            ]);
+            return true;
         }
+        return null;
     }
 }

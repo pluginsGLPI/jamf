@@ -32,7 +32,7 @@
 
 use Glpi\Application\View\TemplateRenderer;
 
-include('../../../inc/includes.php');
+include(__DIR__ . '/../../../inc/includes.php');
 
 $plugin = new Plugin();
 if (!$plugin->isActivated('jamf')) {
@@ -83,11 +83,7 @@ foreach ($pending as &$data) {
         'ORDER' => new QueryExpression("CASE WHEN uuid='" . $data['udid'] . "' THEN 0 ELSE 1 END"),
         'LIMIT' => 1,
     ]);
-    if (count($guesses)) {
-        $data['guessed_item'] = $guesses->current()['id'];
-    } else {
-        $data['guessed_item'] = 0;
-    }
+    $data['guessed_item'] = count($guesses) > 0 ? $guesses->current()['id'] : 0;
 }
 
 TemplateRenderer::getInstance()->display('@jamf/merge.html.twig', [

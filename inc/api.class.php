@@ -29,7 +29,7 @@
  * @link      https://github.com/pluginsGLPI/jamf
  * -------------------------------------------------------------------------
  */
-
+use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
 
@@ -57,11 +57,12 @@ class PluginJamfAPI
      */
     protected static function getClassic(string $endpoint, $raw = false, $response_type = 'application/json')
     {
-        if (!static::$connection) {
-            static::$connection = new static::$connection_class();
+        if (!self::$connection) {
+            self::$connection = new static::$connection_class();
         }
-        $url    = static::$connection->getAPIUrl($endpoint);
-        $client = static::$connection->getClient();
+
+        $url    = self::$connection->getAPIUrl($endpoint);
+        $client = self::$connection->getClient();
 
         try {
             $response = $client->get($url, [
@@ -72,7 +73,7 @@ class PluginJamfAPI
             ]);
             $httpcode = $response->getStatusCode();
             $response = $response->getBody()->getContents();
-        } catch (GuzzleHttp\Exception\ClientException $e) {
+        } catch (ClientException) {
             return null;
         }
 
@@ -85,6 +86,7 @@ class PluginJamfAPI
                     throw new PluginJamfRateLimitException($fault['faultstring']);
                 }
             }
+
             throw new RuntimeException(_x('error', 'Unknown JSS API Error', 'jamf'));
         }
 
@@ -100,11 +102,12 @@ class PluginJamfAPI
      */
     protected static function addClassic(string $endpoint, string $payload)
     {
-        if (!static::$connection) {
-            static::$connection = new static::$connection_class();
+        if (!self::$connection) {
+            self::$connection = new static::$connection_class();
         }
-        $url    = (static::$connection)->getAPIUrl($endpoint);
-        $client = static::$connection->getClient();
+
+        $url    = (self::$connection)->getAPIUrl($endpoint);
+        $client = self::$connection->getClient();
 
         try {
             $response = $client->post($url, [
@@ -115,7 +118,7 @@ class PluginJamfAPI
                 RequestOptions::BODY => $payload,
             ]);
             $httpcode = $response->getStatusCode();
-        } catch (GuzzleHttp\Exception\ClientException $e) {
+        } catch (ClientException) {
             return null;
         }
 
@@ -131,11 +134,12 @@ class PluginJamfAPI
      */
     protected static function updateClassic(string $endpoint, array $data)
     {
-        if (!static::$connection) {
-            static::$connection = new static::$connection_class();
+        if (!self::$connection) {
+            self::$connection = new static::$connection_class();
         }
-        $url    = (static::$connection)->getAPIUrl($endpoint);
-        $client = static::$connection->getClient();
+
+        $url    = (self::$connection)->getAPIUrl($endpoint);
+        $client = self::$connection->getClient();
 
         try {
             $response = $client->put($url, [
@@ -146,7 +150,7 @@ class PluginJamfAPI
                 RequestOptions::BODY => $data,
             ]);
             $httpcode = $response->getStatusCode();
-        } catch (GuzzleException $e) {
+        } catch (GuzzleException) {
             return null;
         }
 
@@ -161,16 +165,17 @@ class PluginJamfAPI
      */
     protected static function deleteClassic(string $endpoint)
     {
-        if (!static::$connection) {
-            static::$connection = new static::$connection_class();
+        if (!self::$connection) {
+            self::$connection = new static::$connection_class();
         }
-        $url    = (static::$connection)->getAPIUrl($endpoint);
-        $client = static::$connection->getClient();
+
+        $url    = (self::$connection)->getAPIUrl($endpoint);
+        $client = self::$connection->getClient();
 
         try {
             $response = $client->delete($url);
             $httpcode = $response->getStatusCode();
-        } catch (GuzzleException $e) {
+        } catch (GuzzleException) {
             return null;
         }
 
@@ -187,7 +192,7 @@ class PluginJamfAPI
     {
         $param_str = '';
         foreach ($params as $key => $value) {
-            $param_str = "{$param_str}/{$key}/{$value}";
+            $param_str = sprintf('%s/%s/%s', $param_str, $key, $value);
         }
 
         return $param_str;
@@ -206,8 +211,9 @@ class PluginJamfAPI
         if ($user_auth && !PluginJamfUser_JSSAccount::canReadJSSItem($itemtype)) {
             return null;
         }
-        $param_str = static::getParamStringClassic($params);
-        $endpoint  = "$itemtype$param_str";
+
+        $param_str = self::getParamStringClassic($params);
+        $endpoint  = $itemtype . $param_str;
         $response  = static::getClassic($endpoint);
 
         // Strip first key (usually like mobile_devices or mobile_device)
@@ -232,11 +238,12 @@ class PluginJamfAPI
             $param_str = '';
             $meta      = null;
         }
+
         if ($user_auth && !PluginJamfUser_JSSAccount::canCreateJSSItem($itemtype, $meta)) {
             return null;
         }
 
-        $endpoint = "$itemtype$param_str";
+        $endpoint = $itemtype . $param_str;
 
         return static::addClassic($endpoint, $payload);
     }
@@ -255,8 +262,9 @@ class PluginJamfAPI
         if ($user_auth && !PluginJamfUser_JSSAccount::canUpdateJSSItem($itemtype)) {
             return null;
         }
-        $param_str = static::getParamStringClassic($params);
-        $endpoint  = "$itemtype$param_str";
+
+        $param_str = self::getParamStringClassic($params);
+        $endpoint  = $itemtype . $param_str;
 
         return static::updateClassic($endpoint, $fields);
     }
@@ -274,15 +282,16 @@ class PluginJamfAPI
         if ($user_auth && !PluginJamfUser_JSSAccount::canDeleteJSSItem($itemtype)) {
             return null;
         }
-        $param_str = static::getParamStringClassic($params);
-        $endpoint  = "$itemtype$param_str";
+
+        $param_str = self::getParamStringClassic($params);
+        $endpoint  = $itemtype . $param_str;
 
         return static::deleteClassic($endpoint);
     }
 
     private static function getJSSGroupActionRights($groupid)
     {
-        $response = static::getClassic("accounts/groupid/$groupid");
+        $response = static::getClassic('accounts/groupid/' . $groupid);
 
         return $response['group']['privileges']['jss_actions'];
     }
@@ -292,8 +301,9 @@ class PluginJamfAPI
         if ($user_auth && !PluginJamfUser_JSSAccount::canReadJSSItem('accounts')) {
             return null;
         }
-        $response = static::getClassic("accounts/userid/$userid", true, 'application/xml');
-        $account  = simplexml_load_string($response);
+
+        $response = static::getClassic('accounts/userid/' . $userid, true, 'application/xml');
+        $account  = simplexml_load_string((string) $response);
 
         $access_level = $account->access_level;
         $rights       = [
@@ -306,7 +316,7 @@ class PluginJamfAPI
             //$groups = $account->groups->group;
             for ($i = 0; $i < $group_count; $i++) {
                 $group = $account->groups->group[$i];
-                if (isset($group->privileges->jss_objects)) {
+                if (property_exists($group->privileges, 'jss_objects') && $group->privileges->jss_objects !== null) {
                     $c = count($group->privileges->jss_objects->privilege);
                     if ($c > 0) {
                         for ($j = 0; $j < $c; $j++) {
@@ -314,11 +324,12 @@ class PluginJamfAPI
                         }
                     }
                 }
+
                 // Why are jss_actions not included in the group when all other rights are?
-                $action_privileges     = static::getJSSGroupActionRights(reset($group->id));
+                $action_privileges     = self::getJSSGroupActionRights(reset($group->id));
                 $rights['jss_actions'] = $action_privileges;
 
-                if (isset($group->privileges->jss_settings)) {
+                if (property_exists($group->privileges, 'jss_settings') && $group->privileges->jss_settings !== null) {
                     $c = count($group->privileges->jss_settings->privilege);
                     if ($c > 0) {
                         for ($j = 0; $j < $c; $j++) {
@@ -329,7 +340,7 @@ class PluginJamfAPI
             }
         } else {
             $privileges = $account->privileges;
-            if (isset($privileges->jss_objects)) {
+            if (property_exists($privileges, 'jss_objects') && $privileges->jss_objects !== null) {
                 $c = count($privileges->jss_objects->privilege);
                 if ($c > 0) {
                     for ($j = 0; $j < $c; $j++) {
@@ -337,7 +348,8 @@ class PluginJamfAPI
                     }
                 }
             }
-            if (isset($privileges->jss_actions)) {
+
+            if (property_exists($privileges, 'jss_actions') && $privileges->jss_actions !== null) {
                 $c = count($privileges->jss_actions->privilege);
                 if ($c > 0) {
                     for ($j = 0; $j < $c; $j++) {
@@ -345,7 +357,8 @@ class PluginJamfAPI
                     }
                 }
             }
-            if (isset($privileges->jss_settings)) {
+
+            if (property_exists($privileges, 'jss_settings') && $privileges->jss_settings !== null) {
                 $c = count($privileges->jss_settings->privilege);
                 if ($c > 0) {
                     for ($j = 0; $j < $c; $j++) {
@@ -364,7 +377,7 @@ class PluginJamfAPI
             static::getItemsClassic('mobiledevices', ['match' => '?name=glpi_conn_test']);
 
             return true;
-        } catch (RuntimeException $e) {
+        } catch (RuntimeException) {
             return false;
         }
     }
@@ -375,7 +388,7 @@ class PluginJamfAPI
             static::getJamfProVersion();
 
             return true;
-        } catch (RuntimeException $e) {
+        } catch (RuntimeException) {
             return false;
         }
     }
@@ -385,10 +398,11 @@ class PluginJamfAPI
      */
     public static function getJamfProVersion(): string
     {
-        if (!static::$connection) {
-            static::$connection = new static::$connection_class();
+        if (!self::$connection) {
+            self::$connection = new static::$connection_class();
         }
-        $response = static::$connection->getClient()->get(static::$connection->getAPIUrl('v1/jamf-pro-version', true))->getBody()->getContents();
+
+        $response = self::$connection->getClient()->get(self::$connection->getAPIUrl('v1/jamf-pro-version', true))->getBody()->getContents();
 
         return json_decode($response, true)['version'];
     }
@@ -404,9 +418,10 @@ class PluginJamfAPI
      */
     public static function getAllMobileDevices()
     {
-        if (!static::$connection) {
-            static::$connection = new static::$connection_class();
+        if (!self::$connection) {
+            self::$connection = new static::$connection_class();
         }
+
         $all_results = [];
 
         $endpoint_base = '/v2/mobile-devices';
@@ -414,8 +429,8 @@ class PluginJamfAPI
             'page'      => 0,
             'page-size' => 1000,
         ];
-        $client           = static::$connection->getClient();
-        $response         = $client->get(static::$connection->getAPIUrl($endpoint_base, true) . '?' . http_build_query($query_params));
+        $client           = self::$connection->getClient();
+        $response         = $client->get(self::$connection->getAPIUrl($endpoint_base, true) . '?' . http_build_query($query_params));
         $initial_response = json_decode($response->getBody()->getContents(), true);
         $total_results    = $initial_response['totalCount'];
         $all_results      = array_merge($all_results, $initial_response['results']);
@@ -425,7 +440,7 @@ class PluginJamfAPI
             $pages = ceil($total_results / 1000);
             for ($i = 1; $i < $pages; $i++) {
                 $query_params['page'] = $i;
-                $response             = $client->get(static::$connection->getAPIUrl($endpoint_base, true) . '?' . http_build_query($query_params));
+                $response             = $client->get(self::$connection->getAPIUrl($endpoint_base, true) . '?' . http_build_query($query_params));
                 $response             = json_decode($response->getBody()->getContents(), true);
                 $all_results          = [...$all_results, ...$response['results']];
             }
@@ -442,11 +457,12 @@ class PluginJamfAPI
      */
     public static function getMobileDeviceByID(int $id, bool $detailed = false)
     {
-        if (!static::$connection) {
-            static::$connection = new static::$connection_class();
+        if (!self::$connection) {
+            self::$connection = new static::$connection_class();
         }
-        $endpoint = "/v2/mobile-devices/{$id}" . ($detailed ? '/detail' : '');
-        $response = static::$connection->getClient()->get(static::$connection->getAPIUrl($endpoint, true));
+
+        $endpoint = '/v2/mobile-devices/' . $id . ($detailed ? '/detail' : '');
+        $response = self::$connection->getClient()->get(self::$connection->getAPIUrl($endpoint, true));
 
         return json_decode($response->getBody()->getContents(), true);
     }
@@ -459,15 +475,16 @@ class PluginJamfAPI
      */
     public static function getMobileDeviceByUDID(string $udid, string $section = 'general'): ?array
     {
-        if (!static::$connection) {
-            static::$connection = new static::$connection_class();
+        if (!self::$connection) {
+            self::$connection = new static::$connection_class();
         }
+
         $query_params = [
             'section' => strtoupper($section),
             'filter'  => 'udid=="' . $udid . '"',
         ];
-        $endpoint = '/v2/mobile-devices/detail' . '?' . http_build_query($query_params);
-        $response = static::$connection->getClient()->get(static::$connection->getAPIUrl($endpoint, true));
+        $endpoint = '/v2/mobile-devices/detail?' . http_build_query($query_params);
+        $response = self::$connection->getClient()->get(self::$connection->getAPIUrl($endpoint, true));
         $result   = json_decode($response->getBody()->getContents(), true);
         if (isset($result['results']) && count($result['results']) > 0) {
             return $result['results'][0];
@@ -482,9 +499,10 @@ class PluginJamfAPI
      */
     public static function getAllComputers()
     {
-        if (!static::$connection) {
-            static::$connection = new static::$connection_class();
+        if (!self::$connection) {
+            self::$connection = new static::$connection_class();
         }
+
         $all_results = [];
 
         $endpoint_base = '/v1/computers-inventory';
@@ -492,8 +510,8 @@ class PluginJamfAPI
             'page'      => 0,
             'page-size' => 1000,
         ];
-        $client           = static::$connection->getClient();
-        $response         = $client->get(static::$connection->getAPIUrl($endpoint_base, true) . '?' . http_build_query($query_params));
+        $client           = self::$connection->getClient();
+        $response         = $client->get(self::$connection->getAPIUrl($endpoint_base, true) . '?' . http_build_query($query_params));
         $initial_response = json_decode($response->getBody()->getContents(), true);
         $total_results    = $initial_response['totalCount'];
         $all_results      = array_merge($all_results, $initial_response['results']);
@@ -503,7 +521,7 @@ class PluginJamfAPI
             $pages = ceil($total_results / 1000);
             for ($i = 1; $i < $pages; $i++) {
                 $query_params['page'] = $i;
-                $response             = $client->get(static::$connection->getAPIUrl($endpoint_base, true) . '?' . http_build_query($query_params));
+                $response             = $client->get(self::$connection->getAPIUrl($endpoint_base, true) . '?' . http_build_query($query_params));
                 $response             = json_decode($response->getBody()->getContents(), true);
                 $all_results          = [...$all_results, ...$response['results']];
             }
@@ -514,11 +532,12 @@ class PluginJamfAPI
 
     public static function getComputerByID(int $id, bool $detailed = false)
     {
-        if (!static::$connection) {
-            static::$connection = new static::$connection_class();
+        if (!self::$connection) {
+            self::$connection = new static::$connection_class();
         }
-        $endpoint = '/v1/computer-inventory' . ($detailed ? '-detail' : '') . "/{$id}";
-        $response = static::$connection->getClient()->get(static::$connection->getAPIUrl($endpoint, true));
+
+        $endpoint = '/v1/computer-inventory' . ($detailed ? '-detail' : '') . ('/' . $id);
+        $response = self::$connection->getClient()->get(self::$connection->getAPIUrl($endpoint, true));
 
         return json_decode($response->getBody()->getContents(), true);
     }

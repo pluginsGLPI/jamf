@@ -40,6 +40,7 @@ use Glpi\Application\View\TemplateRenderer;
 class PluginJamfItem_ExtensionAttribute extends CommonDBChild
 {
     public static $itemtype = 'itemtype';
+
     public static $items_id = 'items_id';
 
     public static function getTypeName($nb = 1)
@@ -54,6 +55,7 @@ class PluginJamfItem_ExtensionAttribute extends CommonDBChild
         if ($jamf_class === null) {
             return false;
         }
+
         $jamf_item = $jamf_class::getJamfItemForGLPIItem($item);
         if ($jamf_class === null || !$jamf_class::canView()) {
             return false;

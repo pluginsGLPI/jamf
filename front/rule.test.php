@@ -30,11 +30,11 @@
  * -------------------------------------------------------------------------
  */
 
-include '../../../inc/includes.php';
+include __DIR__ . '/../../../inc/includes.php';
 
 $plugin = new Plugin();
 if (!$plugin->isActivated('jamf')) {
     Html::displayNotFoundError();
 }
 
-require '../../../front/rule.test.php';
+require __DIR__ . '/../../../front/rule.test.php';

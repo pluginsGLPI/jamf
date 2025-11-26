@@ -30,7 +30,7 @@
  * -------------------------------------------------------------------------
  */
 
-include('../../../inc/includes.php');
+include(__DIR__ . '/../../../inc/includes.php');
 
 $plugin = new Plugin();
 if (!$plugin->isActivated('jamf')) {
@@ -51,6 +51,7 @@ parse_str($input, $_REQUEST);
 if (!isset($_REQUEST['action'])) {
     throw new RuntimeException('Required argument missing!');
 }
+
 if ($_REQUEST['action'] === 'merge') {
     // Trigger extension attribute definition sync
     PluginJamfMobileSync::syncExtensionAttributeDefinitions();
@@ -63,6 +64,7 @@ if ($_REQUEST['action'] === 'merge') {
             if (!isset($data['jamf_id'], $data['itemtype'])) {
                 continue;
             }
+
             $jamf_id  = $data['jamf_id'];
             $itemtype = $data['itemtype'];
 
@@ -70,6 +72,7 @@ if ($_REQUEST['action'] === 'merge') {
                 // Invalid itemtype for a mobile device
                 throw new RuntimeException('Invalid itemtype!');
             }
+
             $item = new $itemtype();
             /** @var PluginJamfAbstractDevice $plugin_itemtype */
             $plugin_itemtype = 'PluginJamf' . $data['jamf_type'];
@@ -103,7 +106,7 @@ if ($_REQUEST['action'] === 'merge') {
                 'supervised'     => $jamf_item['supervised']                   ?? $os_details['supervised'],
             ];
             $ruleinput = $rules->processAllRules($ruleinput, $ruleinput, ['recursive' => true]);
-            $import    = isset($ruleinput['_import']) ? $ruleinput['_import'] : 'NS';
+            $import    = $ruleinput['_import'] ?? 'NS';
 
             if (isset($ruleinput['_import']) && !$ruleinput['_import']) {
                 // Dropped by rules
@@ -121,8 +124,9 @@ if ($_REQUEST['action'] === 'merge') {
                     'jamf_items_id' => $data['jamf_id'],
                 ]);
                 if ($r === false) {
-                    throw new \RuntimeException('Failed to import the device data!');
+                    throw new RuntimeException('Failed to import the device data!');
                 }
+
                 // Link
                 $plugin_item     = new $plugin_itemtype();
                 $plugin_items_id = $plugin_item->add([
@@ -156,7 +160,8 @@ if ($_REQUEST['action'] === 'merge') {
                 $DB->rollBack();
             }
         }
-        if ($failures) {
+
+        if ($failures !== 0) {
             Session::addMessageAfterRedirect(sprintf(__('An error occurred while merging %d devices!', 'jamf'), $failures), false, ERROR);
         }
     } else {

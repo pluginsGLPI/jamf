@@ -35,6 +35,7 @@ use Glpi\Event;
 class PluginJamfMobileSync extends PluginJamfDeviceSync
 {
     protected static $jamfplugin_itemtype = 'PluginJamfMobileDevice';
+
     protected static $jamf_itemtype       = 'MobileDevice';
 
     protected function syncGeneral(): PluginJamfDeviceSync
@@ -44,6 +45,7 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
 
             return $this;
         }
+
         try {
             $general  = $this->data['general'];
             $itemtype = $this->item::getType();
@@ -51,6 +53,7 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
             if (($general['name'] !== $this->item->fields['name'])) {
                 $this->item_changes['name'] = $general['name'];
             }
+
             $other_general_items = [
                 'asset_tag'     => 'otherserial',
                 'serial_number' => 'serial',
@@ -60,6 +63,7 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
             } else {
                 $this->extitem_changes['uuid'] = $general['udid'];
             }
+
             foreach ($other_general_items as $jamf_field => $item_field) {
                 if ($general[$jamf_field] !== $this->item->fields[$item_field]) {
                     $this->item_changes[$item_field] = $this->db->escape($general[$jamf_field]);
@@ -67,11 +71,7 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
             }
 
             // Create or match model
-            if ($itemtype === 'Phone') {
-                $model_type = 'PhoneModel';
-            } else {
-                $model_type = 'ComputerModel';
-            }
+            $model_type = $itemtype === 'Phone' ? 'PhoneModel' : 'ComputerModel';
 
             $model = $this->applyDesiredState($model_type, [
                 'name'           => $general['model'],
@@ -96,11 +96,12 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
                     $this->item_changes['phonetypes_id'] = $preferred_type;
                 }
             } else {
-                if (strpos($general['model'], 'Apple TV') === false) {
+                if (!str_contains((string) $general['model'], 'Apple TV')) {
                     $preferred_type = $this->config['ipad_type'];
                 } else {
                     $preferred_type = $this->config['appletv_type'];
                 }
+
                 if ($preferred_type) {
                     $this->item_changes['computertypes_id'] = $preferred_type;
                 }
@@ -115,11 +116,12 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
             if ($this->item === null || $this->item->fields['states_id'] === 0) {
                 $this->item_changes['states_id'] = $this->config['default_status'];
             }
-        } catch (Exception $e) {
+        } catch (Exception) {
             $this->status['syncGeneral'] = self::STATUS_ERROR;
 
             return $this;
         }
+
         $this->status['syncGeneral'] = self::STATUS_OK;
 
         return $this;
@@ -132,6 +134,7 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
 
             return $this;
         }
+
         try {
             $general = $this->data['general'];
             $os      = $this->applyDesiredState('OperatingSystem', [
@@ -156,11 +159,12 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
                 'itemtype' => $this->item::getType(),
                 'items_id' => $this->item->getID(),
             ]);
-        } catch (Exception $e) {
+        } catch (Exception) {
             $this->status['syncOS'] = self::STATUS_ERROR;
 
             return $this;
         }
+
         $this->status['syncOS'] = self::STATUS_OK;
 
         return $this;
@@ -175,6 +179,7 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
 
             return $this;
         }
+
         try {
             $applications    = $this->data['applications'];
             $software        = new Software();
@@ -192,6 +197,7 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
                     if (is_null($software_data) || !isset($software_data['general'])) {
                         continue;
                     }
+
                     $software_matches = $software->find(['name' => $software_data['general']['name']]);
                     if (!count($software_matches)) {
                         $software_id = $software->add([
@@ -203,6 +209,7 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
                     } else {
                         $software_id = reset($software_matches)['id'];
                     }
+
                     $jamf_software->add([
                         'softwares_id'     => $software_id,
                         'bundle_id'        => $application['identifier'],
@@ -211,6 +218,7 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
                 } else {
                     $software_id = array_values($jamfsoftware_matches)[0]['softwares_id'];
                 }
+
                 $softwareversion_matches = $softwareversion->find([
                     'softwares_id' => $software_id,
                     'name'         => $application['application_version'],
@@ -226,9 +234,11 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
                 } else {
                     $softwareversion_id = array_keys($softwareversion_matches)[0];
                 }
+
                 if (!$softwareversion_id) {
                     continue;
                 }
+
                 $item_softwareversion         = new Item_SoftwareVersion();
                 $item_softwareversion_matches = $item_softwareversion->find([
                     'itemtype'            => $this->item::getType(),
@@ -250,9 +260,7 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
             $installed_bundles    = array_column($applications, 'identifier');
             $inventoried_software = PluginJamfMobileDeviceSoftware::getForGlpiItem($this->item);
             // We don't need to worry about versions because Apple mobile devices cannot have multiple installs for the same bundle id, so no multiple version support
-            $to_remove_software = array_filter($inventoried_software, static function ($software) use ($installed_bundles) {
-                return !in_array($software['bundle_id'], $installed_bundles, true);
-            });
+            $to_remove_software = array_filter($inventoried_software, static fn($software) => !in_array($software['bundle_id'], $installed_bundles, true));
             foreach ($to_remove_software as $to_remove) {
                 $DB->delete(Item_SoftwareVersion::getTable(), [
                     SoftwareVersion::getTable() . '.softwares_id' => $to_remove['softwares_id'],
@@ -275,11 +283,12 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
                     ],
                 ]);
             }
-        } catch (Exception $e) {
+        } catch (Exception) {
             $this->status['syncSoftware'] = self::STATUS_ERROR;
 
             return $this;
         }
+
         $this->status['syncSoftware'] = self::STATUS_OK;
 
         return $this;
@@ -292,6 +301,7 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
 
             return $this;
         }
+
         try {
             $location   = $this->data['location'];
             $user       = new User();
@@ -300,11 +310,12 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
                 $user_match                     = reset($user_match);
                 $this->item_changes['users_id'] = $user_match['id'];
             }
-        } catch (Exception $e) {
+        } catch (Exception) {
             $this->status['syncUser'] = self::STATUS_ERROR;
 
             return $this;
         }
+
         $this->status['syncUser'] = self::STATUS_OK;
 
         return $this;
@@ -317,6 +328,7 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
 
             return $this;
         }
+
         try {
             $purchasing      = $this->data['purchasing'];
             $infocom_changes = [];
@@ -331,9 +343,11 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
                     $infocom_changes['warranty_duration'] = $warranty_length;
                 }
             }
+
             if (!empty($purchasing['applecare_id'])) {
-                $infocom_changes['warranty_info'] = "AppleCare ID: {$purchasing['applecare_id']}";
+                $infocom_changes['warranty_info'] = 'AppleCare ID: ' . $purchasing['applecare_id'];
             }
+
             if (!empty($purchasing['po_number'])) {
                 $infocom_changes['order_number'] = $purchasing['po_number'];
             }
@@ -342,11 +356,12 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
                 'itemtype' => $this->item::getType(),
                 'items_id' => $this->item->getID(),
             ]);
-        } catch (Exception $e) {
+        } catch (Exception) {
             $this->status['syncPurchasing'] = self::STATUS_ERROR;
 
             return $this;
         }
+
         $this->status['syncPurchasing'] = self::STATUS_OK;
 
         return $this;
@@ -363,6 +378,7 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
 
             return $this;
         }
+
         try {
             $extension_attributes = $this->data['extension_attributes'];
             $ext_attribute        = new PluginJamfExtensionAttribute();
@@ -382,11 +398,12 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
                     ]);
                 }
             }
-        } catch (Exception $e) {
+        } catch (Exception) {
             $this->status['syncExtensionAttributes'] = self::STATUS_ERROR;
 
             return $this;
         }
+
         $this->status['syncExtensionAttributes'] = self::STATUS_OK;
 
         return $this;
@@ -399,16 +416,19 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
 
             return $this;
         }
+
         try {
             $security = $this->data['security'];
             if (!empty($security['lost_mode_enable_issued_utc'])) {
                 $lost_mode_enable_date                                  = PluginJamfToolbox::utcToLocal($security['lost_mode_enable_issued_utc'], 0);
                 $this->jamfplugin_item_changes['lost_mode_enable_date'] = $lost_mode_enable_date;
             }
+
             if (!empty($security['lost_location_utc'])) {
                 $lost_location_date                                  = PluginJamfToolbox::utcToLocal($security['lost_location_utc'], 0);
                 $this->jamfplugin_item_changes['lost_location_date'] = $lost_location_date;
             }
+
             $this->commondevice_changes['activation_lock_enabled']    = $security['activation_lock_enabled'];
             $this->jamfplugin_item_changes['lost_mode_enabled']       = $security['lost_mode_enabled'];
             $this->jamfplugin_item_changes['lost_mode_enforced']      = $security['lost_mode_enforced'];
@@ -418,11 +438,12 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
             $this->jamfplugin_item_changes['lost_location_longitude'] = $security['lost_location_longitude'];
             $this->jamfplugin_item_changes['lost_location_altitude']  = $security['lost_location_altitude'];
             $this->jamfplugin_item_changes['lost_location_speed']     = $security['lost_location_speed'];
-        } catch (Exception $e) {
+        } catch (Exception) {
             $this->status['syncSecurity'] = self::STATUS_ERROR;
 
             return $this;
         }
+
         $this->status['syncSecurity'] = self::STATUS_OK;
 
         return $this;
@@ -435,9 +456,10 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
 
             return $this;
         }
+
         try {
             $general               = $this->data['general'];
-            $expected_netcard_name = "Generic {$general['model']} Network Card";
+            $expected_netcard_name = sprintf('Generic %s Network Card', $general['model']);
 
             if (isset($general['wifi_mac_address']) && !empty($general['wifi_mac_address'])) {
                 $wifi_model = $this->createOrGetItem('DeviceNetworkCardModel', ['name' => $expected_netcard_name], [
@@ -559,11 +581,12 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
                     'mac'                         => $general['bluetooth_mac_address'],
                 ]);
             }
-        } catch (Exception $e) {
+        } catch (Exception) {
             $this->status['syncNetwork'] = self::STATUS_ERROR;
 
             return $this;
         }
+
         $this->status['syncNetwork'] = self::STATUS_OK;
 
         return $this;
@@ -576,16 +599,19 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
 
             return $this;
         }
+
         try {
             $general = $this->data['general'];
             if (!empty($general['last_inventory_update_utc'])) {
                 $last_inventory                               = PluginJamfToolbox::utcToLocal($general['last_inventory_update_utc'], 0);
                 $this->commondevice_changes['last_inventory'] = $last_inventory;
             }
+
             if (!empty($general['initial_entry_date_utc'])) {
                 $entry_date                               = PluginJamfToolbox::utcToLocal($general['initial_entry_date_utc'], 0);
                 $this->commondevice_changes['entry_date'] = $entry_date;
             }
+
             if (!empty($general['last_enrollment_utc'])) {
                 $enroll_date                               = PluginJamfToolbox::utcToLocal($general['last_enrollment_utc'], 0);
                 $this->commondevice_changes['enroll_date'] = $enroll_date;
@@ -599,11 +625,12 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
             $this->commondevice_changes['supervised']              = $general['supervised'];
             $this->jamfplugin_item_changes['shared']               = $general['shared'];
             $this->jamfplugin_item_changes['cloud_backup_enabled'] = $general['cloud_backup_enabled'];
-        } catch (Exception $e) {
+        } catch (Exception) {
             $this->status['syncGeneralJamfPluginItem'] = self::STATUS_ERROR;
 
             return $this;
         }
+
         $this->status['syncGeneralJamfPluginItem'] = self::STATUS_OK;
 
         return $this;
@@ -616,6 +643,7 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
 
             return $this;
         }
+
         try {
             $config  = PluginJamfConfig::getConfig();
             $general = $this->data['general'];
@@ -666,11 +694,12 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
                     'lines_id'          => $line->getID(),
                 ]);
             }
-        } catch (Exception $e) {
+        } catch (Exception) {
             $this->status['syncComponents'] = self::STATUS_ERROR;
 
             return $this;
         }
+
         $this->status['syncComponents'] = self::STATUS_OK;
 
         return $this;
@@ -686,6 +715,7 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
             // API error or device no longer exists in Jamf
             return -1;
         }
+
         $imported = [];
         $iterator = $DB->request([
             'SELECT' => ['udid'],
@@ -695,6 +725,7 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
         foreach ($iterator as $data) {
             $imported[] = $data['udid'];
         }
+
         $pending_iterator = $DB->request([
             'SELECT' => ['jamf_items_id'],
             'FROM'   => 'glpi_plugin_jamf_imports',
@@ -710,27 +741,25 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
         $config = Config::getConfigurationValues('plugin:Jamf');
         foreach ($jamf_devices as $jamf_device) {
             if (!in_array($jamf_device['id'], $imported, true)) {
-                $itemtype = strpos($jamf_device['model_identifier'], 'iPhone') !== false ? 'Phone' : 'Computer';
+                $itemtype = str_contains((string) $jamf_device['model_identifier'], 'iPhone') ? 'Phone' : 'Computer';
                 if (isset($config['autoimport']) && $config['autoimport']) {
                     try {
                         $result = self::import($itemtype, $jamf_device['id']);
                         if ($result) {
                             $volume++;
                         }
-                    } catch (Exception $e2) {
+                    } catch (Exception) {
                         // Some other error
                     }
-                } else {
-                    if (!in_array((int) $jamf_device['id'], $pending_import, true)) {
-                        $DB->insert('glpi_plugin_jamf_imports', [
-                            'jamf_type'     => 'MobileDevice',
-                            'jamf_items_id' => $jamf_device['id'],
-                            'name'          => $DB->escape($jamf_device['name']),
-                            'type'          => $itemtype,
-                            'udid'          => $jamf_device['udid'],
-                            'date_discover' => $_SESSION['glpi_currenttime'],
-                        ]);
-                    }
+                } elseif (!in_array((int) $jamf_device['id'], $pending_import, true)) {
+                    $DB->insert('glpi_plugin_jamf_imports', [
+                        'jamf_type'     => 'MobileDevice',
+                        'jamf_items_id' => $jamf_device['id'],
+                        'name'          => $DB->escape($jamf_device['name']),
+                        'type'          => $itemtype,
+                        'udid'          => $jamf_device['udid'],
+                        'date_discover' => $_SESSION['glpi_currenttime'],
+                    ]);
                 }
             }
         }
@@ -746,6 +775,7 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
             // Invalid itemtype for a mobile device
             return false;
         }
+
         $item = new $itemtype();
 
         $jamf_item = static::$api::getItemsClassic('mobiledevices', ['id' => $jamf_items_id]);
@@ -802,9 +832,10 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
                 'LIMIT' => 1,
             ]);
         }
+
         if ($iterator->count()) {
             // Already imported
-            Event::log(0, $itemtype, 4, 'Jamf plugin', "Jamf mobile device $jamf_items_id not imported. A {$itemtype::getTypeName(1)} exists with the same uuid.");
+            Event::log(0, $itemtype, 4, 'Jamf plugin', sprintf('Jamf mobile device %d not imported. A %s exists with the same uuid.', $jamf_items_id, $itemtype::getTypeName(1)));
 
             return false;
         }
@@ -837,6 +868,7 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
 
                 return false;
             }
+
             $device_id         = $DB->insertId();
             $jamf_mobiledevice = new PluginJamfMobileDevice();
             $r2                = $jamf_mobiledevice->add([
@@ -849,6 +881,7 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
 
                 return false;
             }
+
             if (self::sync($itemtype, $items_id, false)) {
                 $DB->update('glpi_plugin_jamf_devices', [
                     'import_date' => $_SESSION['glpi_currenttime'],
@@ -860,10 +893,8 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
                 if ($use_transaction) {
                     $DB->commit();
                 }
-            } else {
-                if ($use_transaction) {
-                    $DB->rollBack();
-                }
+            } elseif ($use_transaction) {
+                $DB->rollBack();
             }
         } else {
             if ($use_transaction) {
@@ -889,9 +920,10 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
             ],
         ]);
 
-        if (!count($iterator)) {
+        if (count($iterator) === 0) {
             return [];
         }
+
         $jamf_item = $iterator->current();
 
         return static::$api::getItemsClassic('mobiledevices', ['id' => $jamf_item['jamf_items_id']]) ?? [];

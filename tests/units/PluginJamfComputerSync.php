@@ -32,6 +32,7 @@
 
 namespace GlpiPlugin\Jamf\Tests\units;
 
+use Computer;
 use GlpiPlugin\Jamf\Tests\AbstractDBTest;
 use GlpiPlugin\Jamf\Tests\PluginJamfComputerTestSync;
 use PluginJamfComputer;
@@ -89,7 +90,7 @@ class PluginJamfComputerSync extends AbstractDBTest
 
         // Make sure the computer was created
         $iterator = $DB->request([
-            'FROM'  => \Computer::getTable(),
+            'FROM'  => Computer::getTable(),
             'WHERE' => [
                 'name' => 'CConardMBA',
             ],

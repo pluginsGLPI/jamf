@@ -39,7 +39,9 @@ use Glpi\Application\View\TemplateRenderer;
 class PluginJamfMobileDevice extends PluginJamfAbstractDevice
 {
     public static $itemtype  = 'itemtype';
+
     public static $items_id  = 'items_id';
+
     public static $rightname = 'plugin_jamf_mobiledevice';
 
     public static function getTypeName($nb = 1)
@@ -63,12 +65,11 @@ class PluginJamfMobileDevice extends PluginJamfAbstractDevice
     {
         $config = PluginJamfConfig::getConfig();
 
-        return "{$config['jssserver']}/mobileDevices.html?id={$jamf_id}";
+        return sprintf('%s/mobileDevices.html?id=%d', $config['jssserver'], $jamf_id);
     }
 
     /**
      * Cleanup relations when an item is purged.
-     * @param CommonDBTM $item
      * @global CommonDBTM $DB
      */
     private static function purgeItemCommon(CommonDBTM $item)
@@ -83,7 +84,6 @@ class PluginJamfMobileDevice extends PluginJamfAbstractDevice
 
     /**
      * Cleanup relations when a Computer is purged.
-     * @param Computer $item
      */
     public static function plugin_jamf_purgeComputer(Computer $item)
     {
@@ -92,7 +92,6 @@ class PluginJamfMobileDevice extends PluginJamfAbstractDevice
 
     /**
      * Cleanup relations when a Phone is purged.
-     * @param Phone $item
      * @global DBmysql $DB
      */
     public static function plugin_jamf_purgePhone(Phone $item)
@@ -167,16 +166,12 @@ class PluginJamfMobileDevice extends PluginJamfAbstractDevice
             $model = new $modelclass();
             $model->getFromDB($item->fields[getForeignKeyFieldForItemType($modelclass)]);
             $modelname = $model->fields['name'];
-            switch ($modelname) {
-                case strpos($modelname, 'iPad') !== false:
-                    return 'ipad';
-                case strpos($modelname, 'iPhone') !== false:
-                    return 'iphone';
-                case strpos($modelname, 'Apple TV') !== false:
-                    return 'appletv';
-                default:
-                    return null;
-            }
+            return match (true) {
+                str_contains((string) $modelname, 'iPad') => 'ipad',
+                str_contains((string) $modelname, 'iPhone') => 'iphone',
+                str_contains((string) $modelname, 'Apple TV') => 'appletv',
+                default => null,
+            };
         }
 
         return null;
@@ -184,25 +179,19 @@ class PluginJamfMobileDevice extends PluginJamfAbstractDevice
 
     public static function dashboardCards()
     {
-        $cards = [];
-
-        $cards['plugin_jamf_mobile_lost'] = [
+        return ['plugin_jamf_mobile_lost' => [
             'widgettype' => ['bigNumber'],
             'label'      => _x('dashboard', 'Jamf Lost Mobile Device Count', 'jamf'),
             'provider'   => 'PluginJamfMobileDevice::cardLostModeProvider',
-        ];
-        $cards['plugin_jamf_mobile_managed'] = [
+        ], 'plugin_jamf_mobile_managed' => [
             'widgettype' => ['bigNumber'],
             'label'      => _x('dashboard', 'Jamf Managed Mobile Device Count', 'jamf'),
             'provider'   => 'PluginJamfMobileDevice::cardManagedProvider',
-        ];
-        $cards['plugin_jamf_mobile_supervised'] = [
+        ], 'plugin_jamf_mobile_supervised' => [
             'widgettype' => ['bigNumber'],
             'label'      => _x('dashboard', 'Jamf Supervised Mobile Device Count', 'jamf'),
             'provider'   => 'PluginJamfMobileDevice::cardSupervisedProvider',
-        ];
-
-        return $cards;
+        ]];
     }
 
     public static function cardLostModeProvider($params = [])
@@ -265,19 +254,18 @@ class PluginJamfMobileDevice extends PluginJamfAbstractDevice
         /** @var CommonDBTM $item */
         $item = $params['item'];
 
-        if (!self::canView() || (!($item::getType() === 'Computer') && !($item::getType() === 'Phone'))) {
+        if (!self::canView() || ($item::getType() !== 'Computer' && $item::getType() !== 'Phone')) {
             return false;
         }
 
-        $getYesNo = static function ($value) {
-            return $value ? __('Yes') : __('No');
-        };
+        $getYesNo = (static fn($value) => $value ? __('Yes') : __('No'));
 
         $jamf_item = static::getJamfItemForGLPIItem($item);
 
-        if ($jamf_item === null) {
+        if (!$jamf_item instanceof PluginJamfAbstractDevice) {
             return false;
         }
+
         $match = $jamf_item->fields;
         $match = array_merge($match, $jamf_item->getJamfDeviceData());
 
@@ -298,6 +286,7 @@ class PluginJamfMobileDevice extends PluginJamfAbstractDevice
                }
 JAVASCRIPT;
         }
+
         $info = [
             'general' => [
                 'caption' => _x('form_section', 'Jamf General Information', 'jamf'),
@@ -350,7 +339,7 @@ JAVASCRIPT;
                     ],
                     'sync' => [
                         'caption'  => _x('action', 'Sync now', 'jamf'),
-                        'on_click' => "syncDevice(\"{$item::getType()}\", {$item->getID()}); return false;",
+                        'on_click' => sprintf('syncDevice("%s", %d); return false;', $item::getType(), $item->getID()),
                     ],
                 ],
                 'extra_js' => $js,
@@ -395,7 +384,7 @@ JAVASCRIPT;
                 ],
                 'lost_location' => [
                     'caption' => _x('field', 'GPS', 'jamf'),
-                    'value'   => Html::link("$lat, $long", "https://www.google.com/maps/place/$lat,$long", [
+                    'value'   => Html::link(sprintf('%s, %s', $lat, $long), sprintf('https://www.google.com/maps/place/%s,%s', $lat, $long), [
                         'display' => false,
                     ]),
                 ],
@@ -417,5 +406,6 @@ JAVASCRIPT;
         TemplateRenderer::getInstance()->display('@jamf/inventory_info.html.twig', [
             'info' => $info,
         ]);
+        return null;
     }
 }

@@ -50,6 +50,7 @@ class PluginJamfDBUtil
         if (!$DB->tableExists($table)) {
             return true;
         }
+
         $res = $DB->query('DROP TABLE' . $DB::quoteName($table));
         if (!$res) {
             //TRANS: %1$s is the description, %2$s is the query, %3$s is the error message
@@ -76,6 +77,6 @@ class PluginJamfDBUtil
 
         $table_name = $DB::quoteName($table);
 
-        return $DB->query("TRUNCATE $table_name");
+        return $DB->query('TRUNCATE ' . $table_name);
     }
 }

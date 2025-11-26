@@ -46,10 +46,11 @@ final class PluginJamfCron extends CommonGLPI
         $volume  = 0;
         $engines = PluginJamfSync::getDeviceSyncEngines();
 
-        foreach ($engines as $jamf_class => $engine) {
+        foreach ($engines as $engine) {
             $v = $engine::syncAll();
-            $volume += $v >= 0 ? $v : 0;
+            $volume += max($v, 0);
         }
+
         $task->addVolume($volume);
 
         return 1;
@@ -60,10 +61,11 @@ final class PluginJamfCron extends CommonGLPI
         $volume  = 0;
         $engines = PluginJamfSync::getDeviceSyncEngines();
 
-        foreach ($engines as $jamf_class => $engine) {
+        foreach ($engines as $engine) {
             $v = $engine::discover();
             $volume += $v >= 0 ? $v : 0;
         }
+
         $task->addVolume($volume);
 
         return 1;
@@ -80,21 +82,24 @@ final class PluginJamfCron extends CommonGLPI
 
             return 0;
         }
+
         try {
             $json = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
-        } catch (JsonException $e) {
+        } catch (JsonException $jsonException) {
             $task->log(__('Retrieved malformed PMV JSON', 'jamf'));
 
             return 0;
         }
+
         unset($json['PublicAssetSets']);
         try {
             $json = json_encode($json, JSON_THROW_ON_ERROR);
-        } catch (JsonException $e) {
+        } catch (JsonException) {
             $task->log(__('Unable to encode PMV JSON', 'jamf'));
 
             return 0;
         }
+
         if (file_put_contents($out_file, $json) === false) {
             $task->log(__('Unable to write PMV JSON to file', 'jamf'));
 

@@ -30,7 +30,7 @@
  * -------------------------------------------------------------------------
  */
 
-include('../../../inc/includes.php');
+include(__DIR__ . '/../../../inc/includes.php');
 
 $plugin = new Plugin();
 if (!$plugin->isActivated('jamf')) {
@@ -56,4 +56,5 @@ $accepted_tasks = ['importJamf', 'syncJamf'];
 if (!in_array($_REQUEST['crontask'], $accepted_tasks)) {
     throw new RuntimeException('Unacceptable cron task!');
 }
+
 CronTask::launch(-CronTask::MODE_EXTERNAL, 1, $_REQUEST['crontask']);

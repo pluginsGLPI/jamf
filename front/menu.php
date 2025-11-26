@@ -32,7 +32,7 @@
 
 use Glpi\Application\View\TemplateRenderer;
 
-include('../../../inc/includes.php');
+include(__DIR__ . '/../../../inc/includes.php');
 
 $plugin = new Plugin();
 if (!$plugin->isActivated('jamf')) {
@@ -52,9 +52,10 @@ if (Session::haveRight('plugin_jamf_mobiledevice', CREATE)) {
     ];
     $links[] = [
         'name' => _x('menu', 'Merge existing devices', 'jamf'),
-        'url'  => "{$plugin_dir}/front/merge.php",
+        'url'  => $plugin_dir . '/front/merge.php',
     ];
 }
+
 if (Session::haveRight('config', UPDATE)) {
     $links[] = [
         'name' => _x('menu', 'Configuration', 'jamf'),

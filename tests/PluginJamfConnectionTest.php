@@ -32,6 +32,10 @@
 
 namespace GlpiPlugin\Jamf\Tests;
 
+use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Promise\PromiseInterface;
+use GuzzleHttp\Promise\Create;
 use GuzzleHttp\ClientTrait;
 use PluginJamfConnection;
 use Psr\Http\Client\ClientInterface;
@@ -42,7 +46,7 @@ class PluginJamfConnectionTest extends PluginJamfConnection
 {
     public function getClient(): ClientInterface
     {
-        if (!isset($this->client)) {
+        if ($this->client === null) {
             $this->client = new class implements ClientInterface {
                 use ClientTrait;
 
@@ -56,19 +60,19 @@ class PluginJamfConnectionTest extends PluginJamfConnection
                     $response_ext   = $response_type === 'application/xml' ? 'xml' : 'json';
                     $mock_file_path = GLPI_ROOT . '/plugins/jamf/tools/samples/' . $endpoint . '.' . $response_ext;
 
-                    return new \GuzzleHttp\Psr7\Response(200, [], file_get_contents($mock_file_path));
+                    return new Response(200, [], file_get_contents($mock_file_path));
                 }
 
                 public function request(string $method, $uri, array $options = []): ResponseInterface
                 {
-                    $request = new \GuzzleHttp\Psr7\Request($method, $uri, $options['headers'] ?? []);
+                    $request = new Request($method, $uri, $options['headers'] ?? []);
 
                     return $this->sendRequest($request);
                 }
 
-                public function requestAsync(string $method, $uri, array $options = []): \GuzzleHttp\Promise\PromiseInterface
+                public function requestAsync(string $method, $uri, array $options = []): PromiseInterface
                 {
-                    return \GuzzleHttp\Promise\Create::promiseFor($this->request($method, $uri, $options));
+                    return Create::promiseFor($this->request($method, $uri, $options));
                 }
             };
         }

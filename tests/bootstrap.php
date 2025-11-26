@@ -32,15 +32,16 @@
 
 global $CFG_GLPI;
 
-define('GLPI_ROOT', dirname(dirname(dirname(__DIR__))));
+define('GLPI_ROOT', dirname(__DIR__, 3));
 
 if (file_exists('vendor/autoload.php')) {
-    require_once 'vendor/autoload.php';
+    require_once __DIR__ . '/vendor/autoload.php';
 }
+
 include GLPI_ROOT . '/inc/includes.php';
 //include_once GLPI_ROOT . '/tests/GLPITestCase.php';
 //include_once GLPI_ROOT . '/tests/DbTestCase.php';
-include_once 'AbstractDBTest.php';
+include_once __DIR__ . '/AbstractDBTest.php';
 
 $plugin = new Plugin();
 $plugin->checkPluginState('jamf');
@@ -54,11 +55,12 @@ if (!plugin_jamf_check_prerequisites()) {
 if (!$plugin->isInstalled('jamf')) {
     $plugin->install($plugin->getID());
 }
+
 if (!$plugin->isActivated('jamf')) {
     $plugin->activate($plugin->getID());
 }
 
-include_once 'apitest.class.php';
-include_once 'connectiontest.class.php';
-include_once 'mobiletestsync.class.php';
-include_once 'computertestsync.class.php';
+include_once __DIR__ . '/apitest.class.php';
+include_once __DIR__ . '/connectiontest.class.php';
+include_once __DIR__ . '/mobiletestsync.class.php';
+include_once __DIR__ . '/computertestsync.class.php';

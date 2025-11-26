@@ -53,6 +53,7 @@ class PluginJamfConfig extends CommonDBTM
         if (!Session::haveRight('config', UPDATE)) {
             return false;
         }
+
         $config = self::getConfig(true);
 
         TemplateRenderer::getInstance()->display('@jamf/config.html.twig', [
@@ -90,6 +91,7 @@ class PluginJamfConfig extends CommonDBTM
         if ($config === null) {
             $config = Config::getConfigurationValues('plugin:Jamf');
         }
+
         if (!$force_all) {
             return self::undiscloseConfigValue($config);
         }

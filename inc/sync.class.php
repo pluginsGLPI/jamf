@@ -81,17 +81,16 @@ abstract class PluginJamfSync
     protected $data = [];
 
     /** @var CommonDBTM */
-    protected $item = null;
+    protected $item;
 
     /** @var CommonDBTM */
-    protected $jamfplugin_device = null;
+    protected $jamfplugin_device;
 
     /**
-     * @var null
      * @since 1.0.0
      * @since 2.0.0 Renamed jamf_itemtype to jamfplugin_itemtype
      */
-    protected static $jamfplugin_itemtype = null;
+    protected static $jamfplugin_itemtype;
 
     /**
      * Textual identifier of the itemtype in Jamf that this sync engine works with.
@@ -104,7 +103,7 @@ abstract class PluginJamfSync
      * @var string
      * @since 2.0.0
      */
-    protected static $jamf_itemtype = null;
+    protected static $jamf_itemtype;
 
     protected $status = [];
 
@@ -121,7 +120,6 @@ abstract class PluginJamfSync
     /**
      * PluginJamfSync constructor.
      * @param CommonDBTM|null $item
-     * @param array $data
      */
     final public function __construct(CommonDBTM $item = null, array $data = [])
     {
@@ -129,11 +127,12 @@ abstract class PluginJamfSync
         global $DB;
 
         $this->db = $DB;
-        if ($item === null) {
+        if (!$item instanceof CommonDBTM) {
             $this->dummySync = true;
 
             return;
         }
+
         $this->config = PluginJamfConfig::getConfig();
         $this->item   = $item;
         $this->data   = $data;
@@ -160,6 +159,7 @@ abstract class PluginJamfSync
         if ($this->dummySync) {
             return $this->status;
         }
+
         $this->jamfplugin_item_changes['sync_date'] = $_SESSION['glpi_currenttime'];
         $this->item->update([
             'id' => $this->item->getID(),
@@ -167,6 +167,7 @@ abstract class PluginJamfSync
         foreach ($this->extitem_changes as $key => $value) {
             PluginJamfExtField::setValue($this->item::getType(), $this->item->getID(), $key, $value);
         }
+
         $this->db->updateOrInsert(static::$jamfplugin_itemtype::getTable(), $this->jamfplugin_item_changes, [
             'itemtype' => $this->item::getType(),
             'items_id' => $this->item->getID(),
@@ -177,7 +178,7 @@ abstract class PluginJamfSync
             $jamf_match = $jamf_item->find([
                 'itemtype' => $this->item::getType(),
                 'items_id' => $this->item->getID()], [], 1);
-            if (count($jamf_match)) {
+            if (count($jamf_match) > 0) {
                 $jamf_item->getFromDB(reset($jamf_match)['id']);
                 $this->jamfplugin_device = $jamf_item;
             }
@@ -200,7 +201,7 @@ abstract class PluginJamfSync
     {
         $item         = new $itemtype();
         $item_matches = $item->find($criteria);
-        if (!count($item_matches)) {
+        if (count($item_matches) === 0) {
             $items_id = $item->add($params);
             $item->getFromDB($items_id);
         } else {
@@ -213,7 +214,6 @@ abstract class PluginJamfSync
     protected function applyDesiredState($itemtype, $match_criteria, $state, $options = []): CommonDBTM
     {
         $opts = [];
-        $opts = array_replace($opts, $options);
 
         /** @var CommonDBTM $item */
         $item         = new $itemtype();
@@ -244,7 +244,6 @@ abstract class PluginJamfSync
      * It is assumed that the GLPI item's existence was already verified. This function should verify that the GLPI item is linked to a Jamf item.
      * @param string $itemtype GLPI item type
      * @param int $items_id GLPI item ID
-     * @return array
      * @since 1.0.0
      */
     abstract protected static function getJamfDataForSyncingByGlpiItem(string $itemtype, int $items_id): array;

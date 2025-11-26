@@ -48,14 +48,8 @@ class AbstractDBTest extends TestCase
 
     private string $str;
 
-    /**
-     * @var TestHandler
-     */
     private static TestHandler $php_log_handler;
 
-    /**
-     * @var TestHandler
-     */
     private static TestHandler $sql_log_handler;
 
     public static function setUpBeforeClass(): void
@@ -71,10 +65,10 @@ class AbstractDBTest extends TestCase
         // Init log handlers
         global $PHPLOGGER, $SQLLOGGER;
         /** @var Monolog\Logger $PHPLOGGER */
-        static::$php_log_handler = new TestHandler(LogLevel::DEBUG);
-        $PHPLOGGER->setHandlers([static::$php_log_handler]);
-        static::$sql_log_handler = new TestHandler(LogLevel::DEBUG);
-        $SQLLOGGER->setHandlers([static::$sql_log_handler]);
+        self::$php_log_handler = new TestHandler(LogLevel::DEBUG);
+        $PHPLOGGER->setHandlers([self::$php_log_handler]);
+        self::$sql_log_handler = new TestHandler(LogLevel::DEBUG);
+        $SQLLOGGER->setHandlers([self::$sql_log_handler]);
 
         $default_config = [
             'autoimport'           => 0,
@@ -118,8 +112,8 @@ class AbstractDBTest extends TestCase
 
         global $CFG_GLPI;
         foreach ($CFG_GLPI['user_pref_field'] as $field) {
-            if (!isset($_SESSION["glpi$field"]) && isset($CFG_GLPI[$field])) {
-                $_SESSION["glpi$field"] = $CFG_GLPI[$field];
+            if (!isset($_SESSION['glpi' . $field]) && isset($CFG_GLPI[$field])) {
+                $_SESSION['glpi' . $field] = $CFG_GLPI[$field];
             }
         }
     }
@@ -155,17 +149,15 @@ class AbstractDBTest extends TestCase
      * @param string $user_pass user password (defaults to TU_PASS)
      * @param bool $noauto disable autologin (from CAS by example)
      * @param bool $expected bool result expected from login return
-     *
-     * @return \Auth
      */
     protected function login(
         string $user_name = TU_USER,
         string $user_pass = TU_PASS,
         bool $noauto = true,
         bool $expected = true
-    ): \Auth {
-        \Session::destroy();
-        \Session::start();
+    ): Auth {
+        Session::destroy();
+        Session::start();
 
         $auth = new Auth();
         $this->assertEquals($expected, $auth->login($user_name, $user_pass, $noauto));
@@ -181,7 +173,7 @@ class AbstractDBTest extends TestCase
     protected function logOut()
     {
         $ctime = $_SESSION['glpi_currenttime'];
-        \Session::destroy();
+        Session::destroy();
         $_SESSION['glpi_currenttime'] = $ctime;
     }
 
@@ -218,8 +210,8 @@ class AbstractDBTest extends TestCase
         if (count($input)) {
             foreach ($input as $k => $v) {
                 $this->assertEquals($v, $object->fields[$k], "
-                '$k' key current value '{$object->fields[$k]}' (" . gettype($object->fields[$k]) . ")
-                is not equal to '$v' (" . gettype($v) . ')');
+                '{$k}' key current value '{$object->fields[$k]}' (" . gettype($object->fields[$k]) . ")
+                is not equal to '{$v}' (" . gettype($v) . ')');
             }
         }
     }
@@ -258,11 +250,12 @@ class AbstractDBTest extends TestCase
 
             $is_excluded = false;
             foreach ($excludes as $exclude) {
-                if ($classname === $exclude || @preg_match($exclude, $classname) === 1) {
+                if ($classname === $exclude || @preg_match($exclude, (string) $classname) === 1) {
                     $is_excluded = true;
                     break;
                 }
             }
+
             if ($is_excluded) {
                 continue;
             }
@@ -270,6 +263,7 @@ class AbstractDBTest extends TestCase
             if (!class_exists($classname)) {
                 continue;
             }
+
             $reflectionClass = new ReflectionClass($classname);
             if ($reflectionClass->isAbstract()) {
                 continue;
@@ -293,8 +287,6 @@ class AbstractDBTest extends TestCase
      * @param string $itemtype
      * @param array $input
      * @param array $skip_fields Fields that wont be checked after creation
-     *
-     * @return CommonDBTM
      */
     protected function createItem($itemtype, $input, $skip_fields = []): CommonDBTM
     {
@@ -303,9 +295,7 @@ class AbstractDBTest extends TestCase
         $this->assertGreaterThan(0, $id, 'ID is not valid');
 
         // Remove special fields
-        $input = array_filter($input, static function ($key) use ($skip_fields) {
-            return !in_array($key, $skip_fields, true) && !str_starts_with($key, '_');
-        }, ARRAY_FILTER_USE_KEY);
+        $input = array_filter($input, static fn($key) => !in_array($key, $skip_fields, true) && !str_starts_with((string) $key, '_'), ARRAY_FILTER_USE_KEY);
 
         $this->checkInput($item, $id, $input);
 
@@ -326,7 +316,7 @@ class AbstractDBTest extends TestCase
         $this->assertTrue($success);
 
         // Remove special fields
-        $input = array_filter($input, static fn($key) => !str_starts_with($key, '_'), ARRAY_FILTER_USE_KEY);
+        $input = array_filter($input, static fn($key) => !str_starts_with((string) $key, '_'), ARRAY_FILTER_USE_KEY);
 
         $this->checkInput($item, $id, $input);
     }

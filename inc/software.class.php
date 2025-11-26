@@ -43,7 +43,6 @@ class PluginJamfSoftware extends CommonDBTM
 
     /**
      * Cleanup relations when an item is purged.
-     * @param Software $item
      * @global DBmysql $DB
      */
     public static function plugin_jamf_purgeSoftware(Software $item)
