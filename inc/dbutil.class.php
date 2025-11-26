@@ -41,7 +41,7 @@ class PluginJamfDBUtil
         /** @var DBmysql $DB */
         global $DB;
 
-        return $DB->query('DROP TABLE' . $DB::quoteName($table));
+        return $DB->doQuery('DROP TABLE' . $DB::quoteName($table));
     }
 
     public static function dropTableOrDie(string $table, string $message = '')
@@ -53,7 +53,7 @@ class PluginJamfDBUtil
             return true;
         }
 
-        $res = $DB->query('DROP TABLE' . $DB::quoteName($table));
+        $res = $DB->doQuery('DROP TABLE' . $DB::quoteName($table));
         if (!$res) {
             //TRANS: %1$s is the description, %2$s is the query, %3$s is the error message
             $message = sprintf(
@@ -80,6 +80,6 @@ class PluginJamfDBUtil
 
         $table_name = $DB::quoteName($table);
 
-        return $DB->query('TRUNCATE ' . $table_name);
+        return $DB->doQuery('TRUNCATE ' . $table_name);
     }
 }

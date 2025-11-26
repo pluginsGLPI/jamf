@@ -161,7 +161,7 @@ final class PluginJamfMigration
                 PRIMARY KEY (`id`),
                 UNIQUE KEY `unicity` (`jamf_items_id`,`type`)
                ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci';
-            $this->db->queryOrDie($query, 'Error creating JAMF plugin imports table' . $this->db->error());
+            $this->db->doQuery($query);
         }
 
         // Check mobile devices table (Extra data for mobile devices)
@@ -195,7 +195,7 @@ final class PluginJamfMigration
                 UNIQUE KEY `unicity` (`itemtype`, `items_id`),
                 KEY `udid` (`udid`)
                ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
-            $this->db->queryOrDie($query, 'Error creating JAMF plugin mobile devices table' . $this->db->error());
+            $this->db->doQuery($query);
         }
 
         // Check software table (Extra data for software). Also check the later name just to avoid useless SQL actions.
@@ -207,7 +207,7 @@ final class PluginJamfMigration
                   `itunes_store_url` varchar(255) NOT NULL,
                 PRIMARY KEY (`id`)
                ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci';
-            $this->db->queryOrDie($query, 'Error creating JAMF plugin software table' . $this->db->error());
+            $this->db->doQuery($query);
         }
 
         $jamfconfig = Config::getConfigurationValues('plugin:Jamf');
@@ -264,7 +264,7 @@ final class PluginJamfMigration
                 KEY `name` (`name`),
                 UNIQUE KEY `jamf_id` (`jamf_id`, `itemtype`)
                ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci';
-            $this->db->queryOrDie($query, 'Error creating JAMF plugin extension attribute table' . $this->db->error());
+            $this->db->doQuery($query);
         }
 
         if (!$this->db->tableExists('glpi_plugin_jamf_items_extensionattributes')) {
@@ -278,7 +278,7 @@ final class PluginJamfMigration
                 KEY `item` (`itemtype`, `items_id`),
                 UNIQUE `unicity` (`itemtype`, `items_id`, `glpi_plugin_jamf_extensionattributes_id`)
                ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci';
-            $this->db->queryOrDie($query, 'Error creating JAMF plugin item extension attribute table' . $this->db->error());
+            $this->db->doQuery($query);
         }
 
         if (!$this->db->tableExists('glpi_plugin_jamf_extfields')) {
@@ -292,7 +292,7 @@ final class PluginJamfMigration
                 KEY `item` (`itemtype`, `items_id`),
                 UNIQUE `unicity` (`itemtype`, `items_id`)
                ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
-            $this->db->queryOrDie($query, 'Error creating JAMF plugin item extension field table' . $this->db->error());
+            $this->db->doQuery($query);
         }
 
         if (!$this->db->tableExists('glpi_plugin_jamf_users_jssaccounts')) {
@@ -302,7 +302,7 @@ final class PluginJamfMigration
                   `jssaccounts_id` int(11) NOT NULL,
                 PRIMARY KEY (`id`)
                ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci';
-            $this->db->queryOrDie($query, 'Error creating JAMF plugin jss account link table' . $this->db->error());
+            $this->db->doQuery($query);
         }
 
         $this->glpiMigration->addConfig([
@@ -425,7 +425,7 @@ final class PluginJamfMigration
                 UNIQUE KEY `unicity` (`itemtype`, `items_id`),
                 KEY `udid` (`udid`)
                ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
-            $this->db->queryOrDie($query, 'Error creating JAMF plugin devices table' . $this->db->error());
+            $this->db->doQuery($query);
 
             $common_fields     = ['jamf_items_id', 'items_id', 'itemtype', 'udid', 'last_inventory', 'entry_date', 'enroll_date', 'import_date', 'sync_date', 'managed', 'supervised', 'activation_lock_enabled'];
             $all_mobiledevices = getAllDataFromTable('glpi_plugin_jamf_mobiledevices');
@@ -456,7 +456,7 @@ final class PluginJamfMigration
                 PRIMARY KEY (`id`),
                 UNIQUE KEY `glpi_plugin_jamf_devices_id` (`glpi_plugin_jamf_devices_id`)
                ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci';
-            $this->db->queryOrDie($query, 'Error creating JAMF plugin computers table' . $this->db->error());
+            $this->db->doQuery($query);
         }
 
         // Convert old software table to mobile device software table
@@ -472,7 +472,7 @@ final class PluginJamfMigration
                   `itunes_store_url` varchar(255) NOT NULL,
                 PRIMARY KEY (`id`)
                ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci';
-            $this->db->queryOrDie($query, 'Error creating JAMF plugin computer software table' . $this->db->error());
+            $this->db->doQuery($query);
         }
 
         $old_cron = $this->db->request([
@@ -613,7 +613,7 @@ final class PluginJamfMigration
     public function apply_3_0_1_migration(): void
     {
         // Change udid column in glpi_plugin_jamf_imports to allow NULL values
-        $this->db->queryOrDie('ALTER TABLE `glpi_plugin_jamf_imports` MODIFY `udid` VARCHAR(100) NULL DEFAULT NULL');
+        $this->db->doQuery('ALTER TABLE `glpi_plugin_jamf_imports` MODIFY `udid` VARCHAR(100) NULL DEFAULT NULL');
     }
 
     public function apply_3_1_1_migration(): void
