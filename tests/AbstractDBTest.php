@@ -2,26 +2,27 @@
 
 /**
  * -------------------------------------------------------------------------
- * JAMF plugin for GLPI
+ * Jamf plugin for GLPI
  * -------------------------------------------------------------------------
  *
  * LICENSE
  *
- * This file is part of JAMF plugin for GLPI.
+ * This file is part of Jamf.
  *
- * JAMF plugin for GLPI is free software; you can redistribute it and/or modify
+ * Jamf is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
- * JAMF plugin for GLPI is distributed in the hope that it will be useful,
+ * Jamf is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with JAMF plugin for GLPI. If not, see <http://www.gnu.org/licenses/>.
+ * along with Jamf. If not, see <http://www.gnu.org/licenses/>.
  * -------------------------------------------------------------------------
+ * @copyright Copyright (C) 2014-2023 by Teclib'.
  * @copyright Copyright (C) 2024-2024 by Teclib'
  * @copyright Copyright (C) 2019-2024 by Curtis Conard
  * @license   GPLv2 https://www.gnu.org/licenses/gpl-2.0.html
@@ -29,10 +30,18 @@
  * -------------------------------------------------------------------------
  */
 
+namespace GlpiPlugin\Jamf\Tests;
+
+use Auth;
+use CommonDBTM;
 use PHPUnit\Framework\TestCase;
 use Glpi\Tests\Log\TestHandler;
 use Glpi\Toolbox\Sanitizer;
 use Psr\Log\LogLevel;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use ReflectionClass;
+use Session;
 
 class AbstractDBTest extends TestCase
 {
@@ -203,8 +212,6 @@ class AbstractDBTest extends TestCase
      */
     protected function checkInput(CommonDBTM $object, $id = 0, $input = [])
     {
-        $input = Sanitizer::dbUnescapeRecursive($input); // slashes in input should not be stored in DB
-
         $this->assertGreaterThan(0, $id, 'ID is not valid');
         $this->assertTrue($object->getFromDB($id), 'Object not found in DB');
         $this->assertEquals($id, $object->getID(), 'Object could not be loaded');
@@ -293,7 +300,6 @@ class AbstractDBTest extends TestCase
     protected function createItem($itemtype, $input, $skip_fields = []): CommonDBTM
     {
         $item  = new $itemtype();
-        $input = Sanitizer::sanitize($input);
         $id    = $item->add($input);
         $this->assertGreaterThan(0, $id, 'ID is not valid');
 
@@ -317,7 +323,6 @@ class AbstractDBTest extends TestCase
     {
         $item        = new $itemtype();
         $input['id'] = $id;
-        $input       = Sanitizer::sanitize($input);
         $success     = $item->update($input);
         $this->assertTrue($success);
 
