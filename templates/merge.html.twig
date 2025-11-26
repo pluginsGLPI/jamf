@@ -31,7 +31,7 @@
 <form>
     {{ include('components/pager.html.twig', {
         count: total_count,
-        href: get_plugin_web_dir('jamf') ~ '/front/merge.php',
+        href: path('/plugins/jamf/front/merge.php'),
         start: _get['start']|default(0),
     }) }}
     <input type="hidden" name="_glpi_csrf_token" value="{{ csrf_token() }}"/>
@@ -74,7 +74,7 @@
         </table>
     </div>
     {% set limitdropdown = include('components/dropdown/limit.html.twig', {
-        href: get_plugin_web_dir('jamf') ~ '/front/merge.php',
+        href: path('/plugins/jamf/front/merge.php'),
     }) %}
     <div class="ms-auto d-inline-flex align-items-center d-none d-md-block my-2">
         {{ __('Show %s entries')|format(limitdropdown)|raw }}
@@ -101,7 +101,7 @@
                 }
                 $.ajax({
                     type: "POST",
-                    url: "{{ get_plugin_web_dir('jamf') }}/ajax/merge.php",
+                    url: "{{ path('/plugins/jamf/ajax/merge.php') }}",
                     data: {action: "merge", item_ids: post_data},
                     contentType: 'application/json',
                     beforeSend: () => {
