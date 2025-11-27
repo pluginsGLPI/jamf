@@ -37,7 +37,7 @@ use PluginJamfComputerSync;
 
 class PluginJamfComputerTestSync extends PluginJamfComputerSync
 {
-    protected static $api = PluginJamfAPI::class;
+    protected static $api = PluginJamfApiTest::class;
 
     public static function sync(string $itemtype, int $items_id, bool $use_transaction = true): bool
     {

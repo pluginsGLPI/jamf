@@ -44,25 +44,23 @@ class PluginJamfConnectionTest extends PluginJamfConnection
 {
     public function getClient(): Client
     {
-        if ($this->client === null) {
-            $mock = new MockHandler([
-                function ($request, $options) {
-                    $endpoint = $request->getUri()->getPath();
-                    $endpoint = str_contains($endpoint, '?') ? explode('?', $endpoint)[0] : $endpoint;
+        $mock = new MockHandler([
+            function ($request, $options) {
+                $endpoint = $request->getUri()->getPath();
+                $endpoint = str_contains($endpoint, '?') ? explode('?', $endpoint)[0] : $endpoint;
 
-                    $response_type  = $request->getHeaderLine('Accept') ?: 'application/json';
-                    $response_ext   = $response_type === 'application/xml' ? 'xml' : 'json';
-                    $mock_file_path = GLPI_ROOT . '/plugins/jamf/tools/samples/' . $endpoint . '.' . $response_ext;
+                $response_type  = $request->getHeaderLine('Accept') ?: 'application/json';
+                $response_ext   = $response_type === 'application/xml' ? 'xml' : 'json';
+                $mock_file_path = GLPI_ROOT . '/plugins/jamf/tools/samples/' . $endpoint . '.' . $response_ext;
 
-                    $body = file_get_contents($mock_file_path);
+                $body = file_get_contents($mock_file_path);
 
-                    return new Response(200, [], $body);
-                },
-            ]);
+                return new Response(200, [], $body);
+            },
+        ]);
 
-            $handlerStack = HandlerStack::create($mock);
-            $this->client = new Client(['handler' => $handlerStack]);
-        }
+        $handlerStack = HandlerStack::create($mock);
+        $this->client = new Client(['handler' => $handlerStack]);
 
         return $this->client;
     }
