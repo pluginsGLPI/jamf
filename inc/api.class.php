@@ -61,7 +61,7 @@ class PluginJamfAPI
      */
     protected static function getClassic(string $endpoint, $raw = false, $response_type = 'application/json')
     {
-        if (!is_a(static::$connection_class, PluginJamfConnection::class)) {
+        if (!is_a(static::$connection_class, PluginJamfConnection::class, true)) {
             throw new RuntimeException(_x('error', 'Connection not configured properly', 'jamf'));
         }
 
@@ -110,7 +110,7 @@ class PluginJamfAPI
      */
     protected static function addClassic(string $endpoint, string $payload)
     {
-        if (!is_a(static::$connection_class, PluginJamfConnection::class)) {
+        if (!is_a(static::$connection_class, PluginJamfConnection::class, true)) {
             throw new RuntimeException(_x('error', 'Connection not configured properly', 'jamf'));
         }
 
@@ -146,7 +146,7 @@ class PluginJamfAPI
      */
     protected static function updateClassic(string $endpoint, array $data)
     {
-        if (!is_a(static::$connection_class, PluginJamfConnection::class)) {
+        if (!is_a(static::$connection_class, PluginJamfConnection::class, true)) {
             throw new RuntimeException(_x('error', 'Connection not configured properly', 'jamf'));
         }
 
@@ -181,7 +181,7 @@ class PluginJamfAPI
      */
     protected static function deleteClassic(string $endpoint)
     {
-        if (!is_a(static::$connection_class, PluginJamfConnection::class)) {
+        if (!is_a(static::$connection_class, PluginJamfConnection::class, true)) {
             throw new RuntimeException(_x('error', 'Connection not configured properly', 'jamf'));
         }
 
@@ -418,7 +418,7 @@ class PluginJamfAPI
      */
     public static function getJamfProVersion(): string
     {
-        if (!is_a(static::$connection_class, PluginJamfConnection::class)) {
+        if (!is_a(static::$connection_class, PluginJamfConnection::class, true)) {
             throw new RuntimeException(_x('error', 'Connection not configured properly', 'jamf'));
         }
 
@@ -442,7 +442,7 @@ class PluginJamfAPI
      */
     public static function getAllMobileDevices()
     {
-        if (!is_a(static::$connection_class, PluginJamfConnection::class)) {
+        if (!is_a(static::$connection_class, PluginJamfConnection::class, true)) {
             throw new RuntimeException(_x('error', 'Connection not configured properly', 'jamf'));
         }
 
@@ -485,7 +485,7 @@ class PluginJamfAPI
      */
     public static function getMobileDeviceByID(int $id, bool $detailed = false)
     {
-        if (!is_a(static::$connection_class, PluginJamfConnection::class)) {
+        if (!is_a(static::$connection_class, PluginJamfConnection::class, true)) {
             throw new RuntimeException(_x('error', 'Connection not configured properly', 'jamf'));
         }
 
@@ -507,7 +507,7 @@ class PluginJamfAPI
      */
     public static function getMobileDeviceByUDID(string $udid, string $section = 'general'): ?array
     {
-        if (!is_a(static::$connection_class, PluginJamfConnection::class)) {
+        if (!is_a(static::$connection_class, PluginJamfConnection::class, true)) {
             throw new RuntimeException(_x('error', 'Connection not configured properly', 'jamf'));
         }
 
@@ -535,7 +535,7 @@ class PluginJamfAPI
      */
     public static function getAllComputers()
     {
-        if (!is_a(static::$connection_class, PluginJamfConnection::class)) {
+        if (!is_a(static::$connection_class, PluginJamfConnection::class, true)) {
             throw new RuntimeException(_x('error', 'Connection not configured properly', 'jamf'));
         }
 
@@ -572,7 +572,7 @@ class PluginJamfAPI
 
     public static function getComputerByID(int $id, bool $detailed = false)
     {
-        if (!is_a(static::$connection_class, PluginJamfConnection::class)) {
+        if (!is_a(static::$connection_class, PluginJamfConnection::class, true)) {
             throw new RuntimeException(_x('error', 'Connection not configured properly', 'jamf'));
         }
 
