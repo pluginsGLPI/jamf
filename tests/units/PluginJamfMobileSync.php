@@ -194,7 +194,7 @@ class PluginJamfMobileSync extends AbstractDBTest
         $this->assertEquals('1aec6610a9401d2cc47cb55e1a2f7b500ab75864', $ext_field['value']);
     }
 
-    public static  function deviceSyncEnginesProvider()
+    public static function deviceSyncEnginesProvider()
     {
         $engines = PluginJamfSync::getDeviceSyncEngines();
         $result  = [];

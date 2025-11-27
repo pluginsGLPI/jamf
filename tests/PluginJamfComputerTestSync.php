@@ -32,7 +32,6 @@
 
 namespace GlpiPlugin\Jamf\Tests;
 
-use PluginJamfAPI;
 use PluginJamfComputerSync;
 
 class PluginJamfComputerTestSync extends PluginJamfComputerSync

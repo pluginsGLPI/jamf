@@ -32,7 +32,6 @@
 
 namespace GlpiPlugin\Jamf\Tests;
 
-use PluginJamfAPI;
 use PluginJamfMobileSync;
 
 class PluginJamfMobileTestSync extends PluginJamfMobileSync
