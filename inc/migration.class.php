@@ -30,7 +30,6 @@
  * -------------------------------------------------------------------------
  */
 
-use DBmysql;
 
 use function Safe\preg_match;
 use function Safe\Copy;
@@ -139,6 +138,9 @@ final class PluginJamfMigration
             'plugin_version',
         ]);
         CronTask::unregister('Jamf');
+        if (is_dir(GLPI_PLUGIN_DOC_DIR . "/jamf/")) {
+            Toolbox::deleteDir(GLPI_PLUGIN_DOC_DIR . "/jamf/");
+        }
     }
 
     private function setPluginVersionInDB($version)
@@ -608,9 +610,24 @@ final class PluginJamfMigration
             }
         }
 
+
+        //create dir if needed
+        if (!is_dir(GLPI_PLUGIN_DOC_DIR . '/jamf')) {
+            @mkdir(GLPI_PLUGIN_DOC_DIR . '/jamf')
+            or die(
+                sprintf(
+                    __('%1$s %2$s'),
+                    __("Can't create folder", 'datainjection'),
+                    GLPI_PLUGIN_DOC_DIR . '/jamf'
+                )
+            );
+        }
+
         // Copy default pmv from tools dir
         $pmv_file_path = GLPI_PLUGIN_DOC_DIR . '/jamf/pmv.json';
         if (!file_exists($pmv_file_path)) {
+            Toolbox::logDebug($pmv_file_path);
+            Toolbox::logDebug(Plugin::getPhpDir('jamf') . '/tools/pmv.json');
             copy(Plugin::getPhpDir('jamf') . '/tools/pmv.json', $pmv_file_path);
         }
 

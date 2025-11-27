@@ -80,7 +80,7 @@ function plugin_init_jamf()
 function plugin_version_jamf()
 {
     return [
-        'name'         => _x('plugin_info', 'JAMF Plugin for GLPI', 'jamf'),
+        'name'         => 'Jamf',
         'version'      => PLUGIN_JAMF_VERSION,
         'author'       => "<a href=\"mailto:contact@teclib.com\">Teclib'</a> & Curtis Conard",
         'license'      => 'GPLv2',
