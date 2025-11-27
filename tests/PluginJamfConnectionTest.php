@@ -34,16 +34,10 @@ namespace GlpiPlugin\Jamf\Tests;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
-use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Promise\PromiseInterface;
-use GuzzleHttp\Promise\Create;
-use GuzzleHttp\ClientTrait;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use PluginJamfConnection;
-use Psr\Http\Client\ClientInterface;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
+
 use function Safe\file_get_contents;
 
 class PluginJamfConnectionTest extends PluginJamfConnection
@@ -55,6 +49,7 @@ class PluginJamfConnectionTest extends PluginJamfConnection
                 function ($request, $options) {
                     $endpoint = $request->getUri()->getPath();
                     $endpoint = str_contains($endpoint, '?') ? explode('?', $endpoint)[0] : $endpoint;
+
                     $response_type  = $request->getHeaderLine('Accept') ?: 'application/json';
                     $response_ext   = $response_type === 'application/xml' ? 'xml' : 'json';
                     $mock_file_path = GLPI_ROOT . '/plugins/jamf/tools/samples/' . $endpoint . '.' . $response_ext;
@@ -62,7 +57,7 @@ class PluginJamfConnectionTest extends PluginJamfConnection
                     $body = file_get_contents($mock_file_path);
 
                     return new Response(200, [], $body);
-                }
+                },
             ]);
 
             $handlerStack = HandlerStack::create($mock);

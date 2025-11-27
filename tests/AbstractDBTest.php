@@ -32,6 +32,7 @@
 
 namespace GlpiPlugin\Jamf\Tests;
 
+use InvalidArgumentException;
 use Auth;
 use CommonDBTM;
 use PHPUnit\Framework\TestCase;
@@ -44,6 +45,7 @@ use Session;
 use DBmysql;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
+
 use function Safe\preg_match;
 
 class AbstractDBTest extends TestCase
@@ -118,7 +120,7 @@ class AbstractDBTest extends TestCase
         }
     }
 
-       /**
+    /**
      * Connect (using the test user per default)
      *
      * @param string $user_name User name (defaults to TU_USER)
@@ -246,7 +248,7 @@ class AbstractDBTest extends TestCase
             }
 
             if ($function) {
-                if (method_exists($classname, (string)$function)) {
+                if (method_exists($classname, (string) $function)) {
                     $classes[] = $classname;
                 }
             } else {
@@ -267,8 +269,9 @@ class AbstractDBTest extends TestCase
     protected function createItem($itemtype, $input, $skip_fields = []): CommonDBTM
     {
         if (!is_a($itemtype, CommonDBTM::class, true)) {
-            throw new \InvalidArgumentException("Itemtype '$itemtype' is not a valid CommonDBTM class");
+            throw new InvalidArgumentException(sprintf("Itemtype '%s' is not a valid CommonDBTM class", $itemtype));
         }
+
         $item  = new $itemtype();
         $id    = $item->add($input);
         $this->assertGreaterThan(0, $id, 'ID is not valid');
@@ -290,8 +293,9 @@ class AbstractDBTest extends TestCase
     protected function updateItem($itemtype, $id, $input)
     {
         if (!is_a($itemtype, CommonDBTM::class, true)) {
-            throw new \InvalidArgumentException("Itemtype '$itemtype' is not a valid CommonDBTM class");
+            throw new InvalidArgumentException(sprintf("Itemtype '%s' is not a valid CommonDBTM class", $itemtype));
         }
+
         $item        = new $itemtype();
         $input['id'] = $id;
         $success     = $item->update($input);
