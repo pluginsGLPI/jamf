@@ -30,14 +30,9 @@
  * -------------------------------------------------------------------------
  */
 
-/** @var array $CFG_GLPI */
 require __DIR__ . '/../../../tests/bootstrap.php';
+require __DIR__ . '/../vendor/autoload.php';
 
-if (!Plugin::isPluginActive("jamf")) {
-    throw new RuntimeException("Plugin jamf is not active in the test database");
+if (!Plugin::isPluginActive('jamf')) {
+    throw new RuntimeException('Plugin jamf is not active in the test database');
 }
-
-include_once __DIR__ . '/PluginJamfApiTest.php';
-include_once __DIR__ . '/PluginJamfConnectionTest.php';
-include_once __DIR__ . '/PluginJamfMobileTestSync.php';
-include_once __DIR__ . '/PluginJamfComputerTestSync.php';
