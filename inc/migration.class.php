@@ -33,6 +33,7 @@
 
 use function Safe\preg_match;
 use function Safe\Copy;
+use function Safe\mkdir;
 
 /**
  * Handles migrating between plugin versions.
@@ -613,14 +614,11 @@ final class PluginJamfMigration
 
         //create dir if needed
         if (!is_dir(GLPI_PLUGIN_DOC_DIR . '/jamf')) {
-            @mkdir(GLPI_PLUGIN_DOC_DIR . '/jamf')
-            or die(
-                sprintf(
-                    __('%1$s %2$s'),
-                    __("Can't create folder", 'datainjection'),
-                    GLPI_PLUGIN_DOC_DIR . '/jamf'
-                )
-            );
+            try {
+                mkdir(GLPI_PLUGIN_DOC_DIR . '/jamf');
+            } catch (Exception $e) {
+                throw new Exception('Could not create directory: ' . GLPI_PLUGIN_DOC_DIR . '/jamf. ' . $e->getMessage(), $e->getCode(), $e);
+            }
         }
 
         // Copy default pmv from tools dir

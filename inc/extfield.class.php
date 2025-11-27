@@ -29,7 +29,7 @@
  * @link      https://github.com/pluginsGLPI/jamf
  * -------------------------------------------------------------------------
  */
-use DBmysql;
+
 
 /**
  * PluginJamfExtField class. This represents an extra field for a GLPI item.

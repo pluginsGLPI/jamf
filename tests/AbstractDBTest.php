@@ -35,6 +35,7 @@ namespace GlpiPlugin\Jamf\Tests;
 use InvalidArgumentException;
 use Auth;
 use CommonDBTM;
+use DBmysql;
 use PHPUnit\Framework\TestCase;
 use Glpi\Tests\Log\TestHandler;
 use Psr\Log\LogLevel;
@@ -42,7 +43,6 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use ReflectionClass;
 use Session;
-use DBmysql;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 

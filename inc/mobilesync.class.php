@@ -31,7 +31,6 @@
  */
 
 use Glpi\Event;
-use DBmysql;
 use Safe\DateTime;
 
 class PluginJamfMobileSync extends PluginJamfDeviceSync
