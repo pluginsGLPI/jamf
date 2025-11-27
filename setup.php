@@ -29,6 +29,9 @@
  * @link      https://github.com/pluginsGLPI/jamf
  * -------------------------------------------------------------------------
  */
+
+use Glpi\Plugin\Hooks;
+
 use function Safe\define;
 use function Safe\preg_replace;
 
@@ -69,6 +72,8 @@ function plugin_init_jamf()
             'Phone'    => ['PluginJamfAbstractDevice', 'plugin_jamf_purgePhone'],
             'Software' => ['PluginJamfSoftware', 'plugin_jamf_purgeSoftware'],
         ];
+
+        $PLUGIN_HOOKS[Hooks::CONFIG_PAGE]['jamf'] = 'front/menu.php';
 
         // Dashboards
         $PLUGIN_HOOKS['dashboard_cards']['jamf'] = 'plugin_jamf_dashboardCards';

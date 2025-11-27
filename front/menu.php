@@ -59,7 +59,7 @@ if (Session::haveRight('plugin_jamf_mobiledevice', CREATE)) {
 if (Session::haveRight('config', UPDATE)) {
     $links[] = [
         'name' => _x('menu', 'Configuration', 'jamf'),
-        'url'  => Config::getFormURL() . '?forcetab=PluginJamfConfig',
+        'url'  => Config::getFormURL() . '?forcetab=PluginJamfConfig$1',
     ];
 }
 

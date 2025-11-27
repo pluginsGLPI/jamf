@@ -44,12 +44,12 @@ class PluginJamfMenu extends CommonGLPI
      */
     public static function getTypeName($nb = 0)
     {
-        return _x('plugin_info', 'Jamf plugin', 'jamf');
+        return __s('Jamf', 'jamf');
     }
 
     public static function getMenuName()
     {
-        return _x('plugin_info', 'Jamf plugin', 'jamf');
+        return __s('Jamf', 'jamf');
     }
 
     public static function getIcon()
