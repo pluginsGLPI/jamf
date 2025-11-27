@@ -24,7 +24,6 @@
  * -------------------------------------------------------------------------
  * @copyright Copyright (C) 2024-2024 by Teclib'
  * @copyright Copyright (C) 2019-2024 by Curtis Conard
- * @copyright Copyright (C) 2014-2023 by Teclib'.
  * @license   GPLv2 https://www.gnu.org/licenses/gpl-2.0.html
  * @link      https://github.com/pluginsGLPI/jamf
  * -------------------------------------------------------------------------
