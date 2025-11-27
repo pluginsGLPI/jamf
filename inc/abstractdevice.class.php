@@ -208,6 +208,11 @@ abstract class PluginJamfAbstractDevice extends CommonDBChild
     public function getGLPIItem()
     {
         $itemtype = $this->fields['itemtype'];
+
+        if (!is_a($itemtype, CommonDBTM::class, true)) {
+            throw new RuntimeException('Invalid itemtype stored in PluginJamfAbstractDevice: ' . $itemtype);
+        }
+
         $item     = new $itemtype();
         $item->getFromDB($this->fields['items_id']);
 

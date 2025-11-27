@@ -32,6 +32,7 @@
 
 use Glpi\Event;
 use DBmysql;
+use Safe\DateTime;
 
 class PluginJamfComputerSync extends PluginJamfDeviceSync
 {
@@ -582,7 +583,7 @@ class PluginJamfComputerSync extends PluginJamfDeviceSync
         return $this;
     }
 
-    public static function discover(): bool
+    public static function discover(): int
     {
         /** @var DBmysql $DB */
         global $DB;
@@ -653,6 +654,11 @@ class PluginJamfComputerSync extends PluginJamfDeviceSync
 
         if (!self::isSupportedGlpiItemtype($itemtype)) {
             // Invalid itemtype for a mobile device
+            return false;
+        }
+
+        if (!is_a($itemtype, CommonDBTM::class, true)) {
+            // Cannot import directly an ITIL object
             return false;
         }
 

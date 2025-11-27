@@ -31,7 +31,11 @@
  */
 
 use GuzzleHttp\Client;
-use GuzzleHttp\ClientTrait;
+
+use function Safe\curl_setopt;
+use function Safe\json_decode;
+use function Safe\curl_exec;
+use function Safe\curl_init;
 
 /**
  * JamfConnection class
@@ -44,7 +48,7 @@ class PluginJamfConnection
     private ?string $bearer_token = null;
 
     /**
-     * @var ClientTrait
+     * @var Client
      */
     protected $client;
 
@@ -204,7 +208,7 @@ class PluginJamfConnection
     }
 
     /**
-     * @return ClientTrait
+     * @return Client
      */
     public function getClient()
     {

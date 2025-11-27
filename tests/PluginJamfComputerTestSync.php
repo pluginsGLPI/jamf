@@ -32,12 +32,12 @@
 
 namespace GlpiPlugin\Jamf\Tests;
 
-use PluginJamfApiTest;
+use PluginJamfAPI;
 use PluginJamfComputerSync;
 
 class PluginJamfComputerTestSync extends PluginJamfComputerSync
 {
-    protected static $api = PluginJamfApiTest::class;
+    protected static $api = PluginJamfAPI::class;
 
     public static function sync(string $itemtype, int $items_id, bool $use_transaction = true): bool
     {

@@ -42,16 +42,13 @@ use RecursiveIteratorIterator;
 use ReflectionClass;
 use Session;
 use DBmysql;
+use Monolog\Logger;
+use Psr\Log\LoggerInterface;
+use function Safe\preg_match;
 
 class AbstractDBTest extends TestCase
 {
-    private int $int;
-
-    private string $str;
-
     private static TestHandler $php_log_handler;
-
-    private static TestHandler $sql_log_handler;
 
     public static function setUpBeforeClass(): void
     {
@@ -64,13 +61,11 @@ class AbstractDBTest extends TestCase
         global $GLPI_CACHE;
         $GLPI_CACHE->clear();
 
-        // Init log handlers
-        global $PHPLOGGER, $SQLLOGGER;
-        /** @var Monolog\Logger $PHPLOGGER */
+        /** @var LoggerInterface $PHPLOGGER */
+        global $PHPLOGGER;
+        /** @var Logger $PHPLOGGER */
         self::$php_log_handler = new TestHandler(LogLevel::DEBUG);
         $PHPLOGGER->setHandlers([self::$php_log_handler]);
-        self::$sql_log_handler = new TestHandler(LogLevel::DEBUG);
-        $SQLLOGGER->setHandlers([self::$sql_log_handler]);
 
         $default_config = [
             'autoimport'           => 0,
@@ -123,31 +118,7 @@ class AbstractDBTest extends TestCase
         }
     }
 
-    /**
-     * Get a unique random string
-     */
-    protected function getUniqueString()
-    {
-        if (is_null($this->str)) {
-            return $this->str = uniqid('str', false);
-        }
-
-        return $this->str .= 'x';
-    }
-
-    /**
-     * Get a unique random integer
-     */
-    protected function getUniqueInteger()
-    {
-        if (is_null($this->int)) {
-            return $this->int = random_int(1000, 10000);
-        }
-
-        return $this->int++;
-    }
-
-    /**
+       /**
      * Connect (using the test user per default)
      *
      * @param string $user_name User name (defaults to TU_USER)
@@ -275,7 +246,7 @@ class AbstractDBTest extends TestCase
             }
 
             if ($function) {
-                if (method_exists($classname, $function)) {
+                if (method_exists($classname, (string)$function)) {
                     $classes[] = $classname;
                 }
             } else {
@@ -295,6 +266,9 @@ class AbstractDBTest extends TestCase
      */
     protected function createItem($itemtype, $input, $skip_fields = []): CommonDBTM
     {
+        if (!is_a($itemtype, CommonDBTM::class, true)) {
+            throw new \InvalidArgumentException("Itemtype '$itemtype' is not a valid CommonDBTM class");
+        }
         $item  = new $itemtype();
         $id    = $item->add($input);
         $this->assertGreaterThan(0, $id, 'ID is not valid');
@@ -315,6 +289,9 @@ class AbstractDBTest extends TestCase
      */
     protected function updateItem($itemtype, $id, $input)
     {
+        if (!is_a($itemtype, CommonDBTM::class, true)) {
+            throw new \InvalidArgumentException("Itemtype '$itemtype' is not a valid CommonDBTM class");
+        }
         $item        = new $itemtype();
         $input['id'] = $id;
         $success     = $item->update($input);

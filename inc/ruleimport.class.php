@@ -99,6 +99,6 @@ class PluginJamfRuleImport extends Rule
             return true;
         }
 
-        return null;
+        return false;
     }
 }

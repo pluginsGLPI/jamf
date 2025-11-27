@@ -30,6 +30,10 @@
  * -------------------------------------------------------------------------
  */
 
+use Safe\DateTime;
+
+use function Safe\date_create;
+
 class PluginJamfToolbox
 {
     public static function getHumanReadableTimeDiff($start, $end = null)

@@ -32,6 +32,9 @@
 
 use Glpi\Application\View\TemplateRenderer;
 
+use function Safe\file_get_contents;
+use function Safe\json_decode;
+
 /**
  * JSS Item_MDMCommand class
  *
@@ -48,9 +51,13 @@ class PluginJamfItem_MDMCommand extends CommonDBTM
 
     public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0)
     {
+        if (!$item instanceof CommonDBTM) {
+            return '';
+        }
+
         $jamf_class = PluginJamfAbstractDevice::getJamfItemClassForGLPIItem($item::getType(), $item->getID());
         if ($jamf_class !== PluginJamfMobileDevice::class || !PluginJamfMobileDevice::canView()) {
-            return false;
+            return '';
         }
 
         return self::getTypeName(2);
@@ -58,6 +65,10 @@ class PluginJamfItem_MDMCommand extends CommonDBTM
 
     public static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0)
     {
+        if (!$item instanceof CommonDBTM) {
+            return false;
+        }
+
         return self::showForItem($item);
     }
 
@@ -187,7 +198,7 @@ class PluginJamfItem_MDMCommand extends CommonDBTM
         }
 
         $mobiledevice = PluginJamfMobileDevice::getJamfItemForGLPIItem($item);
-        if (!$mobiledevice instanceof PluginJamfAbstractDevice) {
+        if (!$mobiledevice instanceof PluginJamfMobileDevice) {
             return false;
         }
 

@@ -50,15 +50,18 @@ class PluginJamfItem_ExtensionAttribute extends CommonDBChild
 
     public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0)
     {
-        /** @var PluginJamfAbstractDevice $jamf_class */
+        if (!$item instanceof CommonDBTM) {
+            return '';
+        }
+
         $jamf_class = PluginJamfAbstractDevice::getJamfItemClassForGLPIItem($item::getType(), $item->getID());
         if ($jamf_class === null) {
-            return false;
+            return '';
         }
 
         $jamf_item = $jamf_class::getJamfItemForGLPIItem($item);
-        if ($jamf_class === null || !$jamf_class::canView()) {
-            return false;
+        if (!$jamf_class::canView()) {
+            return '';
         }
 
         return self::createTabEntry(self::getTypeName(2), self::countForJamfItem($jamf_item));
@@ -74,12 +77,15 @@ class PluginJamfItem_ExtensionAttribute extends CommonDBChild
 
     public static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0)
     {
+        if (!$item instanceof CommonDBTM) {
+            return false;
+        }
+
         return self::showForItem($item);
     }
 
     public static function showForItem(CommonDBTM $item)
     {
-        /** @var PluginJamfAbstractDevice $jamf_class */
         $jamf_class = PluginJamfAbstractDevice::getJamfItemClassForGLPIItem($item::getType(), $item->getID());
         if ($jamf_class === null || !$jamf_class::canView()) {
             return false;

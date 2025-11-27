@@ -32,6 +32,7 @@
 
 use Glpi\Event;
 use DBmysql;
+use Safe\DateTime;
 
 class PluginJamfMobileSync extends PluginJamfDeviceSync
 {
@@ -707,7 +708,7 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
         return $this;
     }
 
-    public static function discover(): bool
+    public static function discover(): int
     {
         /** @var DBmysql $DB */
         global $DB;
@@ -777,6 +778,11 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
 
         if (!self::isSupportedGlpiItemtype($itemtype)) {
             // Invalid itemtype for a mobile device
+            return false;
+        }
+
+        if (!is_a($itemtype, CommonDBTM::class, true)) {
+            Toolbox::logDebug(sprintf('Jamf import error: %s is not a valid GLPI itemtype.', $itemtype));
             return false;
         }
 

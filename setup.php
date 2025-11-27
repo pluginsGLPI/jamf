@@ -29,6 +29,8 @@
  * @link      https://github.com/pluginsGLPI/jamf
  * -------------------------------------------------------------------------
  */
+use function Safe\define;
+use function Safe\preg_replace;
 
 define('PLUGIN_JAMF_VERSION', '3.1.2');
 define('PLUGIN_JAMF_MIN_GLPI', '11.0.0');
@@ -94,21 +96,19 @@ function plugin_version_jamf()
 
 function plugin_jamf_check_prerequisites()
 {
-    if (!method_exists('Plugin', 'checkGlpiVersion')) {
-        $version         = preg_replace('/^((\d+\.?)+).*$/', '$1', GLPI_VERSION);
-        $matchMinGlpiReq = version_compare($version, PLUGIN_JAMF_MIN_GLPI, '>=');
-        $matchMaxGlpiReq = version_compare($version, PLUGIN_JAMF_MAX_GLPI, '<');
-        if (!$matchMinGlpiReq || !$matchMaxGlpiReq) {
-            echo vsprintf(
-                'This plugin requires GLPI >= %1$s and < %2$s.',
-                [
-                    PLUGIN_JAMF_MIN_GLPI,
-                    PLUGIN_JAMF_MAX_GLPI,
-                ],
-            );
+    $version         = preg_replace('/^((\d+\.?)+).*$/', '$1', GLPI_VERSION);
+    $matchMinGlpiReq = version_compare($version, PLUGIN_JAMF_MIN_GLPI, '>=');
+    $matchMaxGlpiReq = version_compare($version, PLUGIN_JAMF_MAX_GLPI, '<');
+    if (!$matchMinGlpiReq || !$matchMaxGlpiReq) {
+        echo vsprintf(
+            'This plugin requires GLPI >= %1$s and < %2$s.',
+            [
+                PLUGIN_JAMF_MIN_GLPI,
+                PLUGIN_JAMF_MAX_GLPI,
+            ],
+        );
 
-            return false;
-        }
+        return false;
     }
 
     return true;

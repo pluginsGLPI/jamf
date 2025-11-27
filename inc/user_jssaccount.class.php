@@ -71,7 +71,7 @@ class PluginJamfUser_JSSAccount extends CommonDBChild
     public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0)
     {
         if (!self::canView()) {
-            return false;
+            return "";
         }
 
         return self::getTypeName(1);
@@ -215,7 +215,7 @@ class PluginJamfUser_JSSAccount extends CommonDBChild
 
         if (count($matches) === 0) {
             // No JSS account link
-            Toolbox::logError(_x('error', 'Attempt to use JSS user rights without a linked account', 'jamf'));
+            Toolbox::logDebug(_x('error', 'Attempt to use JSS user rights without a linked account', 'jamf'));
 
             return false;
         }
@@ -223,7 +223,7 @@ class PluginJamfUser_JSSAccount extends CommonDBChild
         $user_jssaccount->getFromDB(reset($matches)['id']);
         $type_rights = $user_jssaccount->getJSSPrivileges()[$type] ?? [];
         if (count($type_rights) === 0) {
-            //Toolbox::logError("Linked JSS account has no rights of type $type");
+            //Toolbox::logDebug("Linked JSS account has no rights of type $type");
             return false;
         }
 

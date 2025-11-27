@@ -59,10 +59,8 @@ class PluginJamfMenu extends CommonGLPI
 
     /**
      * Check if can view item
-     *
-     * @return boolean
      */
-    public static function canView()
+    public static function canView(): bool
     {
         return Config::canView();
     }

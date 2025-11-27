@@ -138,6 +138,11 @@ class PluginJamfMobileDevice extends PluginJamfAbstractDevice
     {
         $device_data = $this->getJamfDeviceData();
         $itemtype    = $device_data['itemtype'];
+
+        if (!is_a($itemtype, CommonDBTM::class, true)) {
+            throw new InvalidArgumentException('Invalid item type: ' . $itemtype);
+        }
+
         $item        = new $itemtype();
         $item->getFromDB($device_data['items_id']);
 
@@ -163,6 +168,11 @@ class PluginJamfMobileDevice extends PluginJamfAbstractDevice
     {
         $item       = $this->getGLPIItem();
         $modelclass = $this->getJamfDeviceData()['itemtype'] . 'Model';
+
+        if (!is_a($modelclass, CommonDBTM::class, true)) {
+            throw new InvalidArgumentException('Invalid model class: ' . $modelclass);
+        }
+
         if ($item->fields[getForeignKeyFieldForItemType($modelclass)] > 0) {
             /** @var CommonDropdown $model */
             $model = new $modelclass();

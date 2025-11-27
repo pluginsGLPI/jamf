@@ -34,6 +34,9 @@ use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
 
+use function Safe\json_decode;
+use function Safe\simplexml_load_string;
+
 /**
  * Unified connector for Jamf's Classic and Pro APIs
  */
@@ -58,6 +61,10 @@ class PluginJamfAPI
      */
     protected static function getClassic(string $endpoint, $raw = false, $response_type = 'application/json')
     {
+        if (!is_a(static::$connection_class, PluginJamfConnection::class)) {
+            throw new RuntimeException(_x('error', 'Connection not configured properly', 'jamf'));
+        }
+
         if (!self::$connection) {
             self::$connection = new static::$connection_class();
         }
@@ -103,6 +110,10 @@ class PluginJamfAPI
      */
     protected static function addClassic(string $endpoint, string $payload)
     {
+        if (!is_a(static::$connection_class, PluginJamfConnection::class)) {
+            throw new RuntimeException(_x('error', 'Connection not configured properly', 'jamf'));
+        }
+
         if (!self::$connection) {
             self::$connection = new static::$connection_class();
         }
@@ -120,7 +131,7 @@ class PluginJamfAPI
             ]);
             $httpcode = $response->getStatusCode();
         } catch (ClientException) {
-            return null;
+            return false;
         }
 
         return ($httpcode === 201) ? true : $httpcode;
@@ -135,6 +146,10 @@ class PluginJamfAPI
      */
     protected static function updateClassic(string $endpoint, array $data)
     {
+        if (!is_a(static::$connection_class, PluginJamfConnection::class)) {
+            throw new RuntimeException(_x('error', 'Connection not configured properly', 'jamf'));
+        }
+
         if (!self::$connection) {
             self::$connection = new static::$connection_class();
         }
@@ -152,7 +167,7 @@ class PluginJamfAPI
             ]);
             $httpcode = $response->getStatusCode();
         } catch (GuzzleException) {
-            return null;
+            return false;
         }
 
         return ($httpcode === 201) ? true : $httpcode;
@@ -166,6 +181,10 @@ class PluginJamfAPI
      */
     protected static function deleteClassic(string $endpoint)
     {
+        if (!is_a(static::$connection_class, PluginJamfConnection::class)) {
+            throw new RuntimeException(_x('error', 'Connection not configured properly', 'jamf'));
+        }
+
         if (!self::$connection) {
             self::$connection = new static::$connection_class();
         }
@@ -177,7 +196,7 @@ class PluginJamfAPI
             $response = $client->delete($url);
             $httpcode = $response->getStatusCode();
         } catch (GuzzleException) {
-            return null;
+            return false;
         }
 
         return ($httpcode === 200) ? true : $httpcode;
@@ -210,7 +229,7 @@ class PluginJamfAPI
     public static function getItemsClassic(string $itemtype, array $params = [], $user_auth = false)
     {
         if ($user_auth && !PluginJamfUser_JSSAccount::canReadJSSItem($itemtype)) {
-            return null;
+            return [];
         }
 
         $param_str = self::getParamStringClassic($params);
@@ -241,7 +260,7 @@ class PluginJamfAPI
         }
 
         if ($user_auth && !PluginJamfUser_JSSAccount::canCreateJSSItem($itemtype, $meta)) {
-            return null;
+            return false;
         }
 
         $endpoint = $itemtype . $param_str;
@@ -261,7 +280,7 @@ class PluginJamfAPI
     public static function updateItemClassic(string $itemtype, array $params = [], array $fields = [], $user_auth = false)
     {
         if ($user_auth && !PluginJamfUser_JSSAccount::canUpdateJSSItem($itemtype)) {
-            return null;
+            return false;
         }
 
         $param_str = self::getParamStringClassic($params);
@@ -281,7 +300,7 @@ class PluginJamfAPI
     public static function deleteItemClassic(string $itemtype, array $params = [], $user_auth = false)
     {
         if ($user_auth && !PluginJamfUser_JSSAccount::canDeleteJSSItem($itemtype)) {
-            return null;
+            return false;
         }
 
         $param_str = self::getParamStringClassic($params);
@@ -399,6 +418,10 @@ class PluginJamfAPI
      */
     public static function getJamfProVersion(): string
     {
+        if (!is_a(static::$connection_class, PluginJamfConnection::class)) {
+            throw new RuntimeException(_x('error', 'Connection not configured properly', 'jamf'));
+        }
+
         if (!self::$connection) {
             self::$connection = new static::$connection_class();
         }
@@ -419,6 +442,10 @@ class PluginJamfAPI
      */
     public static function getAllMobileDevices()
     {
+        if (!is_a(static::$connection_class, PluginJamfConnection::class)) {
+            throw new RuntimeException(_x('error', 'Connection not configured properly', 'jamf'));
+        }
+
         if (!self::$connection) {
             self::$connection = new static::$connection_class();
         }
@@ -458,6 +485,10 @@ class PluginJamfAPI
      */
     public static function getMobileDeviceByID(int $id, bool $detailed = false)
     {
+        if (!is_a(static::$connection_class, PluginJamfConnection::class)) {
+            throw new RuntimeException(_x('error', 'Connection not configured properly', 'jamf'));
+        }
+
         if (!self::$connection) {
             self::$connection = new static::$connection_class();
         }
@@ -476,6 +507,10 @@ class PluginJamfAPI
      */
     public static function getMobileDeviceByUDID(string $udid, string $section = 'general'): ?array
     {
+        if (!is_a(static::$connection_class, PluginJamfConnection::class)) {
+            throw new RuntimeException(_x('error', 'Connection not configured properly', 'jamf'));
+        }
+
         if (!self::$connection) {
             self::$connection = new static::$connection_class();
         }
@@ -500,6 +535,10 @@ class PluginJamfAPI
      */
     public static function getAllComputers()
     {
+        if (!is_a(static::$connection_class, PluginJamfConnection::class)) {
+            throw new RuntimeException(_x('error', 'Connection not configured properly', 'jamf'));
+        }
+
         if (!self::$connection) {
             self::$connection = new static::$connection_class();
         }
@@ -533,6 +572,10 @@ class PluginJamfAPI
 
     public static function getComputerByID(int $id, bool $detailed = false)
     {
+        if (!is_a(static::$connection_class, PluginJamfConnection::class)) {
+            throw new RuntimeException(_x('error', 'Connection not configured properly', 'jamf'));
+        }
+
         if (!self::$connection) {
             self::$connection = new static::$connection_class();
         }

@@ -30,6 +30,8 @@
  * -------------------------------------------------------------------------
  */
 
+
+
 /**
  * PluginJamfSync class.
  * This is the base class for all classes which sync data from Jamf to GLPI..
@@ -113,15 +115,14 @@ abstract class PluginJamfSync
     protected $db;
 
     /**
-     * @var PluginJamfAPI
+     * @var 'PluginJamfAPI'
      */
     protected static $api = PluginJamfAPI::class;
 
     /**
      * PluginJamfSync constructor.
-     * @param CommonDBTM|null $item
      */
-    final public function __construct(CommonDBTM $item = null, array $data = [])
+    final public function __construct(?CommonDBTM $item = null, array $data = [])
     {
         /** @global DBmysql */
         global $DB;
@@ -174,6 +175,10 @@ abstract class PluginJamfSync
         ]);
 
         if ($this->jamfplugin_device === null) {
+            if (!is_a(static::$jamfplugin_itemtype, 'CommonDBTM', true)) {
+                throw new Exception('Jamf plugin item type class ' . static::$jamfplugin_itemtype . ' must extend CommonDBTM');
+            }
+
             $jamf_item  = new static::$jamfplugin_itemtype();
             $jamf_match = $jamf_item->find([
                 'itemtype' => $this->item::getType(),
@@ -199,6 +204,10 @@ abstract class PluginJamfSync
 
     protected function createOrGetItem($itemtype, $criteria, $params)
     {
+        if (!is_a($itemtype, 'CommonDBTM', true)) {
+            throw new Exception('Item type class ' . $itemtype . ' must extend CommonDBTM');
+        }
+
         $item         = new $itemtype();
         $item_matches = $item->find($criteria);
         if (count($item_matches) === 0) {
@@ -213,6 +222,10 @@ abstract class PluginJamfSync
 
     protected function applyDesiredState($itemtype, $match_criteria, $state, $options = []): CommonDBTM
     {
+        if (!is_a($itemtype, 'CommonDBTM', true)) {
+            throw new Exception('Item type class ' . $itemtype . ' must extend CommonDBTM');
+        }
+
         /** @var CommonDBTM $item */
         $item         = new $itemtype();
         $item_matches = $item->find($match_criteria);
@@ -230,7 +243,7 @@ abstract class PluginJamfSync
         return $item;
     }
 
-    abstract public static function discover(): bool;
+    abstract public static function discover(): int;
 
     abstract public static function import(string $itemtype, int $jamf_items_id, $use_transaction = true): bool;
 
@@ -256,7 +269,7 @@ abstract class PluginJamfSync
     }
 
     /**
-     * @return PluginJamfSync[]
+     * @return array<string, class-string<PluginJamfSync>> Mapping of GLPI itemtypes to their corresponding Jamf sync engine classes.
      * @since 1.0.0
      */
     final public static function getDeviceSyncEngines(): array

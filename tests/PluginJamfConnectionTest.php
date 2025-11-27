@@ -32,49 +32,41 @@
 
 namespace GlpiPlugin\Jamf\Tests;
 
+use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Promise\Create;
 use GuzzleHttp\ClientTrait;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
 use PluginJamfConnection;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use function Safe\file_get_contents;
 
 class PluginJamfConnectionTest extends PluginJamfConnection
 {
-    public function getClient(): ClientInterface
+    public function getClient(): Client
     {
         if ($this->client === null) {
-            $this->client = new class implements ClientInterface {
-                use ClientTrait;
-
-                public function sendRequest(RequestInterface $request): ResponseInterface
-                {
+            $mock = new MockHandler([
+                function ($request, $options) {
                     $endpoint = $request->getUri()->getPath();
-                    var_dump($endpoint);
-                    // remove query parameters
-                    $endpoint       = str_contains($endpoint, '?') ? explode('?', $endpoint)[0] : $endpoint;
-                    $response_type  = $request->getHeader('Accept')[0] ?? 'application/json';
+                    $endpoint = str_contains($endpoint, '?') ? explode('?', $endpoint)[0] : $endpoint;
+                    $response_type  = $request->getHeaderLine('Accept') ?: 'application/json';
                     $response_ext   = $response_type === 'application/xml' ? 'xml' : 'json';
                     $mock_file_path = GLPI_ROOT . '/plugins/jamf/tools/samples/' . $endpoint . '.' . $response_ext;
 
-                    return new Response(200, [], file_get_contents($mock_file_path));
-                }
+                    $body = file_get_contents($mock_file_path);
 
-                public function request(string $method, $uri, array $options = []): ResponseInterface
-                {
-                    $request = new Request($method, $uri, $options['headers'] ?? []);
-
-                    return $this->sendRequest($request);
+                    return new Response(200, [], $body);
                 }
+            ]);
 
-                public function requestAsync(string $method, $uri, array $options = []): PromiseInterface
-                {
-                    return Create::promiseFor($this->request($method, $uri, $options));
-                }
-            };
+            $handlerStack = HandlerStack::create($mock);
+            $this->client = new Client(['handler' => $handlerStack]);
         }
 
         return $this->client;

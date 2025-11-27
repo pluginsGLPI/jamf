@@ -32,6 +32,9 @@
 
 use DBmysql;
 
+use function Safe\preg_match;
+use function Safe\Copy;
+
 /**
  * Handles migrating between plugin versions.
  *
@@ -51,8 +54,8 @@ final class PluginJamfMigration
      */
     private $db;
 
-    /** @var PluginJamfAPI */
-    private $api;
+    /** @var 'PluginJamfAPI' */
+    private $api = 'PluginJamfAPI';
 
     /**
      * PluginJamfMigration constructor.
@@ -71,7 +74,13 @@ final class PluginJamfMigration
     public function applyMigrations()
     {
         $rc                      = new ReflectionClass($this);
-        $otherMigrationFunctions = array_map(static fn($rm) => $rm->getShortName(), array_filter($rc->getMethods(), static fn($m) => preg_match('/(?<=^apply_)(.*)(?=_migration$)/', $m->getShortName())));
+        $otherMigrationFunctions = array_map(
+            static fn($rm) => $rm->getShortName(),
+            array_filter(
+                $rc->getMethods(),
+                static fn($m): bool => preg_match('/(?<=^apply_)(.*)(?=_migration$)/', $m->getShortName()) === 1,
+            ),
+        );
 
         if ($otherMigrationFunctions !== []) {
             // Map versions to functions
@@ -342,7 +351,7 @@ final class PluginJamfMigration
 
     private function apply_1_1_2_migration()
     {
-        $this->db->updateOrDie('glpi_crontasks', [
+        $this->db->update('glpi_crontasks', [
             'allowmode' => 3,
         ], [
             'itemtype' => 'PluginJamfSync',

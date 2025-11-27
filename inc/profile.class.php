@@ -30,10 +30,6 @@
  * -------------------------------------------------------------------------
  */
 
-if (!defined('GLPI_ROOT')) {
-    die("Sorry. You can't access this file directly");
-}
-
 /**
  * PluginJamfProfile class. Adds plugin related rights tab to Profiles.
  * @since 1.0.0
@@ -49,26 +45,19 @@ class PluginJamfProfile extends Profile
 
     public static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0)
     {
-        $jamfprofile = new self();
-        if ($item->fields['interface'] == 'central') {
-            $jamfprofile->showForm($item->getID());
-        } else {
-            $jamfprofile->showFormHelpdesk($item->getID());
+        if ($item instanceof Profile) {
+            $jamfprofile = new self();
+            if ($item->fields['interface'] == 'central') {
+                $jamfprofile->showForm($item->getID());
+            } else {
+                $jamfprofile->showFormHelpdesk($item->getID());
+            }
         }
 
         return true;
     }
 
-    /**
-     * Print the Jamf plugin right form for the current profile
-     *
-     * @param int $profiles_id Current profile ID
-     * @param bool $openform Open the form (true by default)
-     * @param bool $closeform Close the form (true by default)
-     *
-     * @return bool|null
-     */
-    public function showForm($profiles_id = 0, $openform = true, $closeform = true)
+    public function showForm($ID, array $options = [])
     {
         if (!self::canView()) {
             return false;
@@ -76,10 +65,10 @@ class PluginJamfProfile extends Profile
 
         echo "<div class='spaced'>";
         $profile = new Profile();
-        $profile->getFromDB($profiles_id);
+        $profile->getFromDB($ID);
 
         $canedit = Session::haveRightsOr(self::$rightname, [CREATE, UPDATE, PURGE]);
-        if ($openform && $canedit) {
+        if ($canedit) {
             echo "<form method='post' action='" . $profile::getFormURL() . "'>";
         }
 
@@ -113,29 +102,26 @@ class PluginJamfProfile extends Profile
         $matrix_options['title'] = _x('plugin_info', 'Jamf plugin', 'jamf');
         $profile->displayRightsChoiceMatrix($rights, $matrix_options);
 
-        if ($canedit
-            && $closeform) {
+        if ($canedit) {
             echo "<div class='center'>";
-            echo Html::hidden('id', ['value' => $profiles_id]);
+            echo Html::hidden('id', ['value' => $ID]);
             echo Html::submit(_sx('button', 'Save'), ['name' => 'update']);
             echo "</div>\n";
             Html::closeForm();
         }
 
         echo '</div>';
-        return null;
+        return true;
     }
 
     /**
      * Print the Jamf plugin helpdesk right form for the current profile
      *
      * @param int $profiles_id Current profile ID
-     * @param bool $openform Open the form (true by default)
-     * @param bool $closeform Close the form (true by default)
      *
-     * @return bool|null
+     * @return bool
      */
-    public function showFormHelpdesk($profiles_id = 0, $openform = true, $closeform = true)
+    public function showFormHelpdesk($profiles_id = 0)
     {
         if (!self::canView()) {
             return false;
@@ -171,6 +157,6 @@ class PluginJamfProfile extends Profile
         }
 
         echo '</div>';
-        return null;
+        return true;
     }
 }

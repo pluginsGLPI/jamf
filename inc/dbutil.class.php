@@ -63,12 +63,7 @@ class PluginJamfDBUtil
                 $table,
                 $DB->error(),
             );
-            if (isCommandLine()) {
-                throw new RuntimeException($message);
-            }
-
-            echo $message . "\n";
-            die(1);
+            throw new RuntimeException($message);
         }
 
         return $res;

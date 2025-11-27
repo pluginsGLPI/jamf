@@ -30,6 +30,9 @@
  * -------------------------------------------------------------------------
  */
 
+use function Safe\file_get_contents;
+use function Safe\file_put_contents;
+
 /**
  * Contains all cron functions for Jamf plugin
  * @since 1.0.0
@@ -63,7 +66,7 @@ final class PluginJamfCron extends CommonGLPI
 
         foreach ($engines as $engine) {
             $v = $engine::discover();
-            $volume += $v >= 0 ? $v : 0;
+            $volume += max($v, 0);
         }
 
         $task->addVolume($volume);
@@ -77,7 +80,7 @@ final class PluginJamfCron extends CommonGLPI
         $out_file = GLPI_PLUGIN_DOC_DIR . '/jamf/pmv.json';
 
         $json = file_get_contents($url);
-        if ($json === false) {
+        if ($json === "") {
             $task->log(__('Unable to fetch PMV JSON from Apple', 'jamf'));
 
             return 0;
@@ -100,7 +103,7 @@ final class PluginJamfCron extends CommonGLPI
             return 0;
         }
 
-        if (file_put_contents($out_file, $json) === false) {
+        if (file_put_contents($out_file, $json) === 0) {
             $task->log(__('Unable to write PMV JSON to file', 'jamf'));
 
             return 0;

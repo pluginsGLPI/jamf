@@ -30,6 +30,7 @@
  * -------------------------------------------------------------------------
  */
 use DBmysql;
+use Glpi\DBAL\QueryExpression;
 
 abstract class PluginJamfDeviceSync extends PluginJamfSync
 {
@@ -233,12 +234,16 @@ abstract class PluginJamfDeviceSync extends PluginJamfSync
         /** @var DBmysql $DB */
         global $DB;
 
-        /** @var CommonDBTM $item */
+        if (!is_a($itemtype, CommonDBTM::class, true)) {
+            Toolbox::logDebug('Invalid itemtype provided for sync: ' . $itemtype);
+            return false;
+        }
+
         $item = new $itemtype();
 
         if (!$item->getFromDB($items_id)) {
             $itemtype_name = $item::getTypeName(1);
-            Toolbox::logError(_x('error', sprintf('Attempted to sync non-existent %s with ID %d', $itemtype_name, $items_id), 'jamf'));
+            Toolbox::logDebug(_x('error', sprintf('Attempted to sync non-existent %s with ID %d', $itemtype_name, $items_id), 'jamf'));
 
             return false;
         }
@@ -337,6 +342,11 @@ abstract class PluginJamfDeviceSync extends PluginJamfSync
         ]);
 
         if ($this->jamfplugin_device === null || empty($this->jamfplugin_device->fields)) {
+
+            if (!is_a(static::$jamfplugin_itemtype, CommonDBTM::class, true)) {
+                throw new RuntimeException('Invalid jamfplugin_itemtype: ' . static::$jamfplugin_itemtype);
+            }
+
             $jamf_item  = new static::$jamfplugin_itemtype();
             $jamf_match = $this->db->request([
                 'SELECT' => ['id'],
