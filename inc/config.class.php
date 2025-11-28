@@ -55,9 +55,17 @@ class PluginJamfConfig extends CommonDBTM
 
         $config = self::getConfig(true);
 
+        $computer = new Computer();
+        $phone = new Phone();
+        $states_condition = [
+            $computer->getStateVisibilityCriteria(),
+            $phone->getStateVisibilityCriteria()
+        ];
+
         TemplateRenderer::getInstance()->display('@jamf/config.html.twig', [
             'config' => $config,
             'url'    => Toolbox::getItemTypeFormURL('Config'),
+            'states_condition' => $states_condition,
         ]);
 
         return true;

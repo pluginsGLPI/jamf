@@ -88,10 +88,7 @@
                   {{ fields.dropdownField('ComputerType', 'appletv_type', config.appletv_type|default(0), _x('config', 'AppleTV Type', 'jamf')) }}
                   {{ fields.dropdownField('State', 'default_status', config.default_status|default(0), _x('config', 'Default status', 'jamf'), {
                      entity: 0,
-                     condition: {
-                        is_visible_computer: true,
-                        is_visible_phone: true,
-                     }
+                     condition: states_condition
                   }) }}
 
                </div>
