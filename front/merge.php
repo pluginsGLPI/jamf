@@ -34,8 +34,6 @@ use Glpi\DBAL\QueryExpression;
 use Glpi\Application\View\TemplateRenderer;
 use Glpi\Exception\Http\NotFoundHttpException;
 
-include(__DIR__ . '/../../../inc/includes.php');
-
 $plugin = new Plugin();
 if (!$plugin->isActivated('jamf')) {
     throw new NotFoundHttpException();

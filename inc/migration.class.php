@@ -611,13 +611,7 @@ final class PluginJamfMigration
 
 
         //create dir if needed
-        if (!is_dir(GLPI_PLUGIN_DOC_DIR . '/jamf')) {
-            try {
-                mkdir(GLPI_PLUGIN_DOC_DIR . '/jamf');
-            } catch (Exception $e) {
-                throw new Exception('Could not create directory: ' . GLPI_PLUGIN_DOC_DIR . '/jamf. ' . $e->getMessage(), $e->getCode(), $e);
-            }
-        }
+        mkdir(GLPI_PLUGIN_DOC_DIR . '/jamf');
 
         // Copy default pmv from tools dir
         $pmv_file_path = GLPI_PLUGIN_DOC_DIR . '/jamf/pmv.json';
