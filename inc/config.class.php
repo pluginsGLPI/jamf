@@ -59,7 +59,7 @@ class PluginJamfConfig extends CommonDBTM
         $phone = new Phone();
         $states_condition = [
             $computer->getStateVisibilityCriteria(),
-            $phone->getStateVisibilityCriteria()
+            $phone->getStateVisibilityCriteria(),
         ];
 
         TemplateRenderer::getInstance()->display('@jamf/config.html.twig', [
