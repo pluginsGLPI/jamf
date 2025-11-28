@@ -28,7 +28,6 @@
  */
 
 /* global GLPI_PLUGINS_PATH */
-/* global CFG_GLPI */
 (function () {
     window.JamfPlugin = function () {
         /**
@@ -61,7 +60,7 @@
                 this.jamf_id = args.jamf_id;
                 this.itemtype = args.itemtype;
                 this.items_id = args.items_id;
-                this.ajax_root = args.ajax_root || CFG_GLPI.root_doc + "/plugins/myplugin/ajax/";
+                this.ajax_root = args.ajax_root || `${CFG_GLPI.root_doc  }/plugins/myplugin/ajax/`;
             }
         };
 
@@ -85,7 +84,7 @@
         const showMDMCommandForm = (command) => {
             $.ajax({
                 method: 'GET',
-                url: (this.ajax_root + "getMDMCommandForm.php"),
+                url: (`${this.ajax_root  }getMDMCommandForm.php`),
                 data: {
                     command: command,
                     jamf_id: this.jamf_id,
@@ -101,10 +100,10 @@
 <div class="modal" role="dialog">
    <div class="modal-dialog" role="dialog">
        <div class="modal-content">
-          <div class="modal-body">`+data+`</div>
+          <div class="modal-body">${data}</div>
           <div class="modal-footer">
-             <button type="button" name="close" class="btn btn-secondary" data-dismiss="modal">`+__('Cancel')+`</button>
-             <button type="button" name="send" class="btn btn-primary">`+__('Send')+`</button>
+             <button type="button" name="close" class="btn btn-secondary" data-dismiss="modal">${__('Cancel')}</button>
+             <button type="button" name="send" class="btn btn-primary">${__('Send')}</button>
           </div>
        </div>
     </div>
@@ -134,8 +133,8 @@
        <div class="modal-content">
           <div class="modal-body">${warn_text}</div>
           <div class="modal-footer">
-             <button type="button" name="close" class="btn btn-secondary" data-dismiss="modal">`+__('Cancel')+`</button>
-             <button type="button" name="confirm" class="btn btn-primary">`+__('Confirm')+`</button>
+             <button type="button" name="close" class="btn btn-secondary" data-dismiss="modal">${__('Cancel')}</button>
+             <button type="button" name="confirm" class="btn btn-primary">${__('Confirm')}</button>
           </div>
        </div>
     </div>
@@ -160,7 +159,7 @@
             }
             $.ajax({
                 method: 'POST',
-                url: (this.ajax_root + "sendMDMCommand.php"),
+                url: (`${this.ajax_root  }sendMDMCommand.php`),
                 data: {
                     command: command,
                     fields: params,
@@ -168,7 +167,7 @@
                     itemtype: this.itemtype,
                     items_id: this.items_id
                 }
-            }).always(function () {
+            }).always(() => {
                 location.reload();
             });
         };

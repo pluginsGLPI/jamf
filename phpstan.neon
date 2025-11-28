@@ -7,8 +7,8 @@ parameters:
     level: 5
     paths:
         - ajax
-        - inc
         - front
+        - inc
         - tests
         - hook.php
         - setup.php

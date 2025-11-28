@@ -4,8 +4,8 @@
 >
     <projectFiles>
         <directory name="ajax" />
-        <directory name="inc" />
         <directory name="front" />
+        <directory name="inc" />
         <directory name="tests" />
         <file name="hook.php" />
         <file name="setup.php" />
