@@ -29,34 +29,16 @@
  * -------------------------------------------------------------------------
  */
 
-use Glpi\Exception\Http\NotFoundHttpException;
+namespace GlpiPlugin\Jamf\Tests;
 
-use function Safe\file_get_contents;
+use PluginJamfComputerSync;
 
-$plugin = new Plugin();
-if (!$plugin->isActivated('jamf')) {
-    throw new NotFoundHttpException();
+class PluginJamfComputerTestSync extends PluginJamfComputerSync
+{
+    protected static $api = PluginJamfApiTest::class;
+
+    public static function sync(string $itemtype, int $items_id, bool $use_transaction = true): bool
+    {
+        return parent::sync($itemtype, $items_id, false);
+    }
 }
-
-Html::header_nocache();
-
-Session::checkLoginUser();
-
-/** @var DBmysql $DB */
-global $DB;
-
-// Get AJAX input and load it into $_REQUEST
-$input = file_get_contents('php://input');
-parse_str($input, $_REQUEST);
-
-// An action must be specified
-if (!isset($_REQUEST['crontask'])) {
-    throw new RuntimeException('Required argument missing!');
-}
-
-$accepted_tasks = ['importJamf', 'syncJamf'];
-if (!in_array($_REQUEST['crontask'], $accepted_tasks)) {
-    throw new RuntimeException('Unacceptable cron task!');
-}
-
-CronTask::launch(-CronTask::MODE_EXTERNAL, 1, $_REQUEST['crontask']);

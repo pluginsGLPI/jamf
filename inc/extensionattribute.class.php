@@ -22,7 +22,7 @@
  * You should have received a copy of the GNU General Public License
  * along with JAMF plugin for GLPI. If not, see <http://www.gnu.org/licenses/>.
  * -------------------------------------------------------------------------
- * @copyright Copyright (C) 2024-2024 by Teclib'
+ * @copyright Copyright (C) 2024-2025 by Teclib'
  * @copyright Copyright (C) 2019-2024 by Curtis Conard
  * @license   GPLv2 https://www.gnu.org/licenses/gpl-2.0.html
  * @link      https://github.com/pluginsGLPI/jamf
@@ -43,11 +43,13 @@ class PluginJamfExtensionAttribute extends CommonDBTM
 
     public function addOrUpdate($input)
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         if (!isset($input['jamf_id'])) {
             return false;
         }
+
         $jamf_id = $input['jamf_id'];
         unset($input['jamf_id']);
 
@@ -56,6 +58,7 @@ class PluginJamfExtensionAttribute extends CommonDBTM
 
     public static function dashboardCards()
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         $table    = self::getTable();
@@ -67,7 +70,7 @@ class PluginJamfExtensionAttribute extends CommonDBTM
 
         foreach ($iterator as $data) {
             $slug                                            = strtolower(str_replace(' ', '_', $data['name']));
-            $cards["plugin_jamf_extensionattribute_{$slug}"] = [
+            $cards['plugin_jamf_extensionattribute_' . $slug] = [
                 'widgettype' => ['halfdonut'],
                 'label'      => sprintf(_x('dashboard', 'Jamf Attribute - %s', 'jamf'), $data['name']),
                 'provider'   => 'PluginJamfExtensionAttribute::cardProvider',
@@ -80,6 +83,7 @@ class PluginJamfExtensionAttribute extends CommonDBTM
 
     public static function cardProvider($name, array $params = [])
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         $rel_table = PluginJamfItem_ExtensionAttribute::getTable();
@@ -87,7 +91,7 @@ class PluginJamfExtensionAttribute extends CommonDBTM
         $iterator  = $DB->request([
             'SELECT' => [
                 'value',
-                'COUNT' => "{$rel_table}.id as cpt",
+                'COUNT' => $rel_table . '.id as cpt',
             ],
             'FROM' => $table,
             'JOIN' => [
@@ -99,7 +103,7 @@ class PluginJamfExtensionAttribute extends CommonDBTM
                 ],
             ],
             'WHERE' => ['name' => $name],
-            'GROUP' => "{$rel_table}.value",
+            'GROUP' => $rel_table . '.value',
         ]);
 
         $card_data = [];

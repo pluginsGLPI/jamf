@@ -22,16 +22,12 @@
  * You should have received a copy of the GNU General Public License
  * along with JAMF plugin for GLPI. If not, see <http://www.gnu.org/licenses/>.
  * -------------------------------------------------------------------------
- * @copyright Copyright (C) 2024-2024 by Teclib'
+ * @copyright Copyright (C) 2024-2025 by Teclib'
  * @copyright Copyright (C) 2019-2024 by Curtis Conard
  * @license   GPLv2 https://www.gnu.org/licenses/gpl-2.0.html
  * @link      https://github.com/pluginsGLPI/jamf
  * -------------------------------------------------------------------------
  */
-
-if (!defined('GLPI_ROOT')) {
-    die("Sorry. You can't access this file directly");
-}
 
 /**
  * PluginJamfProfile class. Adds plugin related rights tab to Profiles.
@@ -48,38 +44,30 @@ class PluginJamfProfile extends Profile
 
     public static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0)
     {
-        $jamfprofile = new self();
-        if ($item->fields['interface'] == 'central') {
-            $jamfprofile->showForm($item->getID());
-        } else {
-            $jamfprofile->showFormHelpdesk($item->getID());
+        if ($item instanceof Profile) {
+            $jamfprofile = new self();
+            if ($item->fields['interface'] == 'central') {
+                $jamfprofile->showForm($item->getID());
+            } else {
+                $jamfprofile->showFormHelpdesk($item->getID());
+            }
         }
 
         return true;
     }
 
-    /**
-     * Print the Jamf plugin right form for the current profile
-     *
-     * @param int $profiles_id Current profile ID
-     * @param bool $openform Open the form (true by default)
-     * @param bool $closeform Close the form (true by default)
-     *
-     * @return bool|void
-     */
-    public function showForm($profiles_id = 0, $openform = true, $closeform = true)
+    public function showForm($ID, array $options = [])
     {
-        global $CFG_GLPI;
-
         if (!self::canView()) {
             return false;
         }
 
         echo "<div class='spaced'>";
         $profile = new Profile();
-        $profile->getFromDB($profiles_id);
+        $profile->getFromDB($ID);
+
         $canedit = Session::haveRightsOr(self::$rightname, [CREATE, UPDATE, PURGE]);
-        if ($openform && $canedit) {
+        if ($canedit) {
             echo "<form method='post' action='" . $profile::getFormURL() . "'>";
         }
 
@@ -113,30 +101,27 @@ class PluginJamfProfile extends Profile
         $matrix_options['title'] = _x('plugin_info', 'Jamf plugin', 'jamf');
         $profile->displayRightsChoiceMatrix($rights, $matrix_options);
 
-        if ($canedit
-            && $closeform) {
+        if ($canedit) {
             echo "<div class='center'>";
-            echo Html::hidden('id', ['value' => $profiles_id]);
+            echo Html::hidden('id', ['value' => $ID]);
             echo Html::submit(_sx('button', 'Save'), ['name' => 'update']);
             echo "</div>\n";
             Html::closeForm();
         }
+
         echo '</div>';
+        return true;
     }
 
     /**
      * Print the Jamf plugin helpdesk right form for the current profile
      *
      * @param int $profiles_id Current profile ID
-     * @param bool $openform Open the form (true by default)
-     * @param bool $closeform Close the form (true by default)
      *
-     * @return bool|void
+     * @return bool
      */
-    public function showFormHelpdesk($profiles_id = 0, $openform = true, $closeform = true)
+    public function showFormHelpdesk($profiles_id = 0)
     {
-        global $CFG_GLPI;
-
         if (!self::canView()) {
             return false;
         }
@@ -169,6 +154,8 @@ class PluginJamfProfile extends Profile
         } else {
             echo "</table>\n";
         }
+
         echo '</div>';
+        return true;
     }
 }

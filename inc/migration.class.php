@@ -22,12 +22,16 @@
  * You should have received a copy of the GNU General Public License
  * along with JAMF plugin for GLPI. If not, see <http://www.gnu.org/licenses/>.
  * -------------------------------------------------------------------------
- * @copyright Copyright (C) 2024-2024 by Teclib'
+ * @copyright Copyright (C) 2024-2025 by Teclib'
  * @copyright Copyright (C) 2019-2024 by Curtis Conard
  * @license   GPLv2 https://www.gnu.org/licenses/gpl-2.0.html
  * @link      https://github.com/pluginsGLPI/jamf
  * -------------------------------------------------------------------------
  */
+
+use function Safe\preg_match;
+use function Safe\Copy;
+use function Safe\mkdir;
 
 /**
  * Handles migrating between plugin versions.
@@ -37,6 +41,7 @@
 final class PluginJamfMigration
 {
     private const BASE_VERSION = '1.0.0';
+
     /**
      * @var Migration
      */
@@ -47,8 +52,8 @@ final class PluginJamfMigration
      */
     private $db;
 
-    /** @var PluginJamfAPI */
-    private $api;
+    /** @var 'PluginJamfAPI' */
+    private $api = 'PluginJamfAPI';
 
     /**
      * PluginJamfMigration constructor.
@@ -57,6 +62,7 @@ final class PluginJamfMigration
      */
     public function __construct($version)
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         $this->glpiMigration = new Migration($version);
@@ -66,13 +72,15 @@ final class PluginJamfMigration
     public function applyMigrations()
     {
         $rc                      = new ReflectionClass($this);
-        $otherMigrationFunctions = array_map(static function ($rm) {
-            return $rm->getShortName();
-        }, array_filter($rc->getMethods(), static function ($m) {
-            return preg_match('/(?<=^apply_)(.*)(?=_migration$)/', $m->getShortName());
-        }));
+        $otherMigrationFunctions = array_map(
+            static fn($rm) => $rm->getShortName(),
+            array_filter(
+                $rc->getMethods(),
+                static fn($m): bool => preg_match('/(?<=^apply_)(.*)(?=_migration$)/', $m->getShortName()) === 1,
+            ),
+        );
 
-        if (count($otherMigrationFunctions)) {
+        if ($otherMigrationFunctions !== []) {
             // Map versions to functions
             $versionMap = [];
             foreach ($otherMigrationFunctions as $function) {
@@ -129,6 +137,9 @@ final class PluginJamfMigration
             'plugin_version',
         ]);
         CronTask::unregister('Jamf');
+        if (is_dir(GLPI_PLUGIN_DOC_DIR . "/jamf/")) {
+            Toolbox::deleteDir(GLPI_PLUGIN_DOC_DIR . "/jamf/");
+        }
     }
 
     private function setPluginVersionInDB($version)
@@ -162,7 +173,7 @@ final class PluginJamfMigration
                 PRIMARY KEY (`id`),
                 UNIQUE KEY `unicity` (`jamf_items_id`,`type`)
                ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci';
-            $this->db->queryOrDie($query, 'Error creating JAMF plugin imports table' . $this->db->error());
+            $this->db->doQuery($query);
         }
 
         // Check mobile devices table (Extra data for mobile devices)
@@ -196,7 +207,7 @@ final class PluginJamfMigration
                 UNIQUE KEY `unicity` (`itemtype`, `items_id`),
                 KEY `udid` (`udid`)
                ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
-            $this->db->queryOrDie($query, 'Error creating JAMF plugin mobile devices table' . $this->db->error());
+            $this->db->doQuery($query);
         }
 
         // Check software table (Extra data for software). Also check the later name just to avoid useless SQL actions.
@@ -208,7 +219,7 @@ final class PluginJamfMigration
                   `itunes_store_url` varchar(255) NOT NULL,
                 PRIMARY KEY (`id`)
                ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci';
-            $this->db->queryOrDie($query, 'Error creating JAMF plugin software table' . $this->db->error());
+            $this->db->doQuery($query);
         }
 
         $jamfconfig = Config::getConfigurationValues('plugin:Jamf');
@@ -265,8 +276,9 @@ final class PluginJamfMigration
                 KEY `name` (`name`),
                 UNIQUE KEY `jamf_id` (`jamf_id`, `itemtype`)
                ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci';
-            $this->db->queryOrDie($query, 'Error creating JAMF plugin extension attribute table' . $this->db->error());
+            $this->db->doQuery($query);
         }
+
         if (!$this->db->tableExists('glpi_plugin_jamf_items_extensionattributes')) {
             $query = 'CREATE TABLE `glpi_plugin_jamf_items_extensionattributes` (
                   `id` int(11) NOT NULL auto_increment,
@@ -278,8 +290,9 @@ final class PluginJamfMigration
                 KEY `item` (`itemtype`, `items_id`),
                 UNIQUE `unicity` (`itemtype`, `items_id`, `glpi_plugin_jamf_extensionattributes_id`)
                ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci';
-            $this->db->queryOrDie($query, 'Error creating JAMF plugin item extension attribute table' . $this->db->error());
+            $this->db->doQuery($query);
         }
+
         if (!$this->db->tableExists('glpi_plugin_jamf_extfields')) {
             $query = "CREATE TABLE `glpi_plugin_jamf_extfields` (
                   `id` int(11) NOT NULL auto_increment,
@@ -291,8 +304,9 @@ final class PluginJamfMigration
                 KEY `item` (`itemtype`, `items_id`),
                 UNIQUE `unicity` (`itemtype`, `items_id`)
                ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
-            $this->db->queryOrDie($query, 'Error creating JAMF plugin item extension field table' . $this->db->error());
+            $this->db->doQuery($query);
         }
+
         if (!$this->db->tableExists('glpi_plugin_jamf_users_jssaccounts')) {
             $query = 'CREATE TABLE `glpi_plugin_jamf_users_jssaccounts` (
                   `id` int(11) NOT NULL auto_increment,
@@ -300,7 +314,7 @@ final class PluginJamfMigration
                   `jssaccounts_id` int(11) NOT NULL,
                 PRIMARY KEY (`id`)
                ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci';
-            $this->db->queryOrDie($query, 'Error creating JAMF plugin jss account link table' . $this->db->error());
+            $this->db->doQuery($query);
         }
 
         $this->glpiMigration->addConfig([
@@ -338,7 +352,7 @@ final class PluginJamfMigration
 
     private function apply_1_1_2_migration()
     {
-        $this->db->updateOrDie('glpi_crontasks', [
+        $this->db->update('glpi_crontasks', [
             'allowmode' => 3,
         ], [
             'itemtype' => 'PluginJamfSync',
@@ -357,6 +371,7 @@ final class PluginJamfMigration
                 'name'    => ['itemtype_iphone', 'itemtype_ipad', 'itemtype_appletv'],
             ]);
         }
+
         if (isset($config['itemtype_iphone'])) {
             $this->db->delete(Config::getTable(), [
                 'context' => 'plugin:Jamf',
@@ -368,9 +383,11 @@ final class PluginJamfMigration
         if (!isset($config['default_status'])) {
             $this->glpiMigration->addConfig(['default_status', null], 'plugin:Jamf');
         }
+
         if (!isset($config['sync_components'])) {
             $this->glpiMigration->addConfig(['sync_components', 0], 'plugin:Jamf');
         }
+
         if (!isset($config['jssignorecert'])) {
             $this->glpiMigration->addConfig(['jssignorecert', 0], 'plugin:Jamf');
         }
@@ -387,6 +404,7 @@ final class PluginJamfMigration
             if ($this->db->fieldExists('glpi_plugin_jamf_extensionattributes', 'itemtype')) {
                 $this->glpiMigration->dropField('glpi_plugin_jamf_extensionattributes', 'itemtype');
             }
+
             $this->glpiMigration->addKey('glpi_plugin_jamf_extensionattributes', ['jamf_type', 'jamf_id'], 'unicity', 'UNIQUE');
             $this->glpiMigration->migrationOneTable('glpi_plugin_jamf_extensionattributes');
         }
@@ -419,7 +437,7 @@ final class PluginJamfMigration
                 UNIQUE KEY `unicity` (`itemtype`, `items_id`),
                 KEY `udid` (`udid`)
                ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
-            $this->db->queryOrDie($query, 'Error creating JAMF plugin devices table' . $this->db->error());
+            $this->db->doQuery($query);
 
             $common_fields     = ['jamf_items_id', 'items_id', 'itemtype', 'udid', 'last_inventory', 'entry_date', 'enroll_date', 'import_date', 'sync_date', 'managed', 'supervised', 'activation_lock_enabled'];
             $all_mobiledevices = getAllDataFromTable('glpi_plugin_jamf_mobiledevices');
@@ -430,6 +448,7 @@ final class PluginJamfMigration
                 foreach ($common_fields as $cf) {
                     $field_map[$cf] = $mobiledevice[$cf];
                 }
+
                 $this->db->insert('glpi_plugin_jamf_devices', $field_map);
                 $this->db->update('glpi_plugin_jamf_mobiledevices', ['glpi_plugin_jamf_devices_id' => $this->db->insertId()], ['id' => $mobiledevice['id']]);
             }
@@ -437,6 +456,7 @@ final class PluginJamfMigration
             foreach ($common_fields as $cf) {
                 $this->glpiMigration->dropField('glpi_plugin_jamf_mobiledevices', $cf);
             }
+
             $this->glpiMigration->migrationOneTable('glpi_plugin_jamf_mobiledevices');
         }
 
@@ -448,7 +468,7 @@ final class PluginJamfMigration
                 PRIMARY KEY (`id`),
                 UNIQUE KEY `glpi_plugin_jamf_devices_id` (`glpi_plugin_jamf_devices_id`)
                ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci';
-            $this->db->queryOrDie($query, 'Error creating JAMF plugin computers table' . $this->db->error());
+            $this->db->doQuery($query);
         }
 
         // Convert old software table to mobile device software table
@@ -464,7 +484,7 @@ final class PluginJamfMigration
                   `itunes_store_url` varchar(255) NOT NULL,
                 PRIMARY KEY (`id`)
                ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci';
-            $this->db->queryOrDie($query, 'Error creating JAMF plugin computer software table' . $this->db->error());
+            $this->db->doQuery($query);
         }
 
         $old_cron = $this->db->request([
@@ -503,7 +523,8 @@ final class PluginJamfMigration
             foreach ($broken_msoftware_links as $data) {
                 $m_ids[] = $data['id'];
             }
-            if (count($m_ids)) {
+
+            if ($m_ids !== []) {
                 $this->db->delete('glpi_plugin_jamf_mobiledevicesoftwares', [
                     'id' => $m_ids,
                 ]);
@@ -528,7 +549,8 @@ final class PluginJamfMigration
             foreach ($broken_csoftware_links as $data) {
                 $c_ids[] = $data['id'];
             }
-            if (count($c_ids)) {
+
+            if ($c_ids !== []) {
                 $this->db->delete('glpi_plugin_jamf_computersoftwares', [
                     'id' => $c_ids,
                 ]);
@@ -538,64 +560,64 @@ final class PluginJamfMigration
 
     public function apply_3_0_0_migration(): void
     {
-        if ($this->db->tableExists('glpi_plugin_jamf_devices')) {
-            if (!$this->db->fieldExists('glpi_plugin_jamf_devices', 'model_identifier')) {
-                // Add model_identifier column (Needed specifically for some MDM commands like ScheduleOSUpdate to know applicable updates)
-                $this->glpiMigration->addField('glpi_plugin_jamf_devices', 'model_identifier', 'string');
-                $this->glpiMigration->migrationOneTable('glpi_plugin_jamf_devices');
-                // Fill model_identifier column for all existing devices (Need to query JSS)
-                $this->glpiMigration->log('Updating model_identifier for all existing devices. This may take a while...', false);
-                $devices = $this->db->request([
-                    'SELECT' => ['id', 'jamf_type', 'jamf_items_id'],
-                    'FROM'   => 'glpi_plugin_jamf_devices',
-                ]);
+        if ($this->db->tableExists('glpi_plugin_jamf_devices') && !$this->db->fieldExists('glpi_plugin_jamf_devices', 'model_identifier')) {
+            // Add model_identifier column (Needed specifically for some MDM commands like ScheduleOSUpdate to know applicable updates)
+            $this->glpiMigration->addField('glpi_plugin_jamf_devices', 'model_identifier', 'string');
+            $this->glpiMigration->migrationOneTable('glpi_plugin_jamf_devices');
+            // Fill model_identifier column for all existing devices (Need to query JSS)
+            $this->glpiMigration->log('Updating model_identifier for all existing devices. This may take a while...', false);
+            $devices = $this->db->request([
+                'SELECT' => ['id', 'jamf_type', 'jamf_items_id'],
+                'FROM'   => 'glpi_plugin_jamf_devices',
+            ]);
+            $jss_mobiledevices = count($devices) > 0 ? $this->api::getAllMobileDevices() : [];
 
-                if (count($devices)) {
-                    $jss_mobiledevices = $this->api::getAllMobileDevices();
-                } else {
-                    $jss_mobiledevices = [];
-                }
-                foreach ($devices as $device) {
-                    if ($device['jamf_type'] === 'MobileDevice') {
-                        // We can get the model identifier directly from the list of mobile devices
-                        foreach ($jss_mobiledevices as $jss_mobile) {
-                            if ((int) $jss_mobile['id'] === $device['jamf_items_id']) {
-                                $this->db->update(
-                                    'glpi_plugin_jamf_devices',
-                                    [
-                                        'model_identifier' => $jss_mobile['modelIdentifier'],
-                                    ],
-                                    [
-                                        'id' => $device['id'],
-                                    ],
-                                );
-                                break;
-                            }
-                        }
-                    } elseif ($device['jamf_type'] === 'Computer') {
-                        // We need to query the JSS for the computer's model identifier
-                        $computer = $this->api::getComputerByID($device['jamf_items_id'], true);
-                        if ($computer !== null) {
+            foreach ($devices as $device) {
+                if ($device['jamf_type'] === 'MobileDevice') {
+                    // We can get the model identifier directly from the list of mobile devices
+                    foreach ($jss_mobiledevices as $jss_mobile) {
+                        if ((int) $jss_mobile['id'] === $device['jamf_items_id']) {
                             $this->db->update(
                                 'glpi_plugin_jamf_devices',
                                 [
-                                    'model_identifier' => $computer['hardware']['modelIdentifier'],
+                                    'model_identifier' => $jss_mobile['modelIdentifier'],
                                 ],
                                 [
                                     'id' => $device['id'],
                                 ],
                             );
+                            break;
                         }
-                    } else {
-                        $this->glpiMigration->log('Found device with invalid Jamf type (ID: ' . $device['id'] . '). Ignoring.', true);
                     }
+                } elseif ($device['jamf_type'] === 'Computer') {
+                    // We need to query the JSS for the computer's model identifier
+                    $computer = $this->api::getComputerByID($device['jamf_items_id'], true);
+                    if ($computer !== null) {
+                        $this->db->update(
+                            'glpi_plugin_jamf_devices',
+                            [
+                                'model_identifier' => $computer['hardware']['modelIdentifier'],
+                            ],
+                            [
+                                'id' => $device['id'],
+                            ],
+                        );
+                    }
+                } else {
+                    $this->glpiMigration->log('Found device with invalid Jamf type (ID: ' . $device['id'] . '). Ignoring.', true);
                 }
             }
         }
 
+
+        //create dir if needed
+        mkdir(GLPI_PLUGIN_DOC_DIR . '/jamf');
+
         // Copy default pmv from tools dir
         $pmv_file_path = GLPI_PLUGIN_DOC_DIR . '/jamf/pmv.json';
         if (!file_exists($pmv_file_path)) {
+            Toolbox::logDebug($pmv_file_path);
+            Toolbox::logDebug(Plugin::getPhpDir('jamf') . '/tools/pmv.json');
             copy(Plugin::getPhpDir('jamf') . '/tools/pmv.json', $pmv_file_path);
         }
 
@@ -609,7 +631,7 @@ final class PluginJamfMigration
     public function apply_3_0_1_migration(): void
     {
         // Change udid column in glpi_plugin_jamf_imports to allow NULL values
-        $this->db->queryOrDie('ALTER TABLE `glpi_plugin_jamf_imports` MODIFY `udid` VARCHAR(100) NULL DEFAULT NULL');
+        $this->db->doQuery('ALTER TABLE `glpi_plugin_jamf_imports` MODIFY `udid` VARCHAR(100) NULL DEFAULT NULL');
     }
 
     public function apply_3_1_1_migration(): void

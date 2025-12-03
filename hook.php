@@ -22,7 +22,7 @@
  * You should have received a copy of the GNU General Public License
  * along with JAMF plugin for GLPI. If not, see <http://www.gnu.org/licenses/>.
  * -------------------------------------------------------------------------
- * @copyright Copyright (C) 2024-2024 by Teclib'
+ * @copyright Copyright (C) 2024-2025 by Teclib'
  * @copyright Copyright (C) 2019-2024 by Curtis Conard
  * @license   GPLv2 https://www.gnu.org/licenses/gpl-2.0.html
  * @link      https://github.com/pluginsGLPI/jamf
@@ -74,163 +74,161 @@ function plugin_jamf_getAddSearchOptions($itemtype)
 {
     $opt    = [];
     $plugin = new Plugin();
-    if ($plugin->isActivated('jamf')) {
-        if ($itemtype === 'Computer' || $itemtype === 'Phone') {
-            $opt = [
-                '22002' => [
-                    'table'         => 'glpi_plugin_jamf_devices',
-                    'field'         => 'last_inventory',
-                    'name'          => 'Jamf - ' . _x('field', 'Last inventory', 'jamf'),
-                    'datatype'      => 'datetime',
-                    'massiveaction' => false,
-                    'joinparams'    => ['jointype' => 'itemtype_item'],
-                ],
-                '22003' => [
-                    'table'         => 'glpi_plugin_jamf_devices',
-                    'field'         => 'entry_date',
-                    'name'          => 'Jamf - ' . _x('field', 'Import date', 'jamf'),
-                    'datatype'      => 'datetime',
-                    'massiveaction' => false,
-                    'joinparams'    => ['jointype' => 'itemtype_item'],
-                ],
-                '22004' => [
-                    'table'         => 'glpi_plugin_jamf_devices',
-                    'field'         => 'enroll_date',
-                    'name'          => 'Jamf - ' . _x('field', 'Enrollment date', 'jamf'),
-                    'datatype'      => 'datetime',
-                    'massiveaction' => false,
-                    'joinparams'    => ['jointype' => 'itemtype_item'],
-                ],
-                '22005' => [
-                    'table'         => 'glpi_plugin_jamf_devices',
-                    'field'         => 'managed',
-                    'name'          => 'Jamf - ' . _x('field', 'Managed', 'jamf'),
-                    'datatype'      => 'bool',
-                    'massiveaction' => false,
-                    'joinparams'    => ['jointype' => 'itemtype_item'],
-                ],
-                '22006' => [
-                    'table'         => 'glpi_plugin_jamf_devices',
-                    'field'         => 'supervised',
-                    'name'          => 'Jamf - ' . _x('field', 'Supervised', 'jamf'),
-                    'datatype'      => 'datetime',
-                    'massiveaction' => false,
-                    'joinparams'    => ['jointype' => 'itemtype_item'],
-                ],
-                //            '22007' => [
-                //               'table'           => 'glpi_plugin_jamf_mobiledevices',
-                //               'field'           => 'cloud_backup_enabled',
-                //               'name'            => 'Jamf - ' ._x('field', 'Cloud backup enabled', 'jamf'),
-                //               'datatype'        => 'bool',
-                //               'massiveaction'   => false,
-                //               'joinparams'      => ['jointype' => 'itemtype_item']
-                //            ],
-                '22008' => [
-                    'table'         => 'glpi_plugin_jamf_devices',
-                    'field'         => 'activation_lock_enabled',
-                    'name'          => 'Jamf - ' . _x('field', 'Activation lock enabled', 'jamf'),
-                    'datatype'      => 'bool',
-                    'massiveaction' => false,
-                    'joinparams'    => ['jointype' => 'itemtype_item'],
-                ],
-                //            '22009' => [
-                //               'table'           => 'glpi_plugin_jamf_mobiledevices',
-                //               'field'           => 'lost_mode_enabled',
-                //               'name'            => 'Jamf - ' ._x('field', 'Lost mode enabled', 'jamf'),
-                //               'datatype'        => 'text',
-                //               'massiveaction'   => false,
-                //               'joinparams'      => ['jointype' => 'itemtype_item']
-                //            ],
-                //            '22010' => [
-                //               'table'           => 'glpi_plugin_jamf_mobiledevices',
-                //               'field'           => 'lost_mode_enforced',
-                //               'name'            => 'Jamf - ' ._x('field', 'Lost mode enforced', 'jamf'),
-                //               'datatype'        => 'bool',
-                //               'massiveaction'   => false,
-                //               'joinparams'      => ['jointype' => 'itemtype_item']
-                //            ],
-                //            '22011' => [
-                //               'table'           => 'glpi_plugin_jamf_mobiledevices',
-                //               'field'           => 'lost_mode_enable_date',
-                //               'name'            => 'Jamf - ' ._x('field', 'Lost mode enable date', 'jamf'),
-                //               'datatype'        => 'datetime',
-                //               'massiveaction'   => false,
-                //               'joinparams'      => ['jointype' => 'itemtype_item']
-                //            ],
-                //            '22012' => [
-                //               'table'           => 'glpi_plugin_jamf_mobiledevices',
-                //               'field'           => 'lost_mode_message',
-                //               'name'            => 'Jamf - ' ._x('field', 'Lost mode message', 'jamf'),
-                //               'datatype'        => 'text',
-                //               'massiveaction'   => false,
-                //               'joinparams'      => ['jointype' => 'itemtype_item']
-                //            ],
-                //            '22013' => [
-                //               'table'           => 'glpi_plugin_jamf_mobiledevices',
-                //               'field'           => 'lost_mode_phone',
-                //               'name'            => 'Jamf - ' ._x('field', 'Lost mode phone', 'jamf'),
-                //               'datatype'        => 'text',
-                //               'massiveaction'   => false,
-                //               'joinparams'      => ['jointype' => 'itemtype_item']
-                //            ],
-                //            '22014' => [
-                //               'table'           => 'glpi_plugin_jamf_mobiledevices',
-                //               'field'           => 'lost_location_latitude',
-                //               'name'            => 'Jamf - ' ._x('field', 'Lost mode latitude', 'jamf'),
-                //               'datatype'        => 'text',
-                //               'massiveaction'   => false,
-                //               'joinparams'      => ['jointype' => 'itemtype_item']
-                //            ],
-                //            '22015' => [
-                //               'table'           => 'glpi_plugin_jamf_mobiledevices',
-                //               'field'           => 'lost_location_longitude',
-                //               'name'            => 'Jamf - ' ._x('field', 'Lost mode longitude', 'jamf'),
-                //               'datatype'        => 'text',
-                //               'massiveaction'   => false,
-                //               'joinparams'      => ['jointype' => 'itemtype_item']
-                //            ],
-                //            '22016' => [
-                //               'table'           => 'glpi_plugin_jamf_mobiledevices',
-                //               'field'           => 'lost_location_altitude',
-                //               'name'            => 'Jamf - ' ._x('field', 'Lost mode altitude', 'jamf'),
-                //               'datatype'        => 'text',
-                //               'massiveaction'   => false,
-                //               'joinparams'      => ['jointype' => 'itemtype_item']
-                //            ],
-                //            '22017' => [
-                //               'table'           => 'glpi_plugin_jamf_mobiledevices',
-                //               'field'           => 'lost_location_speed',
-                //               'name'            => 'Jamf - ' ._x('field', 'Lost mode speed', 'jamf'),
-                //               'datatype'        => 'text',
-                //               'massiveaction'   => false,
-                //               'joinparams'      => ['jointype' => 'itemtype_item']
-                //            ],
-                //            '22018' => [
-                //               'table'           => 'glpi_plugin_jamf_mobiledevices',
-                //               'field'           => 'lost_location_date',
-                //               'name'            => 'Jamf - ' ._x('field', 'Lost mode location date', 'jamf'),
-                //               'datatype'        => 'datetime',
-                //               'massiveaction'   => false,
-                //               'joinparams'      => ['jointype' => 'itemtype_item']
-                //            ],
-                '22019' => [
-                    'table'         => 'glpi_plugin_jamf_devices',
-                    'field'         => 'import_date',
-                    'name'          => 'Jamf - ' . _x('field', 'Import date', 'jamf'),
-                    'datatype'      => 'datetime',
-                    'massiveaction' => false,
-                    'joinparams'    => ['jointype' => 'itemtype_item'],
-                ],
-                '22020' => [
-                    'table'         => 'glpi_plugin_jamf_devices',
-                    'field'         => 'sync_date',
-                    'name'          => 'Jamf - ' . _x('field', 'Sync date', 'jamf'),
-                    'datatype'      => 'datetime',
-                    'massiveaction' => false,
-                    'joinparams'    => ['jointype' => 'itemtype_item'],
-                ],
-            ];
-        }
+    if ($plugin->isActivated('jamf') && ($itemtype === 'Computer' || $itemtype === 'Phone')) {
+        $opt = [
+            '22002' => [
+                'table'         => 'glpi_plugin_jamf_devices',
+                'field'         => 'last_inventory',
+                'name'          => 'Jamf - ' . _x('field', 'Last inventory', 'jamf'),
+                'datatype'      => 'datetime',
+                'massiveaction' => false,
+                'joinparams'    => ['jointype' => 'itemtype_item'],
+            ],
+            '22003' => [
+                'table'         => 'glpi_plugin_jamf_devices',
+                'field'         => 'entry_date',
+                'name'          => 'Jamf - ' . _x('field', 'Import date', 'jamf'),
+                'datatype'      => 'datetime',
+                'massiveaction' => false,
+                'joinparams'    => ['jointype' => 'itemtype_item'],
+            ],
+            '22004' => [
+                'table'         => 'glpi_plugin_jamf_devices',
+                'field'         => 'enroll_date',
+                'name'          => 'Jamf - ' . _x('field', 'Enrollment date', 'jamf'),
+                'datatype'      => 'datetime',
+                'massiveaction' => false,
+                'joinparams'    => ['jointype' => 'itemtype_item'],
+            ],
+            '22005' => [
+                'table'         => 'glpi_plugin_jamf_devices',
+                'field'         => 'managed',
+                'name'          => 'Jamf - ' . _x('field', 'Managed', 'jamf'),
+                'datatype'      => 'bool',
+                'massiveaction' => false,
+                'joinparams'    => ['jointype' => 'itemtype_item'],
+            ],
+            '22006' => [
+                'table'         => 'glpi_plugin_jamf_devices',
+                'field'         => 'supervised',
+                'name'          => 'Jamf - ' . _x('field', 'Supervised', 'jamf'),
+                'datatype'      => 'datetime',
+                'massiveaction' => false,
+                'joinparams'    => ['jointype' => 'itemtype_item'],
+            ],
+            //            '22007' => [
+            //               'table'           => 'glpi_plugin_jamf_mobiledevices',
+            //               'field'           => 'cloud_backup_enabled',
+            //               'name'            => 'Jamf - ' ._x('field', 'Cloud backup enabled', 'jamf'),
+            //               'datatype'        => 'bool',
+            //               'massiveaction'   => false,
+            //               'joinparams'      => ['jointype' => 'itemtype_item']
+            //            ],
+            '22008' => [
+                'table'         => 'glpi_plugin_jamf_devices',
+                'field'         => 'activation_lock_enabled',
+                'name'          => 'Jamf - ' . _x('field', 'Activation lock enabled', 'jamf'),
+                'datatype'      => 'bool',
+                'massiveaction' => false,
+                'joinparams'    => ['jointype' => 'itemtype_item'],
+            ],
+            //            '22009' => [
+            //               'table'           => 'glpi_plugin_jamf_mobiledevices',
+            //               'field'           => 'lost_mode_enabled',
+            //               'name'            => 'Jamf - ' ._x('field', 'Lost mode enabled', 'jamf'),
+            //               'datatype'        => 'text',
+            //               'massiveaction'   => false,
+            //               'joinparams'      => ['jointype' => 'itemtype_item']
+            //            ],
+            //            '22010' => [
+            //               'table'           => 'glpi_plugin_jamf_mobiledevices',
+            //               'field'           => 'lost_mode_enforced',
+            //               'name'            => 'Jamf - ' ._x('field', 'Lost mode enforced', 'jamf'),
+            //               'datatype'        => 'bool',
+            //               'massiveaction'   => false,
+            //               'joinparams'      => ['jointype' => 'itemtype_item']
+            //            ],
+            //            '22011' => [
+            //               'table'           => 'glpi_plugin_jamf_mobiledevices',
+            //               'field'           => 'lost_mode_enable_date',
+            //               'name'            => 'Jamf - ' ._x('field', 'Lost mode enable date', 'jamf'),
+            //               'datatype'        => 'datetime',
+            //               'massiveaction'   => false,
+            //               'joinparams'      => ['jointype' => 'itemtype_item']
+            //            ],
+            //            '22012' => [
+            //               'table'           => 'glpi_plugin_jamf_mobiledevices',
+            //               'field'           => 'lost_mode_message',
+            //               'name'            => 'Jamf - ' ._x('field', 'Lost mode message', 'jamf'),
+            //               'datatype'        => 'text',
+            //               'massiveaction'   => false,
+            //               'joinparams'      => ['jointype' => 'itemtype_item']
+            //            ],
+            //            '22013' => [
+            //               'table'           => 'glpi_plugin_jamf_mobiledevices',
+            //               'field'           => 'lost_mode_phone',
+            //               'name'            => 'Jamf - ' ._x('field', 'Lost mode phone', 'jamf'),
+            //               'datatype'        => 'text',
+            //               'massiveaction'   => false,
+            //               'joinparams'      => ['jointype' => 'itemtype_item']
+            //            ],
+            //            '22014' => [
+            //               'table'           => 'glpi_plugin_jamf_mobiledevices',
+            //               'field'           => 'lost_location_latitude',
+            //               'name'            => 'Jamf - ' ._x('field', 'Lost mode latitude', 'jamf'),
+            //               'datatype'        => 'text',
+            //               'massiveaction'   => false,
+            //               'joinparams'      => ['jointype' => 'itemtype_item']
+            //            ],
+            //            '22015' => [
+            //               'table'           => 'glpi_plugin_jamf_mobiledevices',
+            //               'field'           => 'lost_location_longitude',
+            //               'name'            => 'Jamf - ' ._x('field', 'Lost mode longitude', 'jamf'),
+            //               'datatype'        => 'text',
+            //               'massiveaction'   => false,
+            //               'joinparams'      => ['jointype' => 'itemtype_item']
+            //            ],
+            //            '22016' => [
+            //               'table'           => 'glpi_plugin_jamf_mobiledevices',
+            //               'field'           => 'lost_location_altitude',
+            //               'name'            => 'Jamf - ' ._x('field', 'Lost mode altitude', 'jamf'),
+            //               'datatype'        => 'text',
+            //               'massiveaction'   => false,
+            //               'joinparams'      => ['jointype' => 'itemtype_item']
+            //            ],
+            //            '22017' => [
+            //               'table'           => 'glpi_plugin_jamf_mobiledevices',
+            //               'field'           => 'lost_location_speed',
+            //               'name'            => 'Jamf - ' ._x('field', 'Lost mode speed', 'jamf'),
+            //               'datatype'        => 'text',
+            //               'massiveaction'   => false,
+            //               'joinparams'      => ['jointype' => 'itemtype_item']
+            //            ],
+            //            '22018' => [
+            //               'table'           => 'glpi_plugin_jamf_mobiledevices',
+            //               'field'           => 'lost_location_date',
+            //               'name'            => 'Jamf - ' ._x('field', 'Lost mode location date', 'jamf'),
+            //               'datatype'        => 'datetime',
+            //               'massiveaction'   => false,
+            //               'joinparams'      => ['jointype' => 'itemtype_item']
+            //            ],
+            '22019' => [
+                'table'         => 'glpi_plugin_jamf_devices',
+                'field'         => 'import_date',
+                'name'          => 'Jamf - ' . _x('field', 'Import date', 'jamf'),
+                'datatype'      => 'datetime',
+                'massiveaction' => false,
+                'joinparams'    => ['jointype' => 'itemtype_item'],
+            ],
+            '22020' => [
+                'table'         => 'glpi_plugin_jamf_devices',
+                'field'         => 'sync_date',
+                'name'          => 'Jamf - ' . _x('field', 'Sync date', 'jamf'),
+                'datatype'      => 'datetime',
+                'massiveaction' => false,
+                'joinparams'    => ['jointype' => 'itemtype_item'],
+            ],
+        ];
     }
 
     return $opt;
@@ -241,20 +239,21 @@ function plugin_jamf_dashboardCards($cards = [])
     if (is_null($cards)) {
         $cards = [];
     }
-    $cards = array_merge($cards, PluginJamfExtensionAttribute::dashboardCards());
-    $cards = array_merge($cards, PluginJamfMobileDevice::dashboardCards());
 
-    return $cards;
+    $cards = array_merge($cards, PluginJamfExtensionAttribute::dashboardCards());
+
+    return array_merge($cards, PluginJamfMobileDevice::dashboardCards());
 }
 
 function plugin_jamf_showJamfInfoForItem(array $params)
 {
     $item = $params['item'];
-    /** @var PluginJamfAbstractDevice $jamf_class */
     $jamf_class = PluginJamfAbstractDevice::getJamfItemClassForGLPIItem($item::getType(), $item->getID());
     if ($jamf_class !== null) {
         return $jamf_class::showForItem($params);
     }
+
+    return null;
 }
 
 function plugin_jamf_status()

@@ -22,7 +22,7 @@
  * You should have received a copy of the GNU General Public License
  * along with JAMF plugin for GLPI. If not, see <http://www.gnu.org/licenses/>.
  * -------------------------------------------------------------------------
- * @copyright Copyright (C) 2024-2024 by Teclib'
+ * @copyright Copyright (C) 2024-2025 by Teclib'
  * @copyright Copyright (C) 2019-2024 by Curtis Conard
  * @license   GPLv2 https://www.gnu.org/licenses/gpl-2.0.html
  * @link      https://github.com/pluginsGLPI/jamf
@@ -38,7 +38,9 @@ use Glpi\Application\View\TemplateRenderer;
 class PluginJamfMobileDevice extends PluginJamfAbstractDevice
 {
     public static $itemtype  = 'itemtype';
+
     public static $items_id  = 'items_id';
+
     public static $rightname = 'plugin_jamf_mobiledevice';
 
     public static function getTypeName($nb = 1)
@@ -62,16 +64,16 @@ class PluginJamfMobileDevice extends PluginJamfAbstractDevice
     {
         $config = PluginJamfConfig::getConfig();
 
-        return "{$config['jssserver']}/mobileDevices.html?id={$jamf_id}";
+        return sprintf('%s/mobileDevices.html?id=%d', $config['jssserver'], $jamf_id);
     }
 
     /**
      * Cleanup relations when an item is purged.
-     * @param CommonDBTM $item
      * @global CommonDBTM $DB
      */
     private static function purgeItemCommon(CommonDBTM $item)
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         $DB->delete(self::getTable(), [
@@ -82,7 +84,6 @@ class PluginJamfMobileDevice extends PluginJamfAbstractDevice
 
     /**
      * Cleanup relations when a Computer is purged.
-     * @param Computer $item
      */
     public static function plugin_jamf_purgeComputer(Computer $item)
     {
@@ -91,11 +92,11 @@ class PluginJamfMobileDevice extends PluginJamfAbstractDevice
 
     /**
      * Cleanup relations when a Phone is purged.
-     * @param Phone $item
      * @global DBmysql $DB
      */
     public static function plugin_jamf_purgePhone(Phone $item)
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         self::purgeItemCommon($item);
@@ -136,6 +137,11 @@ class PluginJamfMobileDevice extends PluginJamfAbstractDevice
     {
         $device_data = $this->getJamfDeviceData();
         $itemtype    = $device_data['itemtype'];
+
+        if (!is_a($itemtype, CommonDBTM::class, true)) {
+            throw new InvalidArgumentException('Invalid item type: ' . $itemtype);
+        }
+
         $item        = new $itemtype();
         $item->getFromDB($device_data['items_id']);
 
@@ -161,21 +167,22 @@ class PluginJamfMobileDevice extends PluginJamfAbstractDevice
     {
         $item       = $this->getGLPIItem();
         $modelclass = $this->getJamfDeviceData()['itemtype'] . 'Model';
+
+        if (!is_a($modelclass, CommonDBTM::class, true)) {
+            throw new InvalidArgumentException('Invalid model class: ' . $modelclass);
+        }
+
         if ($item->fields[getForeignKeyFieldForItemType($modelclass)] > 0) {
             /** @var CommonDropdown $model */
             $model = new $modelclass();
             $model->getFromDB($item->fields[getForeignKeyFieldForItemType($modelclass)]);
             $modelname = $model->fields['name'];
-            switch ($modelname) {
-                case strpos($modelname, 'iPad') !== false:
-                    return 'ipad';
-                case strpos($modelname, 'iPhone') !== false:
-                    return 'iphone';
-                case strpos($modelname, 'Apple TV') !== false:
-                    return 'appletv';
-                default:
-                    return null;
-            }
+            return match (true) {
+                str_contains((string) $modelname, 'iPad') => 'ipad',
+                str_contains((string) $modelname, 'iPhone') => 'iphone',
+                str_contains((string) $modelname, 'Apple TV') => 'appletv',
+                default => null,
+            };
         }
 
         return null;
@@ -183,29 +190,24 @@ class PluginJamfMobileDevice extends PluginJamfAbstractDevice
 
     public static function dashboardCards()
     {
-        $cards = [];
-
-        $cards['plugin_jamf_mobile_lost'] = [
+        return ['plugin_jamf_mobile_lost' => [
             'widgettype' => ['bigNumber'],
             'label'      => _x('dashboard', 'Jamf Lost Mobile Device Count', 'jamf'),
             'provider'   => 'PluginJamfMobileDevice::cardLostModeProvider',
-        ];
-        $cards['plugin_jamf_mobile_managed'] = [
+        ], 'plugin_jamf_mobile_managed' => [
             'widgettype' => ['bigNumber'],
             'label'      => _x('dashboard', 'Jamf Managed Mobile Device Count', 'jamf'),
             'provider'   => 'PluginJamfMobileDevice::cardManagedProvider',
-        ];
-        $cards['plugin_jamf_mobile_supervised'] = [
+        ], 'plugin_jamf_mobile_supervised' => [
             'widgettype' => ['bigNumber'],
             'label'      => _x('dashboard', 'Jamf Supervised Mobile Device Count', 'jamf'),
             'provider'   => 'PluginJamfMobileDevice::cardSupervisedProvider',
-        ];
-
-        return $cards;
+        ]];
     }
 
     public static function cardLostModeProvider($params = [])
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         $table    = self::getTable();
@@ -225,6 +227,7 @@ class PluginJamfMobileDevice extends PluginJamfAbstractDevice
 
     public static function cardManagedProvider($params = [])
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         $iterator = $DB->request([
@@ -243,6 +246,7 @@ class PluginJamfMobileDevice extends PluginJamfAbstractDevice
 
     public static function cardSupervisedProvider($params = [])
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         $iterator = $DB->request([
@@ -261,28 +265,30 @@ class PluginJamfMobileDevice extends PluginJamfAbstractDevice
 
     public static function showForItem(array $params)
     {
+        /** @var array $CFG_GLPI */
+        global $CFG_GLPI;
+
         /** @var CommonDBTM $item */
         $item = $params['item'];
 
-        if (!self::canView() || (!($item::getType() === 'Computer') && !($item::getType() === 'Phone'))) {
+        if (!self::canView() || ($item::getType() !== 'Computer' && $item::getType() !== 'Phone')) {
             return false;
         }
 
-        $getYesNo = static function ($value) {
-            return $value ? __('Yes') : __('No');
-        };
+        $getYesNo = (static fn($value) => $value ? __('Yes') : __('No'));
 
         $jamf_item = static::getJamfItemForGLPIItem($item);
 
-        if ($jamf_item === null) {
+        if (!$jamf_item instanceof PluginJamfAbstractDevice) {
             return false;
         }
+
         $match = $jamf_item->fields;
         $match = array_merge($match, $jamf_item->getJamfDeviceData());
 
         $js = '';
         if ($item->canUpdate()) {
-            $ajax_url = Plugin::getWebDir('jamf') . '/ajax/sync.php';
+            $ajax_url = $CFG_GLPI['root_doc'] . '/plugins/jamf/ajax/sync.php';
             $js       = <<<JAVASCRIPT
                function syncDevice(itemtype, items_id) {
                   $.ajax({
@@ -297,6 +303,7 @@ class PluginJamfMobileDevice extends PluginJamfAbstractDevice
                }
 JAVASCRIPT;
         }
+
         $info = [
             'general' => [
                 'caption' => _x('form_section', 'Jamf General Information', 'jamf'),
@@ -349,7 +356,7 @@ JAVASCRIPT;
                     ],
                     'sync' => [
                         'caption'  => _x('action', 'Sync now', 'jamf'),
-                        'on_click' => "syncDevice(\"{$item::getType()}\", {$item->getID()}); return false;",
+                        'on_click' => sprintf('syncDevice("%s", %d); return false;', $item::getType(), $item->getID()),
                     ],
                 ],
                 'extra_js' => $js,
@@ -394,7 +401,7 @@ JAVASCRIPT;
                 ],
                 'lost_location' => [
                     'caption' => _x('field', 'GPS', 'jamf'),
-                    'value'   => Html::link("$lat, $long", "https://www.google.com/maps/place/$lat,$long", [
+                    'value'   => Html::link(sprintf('%s, %s', $lat, $long), sprintf('https://www.google.com/maps/place/%s,%s', $lat, $long), [
                         'display' => false,
                     ]),
                 ],
@@ -416,5 +423,6 @@ JAVASCRIPT;
         TemplateRenderer::getInstance()->display('@jamf/inventory_info.html.twig', [
             'info' => $info,
         ]);
+        return null;
     }
 }

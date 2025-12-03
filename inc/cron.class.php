@@ -22,12 +22,15 @@
  * You should have received a copy of the GNU General Public License
  * along with JAMF plugin for GLPI. If not, see <http://www.gnu.org/licenses/>.
  * -------------------------------------------------------------------------
- * @copyright Copyright (C) 2024-2024 by Teclib'
+ * @copyright Copyright (C) 2024-2025 by Teclib'
  * @copyright Copyright (C) 2019-2024 by Curtis Conard
  * @license   GPLv2 https://www.gnu.org/licenses/gpl-2.0.html
  * @link      https://github.com/pluginsGLPI/jamf
  * -------------------------------------------------------------------------
  */
+
+use function Safe\file_get_contents;
+use function Safe\file_put_contents;
 
 /**
  * Contains all cron functions for Jamf plugin
@@ -45,10 +48,11 @@ final class PluginJamfCron extends CommonGLPI
         $volume  = 0;
         $engines = PluginJamfSync::getDeviceSyncEngines();
 
-        foreach ($engines as $jamf_class => $engine) {
+        foreach ($engines as $engine) {
             $v = $engine::syncAll();
-            $volume += $v >= 0 ? $v : 0;
+            $volume += max($v, 0);
         }
+
         $task->addVolume($volume);
 
         return 1;
@@ -59,10 +63,11 @@ final class PluginJamfCron extends CommonGLPI
         $volume  = 0;
         $engines = PluginJamfSync::getDeviceSyncEngines();
 
-        foreach ($engines as $jamf_class => $engine) {
+        foreach ($engines as $engine) {
             $v = $engine::discover();
-            $volume += $v >= 0 ? $v : 0;
+            $volume += max($v, 0);
         }
+
         $task->addVolume($volume);
 
         return 1;
@@ -74,27 +79,30 @@ final class PluginJamfCron extends CommonGLPI
         $out_file = GLPI_PLUGIN_DOC_DIR . '/jamf/pmv.json';
 
         $json = file_get_contents($url);
-        if ($json === false) {
+        if ($json === "") {
             $task->log(__('Unable to fetch PMV JSON from Apple', 'jamf'));
 
             return 0;
         }
+
         try {
             $json = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
-        } catch (JsonException $e) {
+        } catch (JsonException) {
             $task->log(__('Retrieved malformed PMV JSON', 'jamf'));
 
             return 0;
         }
+
         unset($json['PublicAssetSets']);
         try {
             $json = json_encode($json, JSON_THROW_ON_ERROR);
-        } catch (JsonException $e) {
+        } catch (JsonException) {
             $task->log(__('Unable to encode PMV JSON', 'jamf'));
 
             return 0;
         }
-        if (file_put_contents($out_file, $json) === false) {
+
+        if (file_put_contents($out_file, $json) === 0) {
             $task->log(__('Unable to write PMV JSON to file', 'jamf'));
 
             return 0;

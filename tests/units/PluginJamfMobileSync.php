@@ -22,15 +22,19 @@
  * You should have received a copy of the GNU General Public License
  * along with JAMF plugin for GLPI. If not, see <http://www.gnu.org/licenses/>.
  * -------------------------------------------------------------------------
- * @copyright Copyright (C) 2024-2024 by Teclib'
+ * @copyright Copyright (C) 2024-2025 by Teclib'
  * @copyright Copyright (C) 2019-2024 by Curtis Conard
  * @license   GPLv2 https://www.gnu.org/licenses/gpl-2.0.html
  * @link      https://github.com/pluginsGLPI/jamf
  * -------------------------------------------------------------------------
  */
 
-namespace tests\units;
+namespace GlpiPlugin\Jamf\Tests\units;
 
+use Computer;
+use DBmysql;
+use GlpiPlugin\Jamf\Tests\AbstractDBTest;
+use GlpiPlugin\Jamf\Tests\PluginJamfMobileTestSync;
 use Phone;
 use PluginJamfAbstractDevice;
 use PluginJamfExtensionAttribute;
@@ -38,14 +42,14 @@ use PluginJamfExtField;
 use PluginJamfImport;
 use PluginJamfItem_ExtensionAttribute;
 use PluginJamfMobileDevice;
-use PluginJamfMobileTestSync;
 use PluginJamfSync;
 use ReflectionClass;
 
-class PluginJamfMobileSync extends \AbstractDBTest
+class PluginJamfMobileSync extends AbstractDBTest
 {
     public function testDiscover()
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         PluginJamfMobileTestSync::discover();
@@ -59,6 +63,7 @@ class PluginJamfMobileSync extends \AbstractDBTest
 
     public function testSyncExtensionAttributeDefinitions()
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         PluginJamfMobileTestSync::syncExtensionAttributeDefinitions();
@@ -85,6 +90,7 @@ class PluginJamfMobileSync extends \AbstractDBTest
 
     public function testImportAsComputer()
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         // Force sync extension attribute definitions
@@ -94,7 +100,7 @@ class PluginJamfMobileSync extends \AbstractDBTest
 
         // Make sure the computer was created
         $iterator = $DB->request([
-            'FROM'  => \Computer::getTable(),
+            'FROM'  => Computer::getTable(),
             'WHERE' => [
                 'name' => 'Test iPad 3',
             ],
@@ -140,6 +146,7 @@ class PluginJamfMobileSync extends \AbstractDBTest
 
     public function testImportAsPhone()
     {
+        /** @var DBmysql $DB */
         global $DB;
         PluginJamfMobileTestSync::import('Phone', 5, false);
 
@@ -186,7 +193,7 @@ class PluginJamfMobileSync extends \AbstractDBTest
         $this->assertEquals('1aec6610a9401d2cc47cb55e1a2f7b500ab75864', $ext_field['value']);
     }
 
-    public function deviceSyncEnginesProvider()
+    public static function deviceSyncEnginesProvider()
     {
         $engines = PluginJamfSync::getDeviceSyncEngines();
         $result  = [];

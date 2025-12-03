@@ -22,16 +22,21 @@
  * You should have received a copy of the GNU General Public License
  * along with JAMF plugin for GLPI. If not, see <http://www.gnu.org/licenses/>.
  * -------------------------------------------------------------------------
- * @copyright Copyright (C) 2024-2024 by Teclib'
+ * @copyright Copyright (C) 2024-2025 by Teclib'
  * @copyright Copyright (C) 2019-2024 by Curtis Conard
  * @license   GPLv2 https://www.gnu.org/licenses/gpl-2.0.html
  * @link      https://github.com/pluginsGLPI/jamf
  * -------------------------------------------------------------------------
  */
 
-define('PLUGIN_JAMF_VERSION', '3.1.2');
-define('PLUGIN_JAMF_MIN_GLPI', '10.0.0');
-define('PLUGIN_JAMF_MAX_GLPI', '10.1.0');
+use Glpi\Plugin\Hooks;
+
+use function Safe\define;
+use function Safe\preg_replace;
+
+define('PLUGIN_JAMF_VERSION', '3.2.0-beta1');
+define('PLUGIN_JAMF_MIN_GLPI', '11.0.0');
+define('PLUGIN_JAMF_MAX_GLPI', '11.1.0');
 
 function plugin_init_jamf()
 {
@@ -44,7 +49,7 @@ function plugin_init_jamf()
         Plugin::registerClass('PluginJamfConfig', ['addtabon' => 'Config']);
         $PLUGIN_HOOKS['post_item_form']['jamf']           = 'plugin_jamf_showJamfInfoForItem';
         $PLUGIN_HOOKS['pre_item_update']['jamf']['Phone'] = ['PluginJamfMobileDevice', 'preUpdatePhone'];
-        $PLUGIN_HOOKS['undiscloseConfigValue']['jamf']    = [PluginJamfConfig::class, 'undiscloseConfigValue'];
+        $PLUGIN_HOOKS['undiscloseConfigValue']['jamf']    = PluginJamfConfig::undiscloseConfigValue(...);
         Plugin::registerClass('PluginJamfRuleImportCollection', ['rulecollections_types' => true]);
         Plugin::registerClass('PluginJamfProfile', ['addtabon' => ['Profile']]);
         Plugin::registerClass('PluginJamfItem_ExtensionAttribute', ['addtabon' => [
@@ -59,12 +64,15 @@ function plugin_init_jamf()
         if (Session::haveRight('plugin_jamf_mobiledevice', READ)) {
             $PLUGIN_HOOKS['menu_toadd']['jamf'] = ['tools' => 'PluginJamfMenu'];
         }
+
         $PLUGIN_HOOKS['post_init']['jamf']  = 'plugin_jamf_postinit';
         $PLUGIN_HOOKS['item_purge']['jamf'] = [
             'Computer' => ['PluginJamfAbstractDevice', 'plugin_jamf_purgeComputer'],
             'Phone'    => ['PluginJamfAbstractDevice', 'plugin_jamf_purgePhone'],
             'Software' => ['PluginJamfSoftware', 'plugin_jamf_purgeSoftware'],
         ];
+
+        $PLUGIN_HOOKS[Hooks::CONFIG_PAGE]['jamf'] = 'front/menu.php';
 
         // Dashboards
         $PLUGIN_HOOKS['dashboard_cards']['jamf'] = 'plugin_jamf_dashboardCards';
@@ -76,7 +84,7 @@ function plugin_init_jamf()
 function plugin_version_jamf()
 {
     return [
-        'name'         => _x('plugin_info', 'JAMF Plugin for GLPI', 'jamf'),
+        'name'         => 'Jamf',
         'version'      => PLUGIN_JAMF_VERSION,
         'author'       => "<a href=\"mailto:contact@teclib.com\">Teclib'</a> & Curtis Conard",
         'license'      => 'GPLv2',
@@ -92,21 +100,19 @@ function plugin_version_jamf()
 
 function plugin_jamf_check_prerequisites()
 {
-    if (!method_exists('Plugin', 'checkGlpiVersion')) {
-        $version         = preg_replace('/^((\d+\.?)+).*$/', '$1', GLPI_VERSION);
-        $matchMinGlpiReq = version_compare($version, PLUGIN_JAMF_MIN_GLPI, '>=');
-        $matchMaxGlpiReq = version_compare($version, PLUGIN_JAMF_MAX_GLPI, '<');
-        if (!$matchMinGlpiReq || !$matchMaxGlpiReq) {
-            echo vsprintf(
-                'This plugin requires GLPI >= %1$s and < %2$s.',
-                [
-                    PLUGIN_JAMF_MIN_GLPI,
-                    PLUGIN_JAMF_MAX_GLPI,
-                ],
-            );
+    $version         = preg_replace('/^((\d+\.?)+).*$/', '$1', GLPI_VERSION);
+    $matchMinGlpiReq = version_compare($version, PLUGIN_JAMF_MIN_GLPI, '>=');
+    $matchMaxGlpiReq = version_compare($version, PLUGIN_JAMF_MAX_GLPI, '<');
+    if (!$matchMinGlpiReq || !$matchMaxGlpiReq) {
+        echo vsprintf(
+            'This plugin requires GLPI >= %1$s and < %2$s.',
+            [
+                PLUGIN_JAMF_MIN_GLPI,
+                PLUGIN_JAMF_MAX_GLPI,
+            ],
+        );
 
-            return false;
-        }
+        return false;
     }
 
     return true;

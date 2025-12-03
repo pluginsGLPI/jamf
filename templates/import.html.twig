@@ -1,38 +1,36 @@
 {#
-/**
- * -------------------------------------------------------------------------
- * JAMF plugin for GLPI
- * -------------------------------------------------------------------------
- *
- * LICENSE
- *
- * This file is part of JAMF plugin for GLPI.
- *
- * JAMF plugin for GLPI is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * JAMF plugin for GLPI is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with JAMF plugin for GLPI. If not, see <http://www.gnu.org/licenses/>.
- * -------------------------------------------------------------------------
- * @copyright Copyright (C) 2024-2024 by Teclib'
- * @copyright Copyright (C) 2019-2024 by Curtis Conard
- * @license   GPLv2 https://www.gnu.org/licenses/gpl-2.0.html
- * @link      https://github.com/pluginsGLPI/jamf
- * -------------------------------------------------------------------------
- */
-#}
+ # -------------------------------------------------------------------------
+ # JAMF plugin for GLPI
+ # -------------------------------------------------------------------------
+ #
+ # LICENSE
+ #
+ # This file is part of JAMF plugin for GLPI.
+ #
+ # JAMF plugin for GLPI is free software; you can redistribute it and/or modify
+ # it under the terms of the GNU General Public License as published by
+ # the Free Software Foundation; either version 2 of the License, or
+ # (at your option) any later version.
+ #
+ # JAMF plugin for GLPI is distributed in the hope that it will be useful,
+ # but WITHOUT ANY WARRANTY; without even the implied warranty of
+ # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ # GNU General Public License for more details.
+ #
+ # You should have received a copy of the GNU General Public License
+ # along with JAMF plugin for GLPI. If not, see <http://www.gnu.org/licenses/>.
+ # -------------------------------------------------------------------------
+ # @copyright Copyright (C) 2024-2025 by Teclib'
+ # @copyright Copyright (C) 2019-2024 by Curtis Conard
+ # @license   GPLv2 https://www.gnu.org/licenses/gpl-2.0.html
+ # @link      https://github.com/pluginsGLPI/jamf
+ # -------------------------------------------------------------------------
+ #}
 
 <form>
     {{ include('components/pager.html.twig', {
         count: total_count,
-        href: get_plugin_web_dir('jamf') ~ '/front/import.php',
+        href: path('/plugins/jamf/front/import.php'),
         start: _get['start']|default(0),
     }) }}
     <input type="hidden" name="_glpi_csrf_token" value="{{ csrf_token() }}"/>
@@ -75,7 +73,7 @@
         </table>
     </div>
     {% set limitdropdown = include('components/dropdown/limit.html.twig', {
-        href: get_plugin_web_dir('jamf') ~ '/front/import.php',
+        href: path('/plugins/jamf/front/import.php'),
     }) %}
     <div class="ms-auto d-inline-flex align-items-center d-none d-md-block my-2">
         {{ __('Show %s entries')|format(limitdropdown)|raw }}
@@ -90,16 +88,18 @@
                 const import_ids = $(':checkbox:checked').filter(':not([name^="_checkall"])').map(function() {
                     return this.name.replace("import","").substring(1).split('_');
                 }).toArray();
+
                 $.ajax({
                     type: "POST",
-                    url: "{{ get_plugin_web_dir('jamf') }}/ajax/import.php",
+                    url: "{{ path('/plugins/jamf/ajax/import.php') }}",
                     data: {
                         action: "import",
                         import_ids: import_ids
                     },
                     contentType: 'application/json',
                     beforeSend: () => {
-                        $('button[name="import"]').prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>{{ _x('action', 'Importing', 'jamf') }}');
+                        $('button[name="import"]').prop('disabled', true)
+                            .html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>{{ _x("action", "Importing", "jamf") }}');
                         $('button[name="discover"]').prop('disabled', true);
                         $('button[name="clear"]').prop('disabled', true);
                     },
@@ -108,15 +108,17 @@
                     }
                 });
             }
+
             function discoverNow() {
                 $.ajax({
                     type: "POST",
-                    url: "{{ get_plugin_web_dir('jamf') }}/ajax/cron.php",
-                    data: {crontask: "importJamf"},
+                    url: "{{ path('/plugins/jamf/ajax/cron.php') }}",
+                    data: { crontask: "importJamf" },
                     contentType: 'application/json',
                     beforeSend: () => {
                         $('button[name="import"]').prop('disabled', true);
-                        $('button[name="discover"]').prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>{{ _x('action', 'Discovering', 'jamf') }}');
+                        $('button[name="discover"]').prop('disabled', true)
+                            .html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>{{ _x("action", "Discovering", "jamf") }}');
                         $('button[name="clear"]').prop('disabled', true);
                     },
                     complete: () => {
@@ -124,10 +126,11 @@
                     }
                 });
             }
+
             function clearPendingImports() {
                 $.ajax({
                     type: "POST",
-                    url: "{{ get_plugin_web_dir('jamf') }}/ajax/import.php",
+                    url: "{{ path('/plugins/jamf/ajax/import.php') }}",
                     data: {
                         action: "clear"
                     },
@@ -135,13 +138,15 @@
                     beforeSend: () => {
                         $('button[name="import"]').prop('disabled', true);
                         $('button[name="discover"]').prop('disabled', true);
-                        $('button[name="clear"]').prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>{{ _x('action', 'Clearing', 'jamf') }}');
+                        $('button[name="clear"]').prop('disabled', true)
+                            .html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>{{ _x("action", "Clearing", "jamf") }}');
                     },
                     complete: () => {
                         window.location.reload();
                     }
                 });
             }
+
         </script>
     </div>
 </form>

@@ -22,7 +22,7 @@
  * You should have received a copy of the GNU General Public License
  * along with JAMF plugin for GLPI. If not, see <http://www.gnu.org/licenses/>.
  * -------------------------------------------------------------------------
- * @copyright Copyright (C) 2024-2024 by Teclib'
+ * @copyright Copyright (C) 2024-2025 by Teclib'
  * @copyright Copyright (C) 2019-2024 by Curtis Conard
  * @license   GPLv2 https://www.gnu.org/licenses/gpl-2.0.html
  * @link      https://github.com/pluginsGLPI/jamf
@@ -30,7 +30,11 @@
  */
 
 use GuzzleHttp\Client;
-use GuzzleHttp\ClientTrait;
+
+use function Safe\curl_setopt;
+use function Safe\json_decode;
+use function Safe\curl_exec;
+use function Safe\curl_init;
 
 /**
  * JamfConnection class
@@ -43,7 +47,7 @@ class PluginJamfConnection
     private ?string $bearer_token = null;
 
     /**
-     * @var ClientTrait
+     * @var Client
      */
     protected $client;
 
@@ -69,8 +73,6 @@ class PluginJamfConnection
      */
     public function setConnectionConfig($jssserver, $jssuser, $jsspassword)
     {
-        global $DB;
-
         $glpikey = new GLPIKey();
         $enc     = $glpikey->encrypt($jsspassword);
         Config::setConfigurationValues('plugin:Jamf', [
@@ -105,14 +107,15 @@ class PluginJamfConnection
     {
         $server_url = $this->config['jssserver'];
         // Remove trailing slash
-        if (str_ends_with($server_url, '/')) {
-            $server_url = substr($server_url, 0, -1);
-        }
-        if ($pro_api) {
-            return "{$server_url}/api/{$endpoint}";
+        if (str_ends_with((string) $server_url, '/')) {
+            $server_url = substr((string) $server_url, 0, -1);
         }
 
-        return "{$server_url}/JSSResource/{$endpoint}";
+        if ($pro_api) {
+            return sprintf('%s/api/%s', $server_url, $endpoint);
+        }
+
+        return sprintf('%s/JSSResource/%s', $server_url, $endpoint);
     }
 
     public static function getUserAgentString(): string
@@ -124,7 +127,6 @@ class PluginJamfConnection
      * Sets all common curl options needed for the API calls.
      *
      * @param $curl
-     * @return void
      */
     public function setCurlOptions(&$curl): void
     {
@@ -151,6 +153,7 @@ class PluginJamfConnection
 
                 //curl_setopt($auth_curl, CURLOPT_USERPWD, $this->config['jssuser'] . ':' . $this->config['jsspassword']);
             }
+
             curl_setopt($auth_curl, CURLOPT_POST, true);
             curl_setopt($auth_curl, CURLOPT_POSTFIELDS, []);
             curl_setopt($auth_curl, CURLOPT_RETURNTRANSFER, true);
@@ -192,6 +195,7 @@ class PluginJamfConnection
                 'Authorization: Basic ' . $basic_auth,
             ]);
         }
+
         curl_setopt($auth_curl, CURLOPT_POST, true);
         curl_setopt($auth_curl, CURLOPT_POSTFIELDS, []);
         curl_setopt($auth_curl, CURLOPT_RETURNTRANSFER, true);
@@ -203,16 +207,14 @@ class PluginJamfConnection
     }
 
     /**
-     * @return ClientTrait
+     * @return Client
      */
     public function getClient()
     {
-        /**
-         * @var array $CFG_GLPI
-         */
+        /** @var array $CFG_GLPI */
         global $CFG_GLPI;
 
-        if (!isset($this->client)) {
+        if ($this->client === null) {
             if ($this->bearer_token === null) {
                 $this->fetchBearerToken();
             }
@@ -227,10 +229,10 @@ class PluginJamfConnection
             ];
             //TODO use Toolbox::getGuzzleClient in GLPI 10.1
             if (!empty($CFG_GLPI['proxy_name'])) {
-                $proxy_creds = !empty($CFG_GLPI['proxy_user'])
-                    ? $CFG_GLPI['proxy_user'] . ':' . (new GLPIKey())->decrypt($CFG_GLPI['proxy_passwd']) . '@'
-                    : '';
-                $proxy_string     = "http://{$proxy_creds}" . $CFG_GLPI['proxy_name'] . ':' . $CFG_GLPI['proxy_port'];
+                $proxy_creds = empty($CFG_GLPI['proxy_user'])
+                    ? ''
+                    : $CFG_GLPI['proxy_user'] . ':' . (new GLPIKey())->decrypt($CFG_GLPI['proxy_passwd']) . '@';
+                $proxy_string     = 'http://' . $proxy_creds . $CFG_GLPI['proxy_name'] . ':' . $CFG_GLPI['proxy_port'];
                 $options['proxy'] = $proxy_string;
             }
 
