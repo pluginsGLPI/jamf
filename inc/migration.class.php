@@ -89,7 +89,7 @@ final class PluginJamfMigration
             }
 
             // Sort semantically
-            uksort($versionMap, 'version_compare');
+            uksort($versionMap, version_compare(...));
 
             // Get last known recorded version. If none exists, assume this is 1.0.0 since versions weren't recorded until 2.0.0.
             // Migrations should be replayable so nothing should be lost on multiple runs.

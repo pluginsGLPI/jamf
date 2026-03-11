@@ -52,40 +52,38 @@ class PluginJamfRuleImport extends Rule
 
     public function getCriterias()
     {
-        $criterias                  = [];
-        $criterias['name']['field'] = 'name';
-        $criterias['name']['name']  = _x('field', 'Name', 'jamf');
-        $criterias['name']['table'] = '';
-
-        $criterias['itemtype']['field']           = 'itemtype';
-        $criterias['itemtype']['name']            = _x('field', 'Item type', 'jamf');
-        $criterias['itemtype']['table']           = '';
-        $criterias['itemtype']['allow_condition'] = [Rule::PATTERN_IS, Rule::PATTERN_IS_NOT];
-
-        $criterias['last_inventory']['field'] = 'last_inventory';
-        $criterias['last_inventory']['name']  = _x('field', 'Last inventory', 'jamf');
-        $criterias['last_inventory']['table'] = '';
-
-        $criterias['managed']['field'] = 'managed';
-        $criterias['managed']['name']  = _x('field', 'Managed', 'jamf');
-        $criterias['managed']['type']  = 'yesno';
-        $criterias['managed']['table'] = '';
-
-        $criterias['supervised']['field'] = 'supervised';
-        $criterias['supervised']['name']  = _x('field', 'Supervised', 'jamf');
-        $criterias['supervised']['type']  = 'yesno';
-        $criterias['supervised']['table'] = '';
-
-        return $criterias;
+        return ['name' => [
+            'field' => 'name',
+            'name'  => _x('field', 'Name', 'jamf'),
+            'table' => '',
+        ], 'itemtype' => [
+            'field'           => 'itemtype',
+            'name'            => _x('field', 'Item type', 'jamf'),
+            'table'           => '',
+            'allow_condition' => [Rule::PATTERN_IS, Rule::PATTERN_IS_NOT],
+        ], 'last_inventory' => [
+            'field' => 'last_inventory',
+            'name'  => _x('field', 'Last inventory', 'jamf'),
+            'table' => '',
+        ], 'managed' => [
+            'field' => 'managed',
+            'name'  => _x('field', 'Managed', 'jamf'),
+            'type'  => 'yesno',
+            'table' => '',
+        ], 'supervised' => [
+            'field' => 'supervised',
+            'name'  => _x('field', 'Supervised', 'jamf'),
+            'type'  => 'yesno',
+            'table' => '',
+        ]];
     }
 
     public function getActions()
     {
-        $actions                    = [];
-        $actions['_import']['name'] = _x('action', 'Import', 'jamf');
-        $actions['_import']['type'] = 'yesno';
-
-        return $actions;
+        return ['_import' => [
+            'name' => _x('action', 'Import', 'jamf'),
+            'type' => 'yesno',
+        ]];
     }
 
     public function displayAdditionalRuleCondition($condition, $crit, $name, $value, $test = false)
