@@ -22,7 +22,7 @@
  * You should have received a copy of the GNU General Public License
  * along with JAMF plugin for GLPI. If not, see <http://www.gnu.org/licenses/>.
  * -------------------------------------------------------------------------
- * @copyright Copyright (C) 2024-2024 by Teclib'
+ * @copyright Copyright (C) 2024-2025 by Teclib'
  * @copyright Copyright (C) 2019-2024 by Curtis Conard
  * @license   GPLv2 https://www.gnu.org/licenses/gpl-2.0.html
  * @link      https://github.com/pluginsGLPI/jamf
@@ -41,7 +41,9 @@ use Glpi\Application\View\TemplateRenderer;
 class PluginJamfUser_JSSAccount extends CommonDBChild
 {
     public static $itemtype  = 'User';
+
     public static $items_id  = 'users_id';
+
     public static $rightname = 'plugin_jamf_jssaccount';
 
     public const LINK = 256;
@@ -53,6 +55,7 @@ class PluginJamfUser_JSSAccount extends CommonDBChild
 
     public function prepareInputForUpdate($input)
     {
+        /** @var DBmysql $DB */
         global $DB;
         if ($input['jssaccounts_id'] === 0) {
             $DB->delete(self::getTable(), ['id' => $this->fields['id']]);
@@ -66,7 +69,7 @@ class PluginJamfUser_JSSAccount extends CommonDBChild
     public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0)
     {
         if (!self::canView()) {
-            return false;
+            return "";
         }
 
         return self::getTypeName(1);
@@ -120,10 +123,12 @@ class PluginJamfUser_JSSAccount extends CommonDBChild
 
             return self::haveJSSRight('jss_actions', $commands[$meta]['jss_right']);
         }
+
         $map = self::getItemRightMap();
         if (!isset($map[$itemtype])) {
             return false;
         }
+
         $rights = $map[$itemtype];
         foreach ($rights as $right) {
             if (!self::haveJSSRight('jss_objects', 'Create ' . $right)) {
@@ -140,6 +145,7 @@ class PluginJamfUser_JSSAccount extends CommonDBChild
         if (!isset($map[$itemtype])) {
             return false;
         }
+
         $rights = $map[$itemtype];
         foreach ($rights as $right) {
             if (!self::haveJSSRight('jss_objects', 'Read ' . $right)) {
@@ -156,6 +162,7 @@ class PluginJamfUser_JSSAccount extends CommonDBChild
         if (!isset($map[$itemtype])) {
             return false;
         }
+
         $rights = $map[$itemtype];
         foreach ($rights as $right) {
             if (!self::haveJSSRight('jss_objects', 'Update ' . $right)) {
@@ -172,6 +179,7 @@ class PluginJamfUser_JSSAccount extends CommonDBChild
         if (!isset($map[$itemtype])) {
             return false;
         }
+
         $rights = $map[$itemtype];
         foreach ($rights as $right) {
             if (!self::haveJSSRight('jss_objects', 'Delete ' . $right)) {
@@ -202,16 +210,18 @@ class PluginJamfUser_JSSAccount extends CommonDBChild
                 'users_id' => Session::getLoginUserID(),
             ]);
         }
+
         if (count($matches) === 0) {
             // No JSS account link
-            Toolbox::logError(_x('error', 'Attempt to use JSS user rights without a linked account', 'jamf'));
+            Toolbox::logDebug(_x('error', 'Attempt to use JSS user rights without a linked account', 'jamf'));
 
             return false;
         }
+
         $user_jssaccount->getFromDB(reset($matches)['id']);
         $type_rights = $user_jssaccount->getJSSPrivileges()[$type] ?? [];
         if (count($type_rights) === 0) {
-            //Toolbox::logError("Linked JSS account has no rights of type $type");
+            //Toolbox::logDebug("Linked JSS account has no rights of type $type");
             return false;
         }
 
@@ -224,17 +234,14 @@ class PluginJamfUser_JSSAccount extends CommonDBChild
 
         $user_jssaccount = new self();
         $mylink          = $user_jssaccount->find(['users_id' => $item->getID()]);
-        if (count($mylink)) {
-            $mylink = reset($mylink);
-        } else {
-            $mylink = null;
-        }
+        $mylink = count($mylink) ? reset($mylink) : null;
 
         $allusers = PluginJamfAPI::getItemsClassic('accounts')['users'];
         $values   = [];
         foreach ($allusers as $user) {
             $values[$user['id']] = $user['name'];
         }
+
         if (!$canedit) {
             $values = [$mylink['jssaccounts_id'] => $values[$mylink['jssaccounts_id']]];
         }
@@ -258,7 +265,7 @@ class PluginJamfUser_JSSAccount extends CommonDBChild
     {
         $config = PluginJamfConfig::getConfig();
 
-        return "{$config['jssserver']}/accounts.html?id={$jssaccount_id}";
+        return sprintf('%s/accounts.html?id=%s', $config['jssserver'], $jssaccount_id);
     }
 
     public function getRights($interface = 'central')

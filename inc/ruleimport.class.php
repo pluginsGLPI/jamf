@@ -22,7 +22,7 @@
  * You should have received a copy of the GNU General Public License
  * along with JAMF plugin for GLPI. If not, see <http://www.gnu.org/licenses/>.
  * -------------------------------------------------------------------------
- * @copyright Copyright (C) 2024-2024 by Teclib'
+ * @copyright Copyright (C) 2024-2025 by Teclib'
  * @copyright Copyright (C) 2019-2024 by Curtis Conard
  * @license   GPLv2 https://www.gnu.org/licenses/gpl-2.0.html
  * @link      https://github.com/pluginsGLPI/jamf
@@ -37,6 +37,7 @@
 class PluginJamfRuleImport extends Rule
 {
     public static $rightname = 'plugin_jamf_ruleimport';
+
     public $can_sort         = true;
 
     public function getTitle()
@@ -89,16 +90,14 @@ class PluginJamfRuleImport extends Rule
 
     public function displayAdditionalRuleCondition($condition, $crit, $name, $value, $test = false)
     {
-        if (isset($crit['field'])) {
-            switch ($crit['field']) {
-                case 'itemtype':
-                    Dropdown::showFromArray($name, [
-                        Computer::getType() => Computer::getTypeName(1),
-                        Phone::getType()    => Phone::getTypeName(1),
-                    ]);
-
-                    return true;
-            }
+        if (isset($crit['field']) && $crit['field'] === 'itemtype') {
+            Dropdown::showFromArray($name, [
+                Computer::getType() => Computer::getTypeName(1),
+                Phone::getType()    => Phone::getTypeName(1),
+            ]);
+            return true;
         }
+
+        return false;
     }
 }

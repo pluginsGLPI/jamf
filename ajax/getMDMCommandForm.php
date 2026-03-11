@@ -22,18 +22,18 @@
  * You should have received a copy of the GNU General Public License
  * along with JAMF plugin for GLPI. If not, see <http://www.gnu.org/licenses/>.
  * -------------------------------------------------------------------------
- * @copyright Copyright (C) 2024-2024 by Teclib'
+ * @copyright Copyright (C) 2024-2025 by Teclib'
  * @copyright Copyright (C) 2019-2024 by Curtis Conard
  * @license   GPLv2 https://www.gnu.org/licenses/gpl-2.0.html
  * @link      https://github.com/pluginsGLPI/jamf
  * -------------------------------------------------------------------------
  */
 
-include('../../../inc/includes.php');
+use Glpi\Exception\Http\NotFoundHttpException;
 
 $plugin = new Plugin();
 if (!$plugin->isActivated('jamf')) {
-    Html::displayNotFoundError();
+    throw new NotFoundHttpException();
 }
 
 Session::checkLoginUser();
@@ -45,6 +45,10 @@ if (!isset($_GET['command'])) {
 
 if (isset($_GET['itemtype'], $_GET['items_id'])) {
     $className = 'PluginJamf' . $_GET['itemtype'];
+    if (is_a($className, 'CommonDBTM', true) === false) {
+        throw new RuntimeException('Invalid itemtype!');
+    }
+
     $device = new $className();
     if (!$device->getFromDB($_GET['items_id'])) {
         throw new RuntimeException('Invalid itemtype/items_id!');
@@ -52,5 +56,6 @@ if (isset($_GET['itemtype'], $_GET['items_id'])) {
 } else {
     $device = null;
 }
+
 $form = PluginJamfMDMCommand::getFormForCommand($_GET['command'], $device);
 echo $form;

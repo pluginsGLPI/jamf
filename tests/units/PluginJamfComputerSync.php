@@ -22,25 +22,29 @@
  * You should have received a copy of the GNU General Public License
  * along with JAMF plugin for GLPI. If not, see <http://www.gnu.org/licenses/>.
  * -------------------------------------------------------------------------
- * @copyright Copyright (C) 2024-2024 by Teclib'
+ * @copyright Copyright (C) 2024-2025 by Teclib'
  * @copyright Copyright (C) 2019-2024 by Curtis Conard
  * @license   GPLv2 https://www.gnu.org/licenses/gpl-2.0.html
  * @link      https://github.com/pluginsGLPI/jamf
  * -------------------------------------------------------------------------
  */
 
-namespace tests\units;
+namespace GlpiPlugin\Jamf\Tests\units;
 
+use Computer;
+use DBmysql;
+use GlpiPlugin\Jamf\Tests\AbstractDBTest;
+use GlpiPlugin\Jamf\Tests\PluginJamfComputerTestSync;
 use PluginJamfComputer;
-use PluginJamfComputerTestSync;
 use PluginJamfExtensionAttribute;
 use PluginJamfImport;
 use PluginJamfItem_ExtensionAttribute;
 
-class PluginJamfComputerSync extends \AbstractDBTest
+class PluginJamfComputerSync extends AbstractDBTest
 {
     public function testDiscover()
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         PluginJamfComputerTestSync::discover();
@@ -53,6 +57,7 @@ class PluginJamfComputerSync extends \AbstractDBTest
 
     public function testSyncExtensionAttributeDefinitions()
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         PluginJamfComputerTestSync::syncExtensionAttributeDefinitions();
@@ -79,6 +84,7 @@ class PluginJamfComputerSync extends \AbstractDBTest
 
     public function testImport()
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         PluginJamfComputerTestSync::syncExtensionAttributeDefinitions();
@@ -87,7 +93,7 @@ class PluginJamfComputerSync extends \AbstractDBTest
 
         // Make sure the computer was created
         $iterator = $DB->request([
-            'FROM'  => \Computer::getTable(),
+            'FROM'  => Computer::getTable(),
             'WHERE' => [
                 'name' => 'CConardMBA',
             ],

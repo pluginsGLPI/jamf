@@ -22,7 +22,7 @@
  * You should have received a copy of the GNU General Public License
  * along with JAMF plugin for GLPI. If not, see <http://www.gnu.org/licenses/>.
  * -------------------------------------------------------------------------
- * @copyright Copyright (C) 2024-2024 by Teclib'
+ * @copyright Copyright (C) 2024-2025 by Teclib'
  * @copyright Copyright (C) 2019-2024 by Curtis Conard
  * @license   GPLv2 https://www.gnu.org/licenses/gpl-2.0.html
  * @link      https://github.com/pluginsGLPI/jamf
@@ -43,12 +43,12 @@ class PluginJamfMenu extends CommonGLPI
      */
     public static function getTypeName($nb = 0)
     {
-        return _x('plugin_info', 'Jamf plugin', 'jamf');
+        return __s('Jamf', 'jamf');
     }
 
     public static function getMenuName()
     {
-        return _x('plugin_info', 'Jamf plugin', 'jamf');
+        return __s('Jamf', 'jamf');
     }
 
     public static function getIcon()
@@ -58,10 +58,8 @@ class PluginJamfMenu extends CommonGLPI
 
     /**
      * Check if can view item
-     *
-     * @return boolean
      */
-    public static function canView()
+    public static function canView(): bool
     {
         return Config::canView();
     }

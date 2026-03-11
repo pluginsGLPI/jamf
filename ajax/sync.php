@@ -22,24 +22,27 @@
  * You should have received a copy of the GNU General Public License
  * along with JAMF plugin for GLPI. If not, see <http://www.gnu.org/licenses/>.
  * -------------------------------------------------------------------------
- * @copyright Copyright (C) 2024-2024 by Teclib'
+ * @copyright Copyright (C) 2024-2025 by Teclib'
  * @copyright Copyright (C) 2019-2024 by Curtis Conard
  * @license   GPLv2 https://www.gnu.org/licenses/gpl-2.0.html
  * @link      https://github.com/pluginsGLPI/jamf
  * -------------------------------------------------------------------------
  */
 
-include('../../../inc/includes.php');
+use Glpi\Exception\Http\NotFoundHttpException;
+
+use function Safe\file_get_contents;
 
 $plugin = new Plugin();
 if (!$plugin->isActivated('jamf')) {
-    Html::displayNotFoundError();
+    throw new NotFoundHttpException();
 }
 
 Html::header_nocache();
 
 Session::checkLoginUser();
 
+/** @var DBmysql $DB */
 global $DB;
 
 // Get AJAX input and load it into $_REQUEST
@@ -56,9 +59,9 @@ try {
     if ($jamf_class !== null) {
         $sync_class = PluginJamfSync::getDeviceSyncEngines()[$jamf_class] ?? null;
         if ($sync_class !== null) {
-            $sync_class::sync($_REQUEST['itemtype'], $_REQUEST['items_id']);
+            $sync_class::sync($_REQUEST['itemtype'], (int) $_REQUEST['items_id']);
         }
     }
-} catch (Exception $e) {
-    trigger_error($e->getMessage(), E_USER_ERROR);
+} catch (Exception $exception) {
+    trigger_error($exception->getMessage(), E_USER_ERROR);
 }

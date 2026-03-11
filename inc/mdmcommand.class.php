@@ -22,7 +22,7 @@
  * You should have received a copy of the GNU General Public License
  * along with JAMF plugin for GLPI. If not, see <http://www.gnu.org/licenses/>.
  * -------------------------------------------------------------------------
- * @copyright Copyright (C) 2024-2024 by Teclib'
+ * @copyright Copyright (C) 2024-2025 by Teclib'
  * @copyright Copyright (C) 2019-2024 by Curtis Conard
  * @license   GPLv2 https://www.gnu.org/licenses/gpl-2.0.html
  * @link      https://github.com/pluginsGLPI/jamf
@@ -38,9 +38,6 @@ use Glpi\Application\View\TemplateRenderer;
  */
 class PluginJamfMDMCommand
 {
-    /**
-     * @return array
-     */
     public static function getAvailableCommands(): array
     {
         static $allcommands = null;

@@ -22,24 +22,27 @@
  * You should have received a copy of the GNU General Public License
  * along with JAMF plugin for GLPI. If not, see <http://www.gnu.org/licenses/>.
  * -------------------------------------------------------------------------
- * @copyright Copyright (C) 2024-2024 by Teclib'
+ * @copyright Copyright (C) 2024-2025 by Teclib'
  * @copyright Copyright (C) 2019-2024 by Curtis Conard
  * @license   GPLv2 https://www.gnu.org/licenses/gpl-2.0.html
  * @link      https://github.com/pluginsGLPI/jamf
  * -------------------------------------------------------------------------
  */
 
-include('../../../inc/includes.php');
+use Glpi\Exception\Http\NotFoundHttpException;
+
+use function Safe\file_get_contents;
 
 $plugin = new Plugin();
 if (!$plugin->isActivated('jamf')) {
-    Html::displayNotFoundError();
+    throw new NotFoundHttpException();
 }
 
 Html::header_nocache();
 
 Session::checkLoginUser();
 
+/** @var DBmysql $DB */
 global $DB;
 
 // Get AJAX input and load it into $_REQUEST
@@ -50,6 +53,7 @@ parse_str($input, $_REQUEST);
 if (!isset($_REQUEST['action'])) {
     throw new RuntimeException('Required argument missing!');
 }
+
 if ($_REQUEST['action'] === 'merge') {
     // Trigger extension attribute definition sync
     PluginJamfMobileSync::syncExtensionAttributeDefinitions();
@@ -62,6 +66,7 @@ if ($_REQUEST['action'] === 'merge') {
             if (!isset($data['jamf_id'], $data['itemtype'])) {
                 continue;
             }
+
             $jamf_id  = $data['jamf_id'];
             $itemtype = $data['itemtype'];
 
@@ -69,10 +74,11 @@ if ($_REQUEST['action'] === 'merge') {
                 // Invalid itemtype for a mobile device
                 throw new RuntimeException('Invalid itemtype!');
             }
+
             $item = new $itemtype();
-            /** @var PluginJamfAbstractDevice $plugin_itemtype */
+            /** @var class-string<PluginJamfAbstractDevice> $plugin_itemtype */
             $plugin_itemtype = 'PluginJamf' . $data['jamf_type'];
-            /** @var PluginJamfDeviceSync $plugin_sync_itemtype */
+            /** @var class-string<PluginJamfDeviceSync> $plugin_sync_itemtype */
             $plugin_sync_itemtype = 'PluginJamf' . $data['jamf_type'] . 'Sync';
             if ($data['jamf_type'] === 'MobileDevice') {
                 $plugin_sync_itemtype = 'PluginJamfMobileSync';
@@ -102,7 +108,7 @@ if ($_REQUEST['action'] === 'merge') {
                 'supervised'     => $jamf_item['supervised']                   ?? $os_details['supervised'],
             ];
             $ruleinput = $rules->processAllRules($ruleinput, $ruleinput, ['recursive' => true]);
-            $import    = isset($ruleinput['_import']) ? $ruleinput['_import'] : 'NS';
+            $import    = $ruleinput['_import'] ?? 'NS';
 
             if (isset($ruleinput['_import']) && !$ruleinput['_import']) {
                 // Dropped by rules
@@ -120,9 +126,15 @@ if ($_REQUEST['action'] === 'merge') {
                     'jamf_items_id' => $data['jamf_id'],
                 ]);
                 if ($r === false) {
-                    throw new \RuntimeException('Failed to import the device data!');
+                    throw new RuntimeException('Failed to import the device data!');
                 }
+
                 // Link
+
+                if (is_a($plugin_itemtype, 'CommonDBTM', true) === false) {
+                    throw new RuntimeException('Invalid plugin itemtype!');
+                }
+
                 $plugin_item     = new $plugin_itemtype();
                 $plugin_items_id = $plugin_item->add([
                     'glpi_plugin_jamf_devices_id' => $DB->insertId(),
@@ -155,8 +167,9 @@ if ($_REQUEST['action'] === 'merge') {
                 $DB->rollBack();
             }
         }
-        if ($failures) {
-            Session::addMessageAfterRedirect(sprintf(__('An error occurred while merging %d devices!', 'jamf'), $failures), false, ERROR);
+
+        if ($failures !== 0) {
+            Session::addMessageAfterRedirect(sprintf(__s('An error occurred while merging %d devices!', 'jamf'), $failures), false, ERROR);
         }
     } else {
         throw new RuntimeException('Required argument missing!');

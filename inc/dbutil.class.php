@@ -22,7 +22,7 @@
  * You should have received a copy of the GNU General Public License
  * along with JAMF plugin for GLPI. If not, see <http://www.gnu.org/licenses/>.
  * -------------------------------------------------------------------------
- * @copyright Copyright (C) 2024-2024 by Teclib'
+ * @copyright Copyright (C) 2024-2025 by Teclib'
  * @copyright Copyright (C) 2019-2024 by Curtis Conard
  * @license   GPLv2 https://www.gnu.org/licenses/gpl-2.0.html
  * @link      https://github.com/pluginsGLPI/jamf
@@ -37,19 +37,22 @@ class PluginJamfDBUtil
 {
     public static function dropTable(string $table)
     {
+        /** @var DBmysql $DB */
         global $DB;
 
-        return $DB->query('DROP TABLE' . $DB::quoteName($table));
+        return $DB->doQuery('DROP TABLE' . $DB::quoteName($table));
     }
 
     public static function dropTableOrDie(string $table, string $message = '')
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         if (!$DB->tableExists($table)) {
             return true;
         }
-        $res = $DB->query('DROP TABLE' . $DB::quoteName($table));
+
+        $res = $DB->doQuery('DROP TABLE' . $DB::quoteName($table));
         if (!$res) {
             //TRANS: %1$s is the description, %2$s is the query, %3$s is the error message
             $message = sprintf(
@@ -58,12 +61,7 @@ class PluginJamfDBUtil
                 $table,
                 $DB->error(),
             );
-            if (isCommandLine()) {
-                throw new RuntimeException($message);
-            }
-
-            echo $message . "\n";
-            die(1);
+            throw new RuntimeException($message);
         }
 
         return $res;
@@ -71,10 +69,11 @@ class PluginJamfDBUtil
 
     public static function truncate($table)
     {
+        /** @var DBmysql $DB */
         global $DB;
 
         $table_name = $DB::quoteName($table);
 
-        return $DB->query("TRUNCATE $table_name");
+        return $DB->doQuery('TRUNCATE ' . $table_name);
     }
 }

@@ -22,21 +22,21 @@
  * You should have received a copy of the GNU General Public License
  * along with JAMF plugin for GLPI. If not, see <http://www.gnu.org/licenses/>.
  * -------------------------------------------------------------------------
- * @copyright Copyright (C) 2024-2024 by Teclib'
+ * @copyright Copyright (C) 2024-2025 by Teclib'
  * @copyright Copyright (C) 2019-2024 by Curtis Conard
  * @license   GPLv2 https://www.gnu.org/licenses/gpl-2.0.html
  * @link      https://github.com/pluginsGLPI/jamf
  * -------------------------------------------------------------------------
  */
 
+use Glpi\Exception\Http\BadRequestHttpException;
+use Glpi\DBAL\QueryExpression;
 use Glpi\Application\View\TemplateRenderer;
-use Glpi\Toolbox\Sanitizer;
-
-include('../../../inc/includes.php');
+use Glpi\Exception\Http\NotFoundHttpException;
 
 $plugin = new Plugin();
 if (!$plugin->isActivated('jamf')) {
-    Html::displayNotFoundError();
+    throw new NotFoundHttpException();
 }
 
 Session::checkRight('plugin_jamf_mobiledevice', CREATE);
@@ -66,7 +66,10 @@ foreach ($linked_devices as $data) {
 
 foreach ($pending as &$data) {
     $itemtype = $data['type'];
-    /** @var CommonDBTM $item */
+    if (is_a($itemtype, 'CommonDBTM', true) === false) {
+        throw new BadRequestHttpException();
+    }
+
     $item     = new $itemtype();
     $jamftype = ('PluginJamf' . $data['jamf_type']);
     $guesses  = $DB->request([
@@ -75,7 +78,7 @@ foreach ($pending as &$data) {
         'WHERE'  => [
             'OR' => [
                 'uuid' => $data['udid'],
-                'name' => Sanitizer::sanitize($data['name']),
+                'name' => $data['name'],
             ],
             'is_deleted'  => 0,
             'is_template' => 0,
@@ -83,11 +86,7 @@ foreach ($pending as &$data) {
         'ORDER' => new QueryExpression("CASE WHEN uuid='" . $data['udid'] . "' THEN 0 ELSE 1 END"),
         'LIMIT' => 1,
     ]);
-    if (count($guesses)) {
-        $data['guessed_item'] = $guesses->current()['id'];
-    } else {
-        $data['guessed_item'] = 0;
-    }
+    $data['guessed_item'] = count($guesses) > 0 ? $guesses->current()['id'] : 0;
 }
 
 TemplateRenderer::getInstance()->display('@jamf/merge.html.twig', [

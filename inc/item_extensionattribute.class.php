@@ -22,7 +22,7 @@
  * You should have received a copy of the GNU General Public License
  * along with JAMF plugin for GLPI. If not, see <http://www.gnu.org/licenses/>.
  * -------------------------------------------------------------------------
- * @copyright Copyright (C) 2024-2024 by Teclib'
+ * @copyright Copyright (C) 2024-2025 by Teclib'
  * @copyright Copyright (C) 2019-2024 by Curtis Conard
  * @license   GPLv2 https://www.gnu.org/licenses/gpl-2.0.html
  * @link      https://github.com/pluginsGLPI/jamf
@@ -39,6 +39,7 @@ use Glpi\Application\View\TemplateRenderer;
 class PluginJamfItem_ExtensionAttribute extends CommonDBChild
 {
     public static $itemtype = 'itemtype';
+
     public static $items_id = 'items_id';
 
     public static function getTypeName($nb = 1)
@@ -48,14 +49,18 @@ class PluginJamfItem_ExtensionAttribute extends CommonDBChild
 
     public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0)
     {
-        /** @var PluginJamfAbstractDevice $jamf_class */
+        if (!$item instanceof CommonDBTM) {
+            return '';
+        }
+
         $jamf_class = PluginJamfAbstractDevice::getJamfItemClassForGLPIItem($item::getType(), $item->getID());
         if ($jamf_class === null) {
-            return false;
+            return '';
         }
+
         $jamf_item = $jamf_class::getJamfItemForGLPIItem($item);
-        if ($jamf_class === null || !$jamf_class::canView()) {
-            return false;
+        if (!$jamf_class::canView()) {
+            return '';
         }
 
         return self::createTabEntry(self::getTypeName(2), self::countForJamfItem($jamf_item));
@@ -71,12 +76,15 @@ class PluginJamfItem_ExtensionAttribute extends CommonDBChild
 
     public static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0)
     {
+        if (!$item instanceof CommonDBTM) {
+            return false;
+        }
+
         return self::showForItem($item);
     }
 
     public static function showForItem(CommonDBTM $item)
     {
-        /** @var PluginJamfAbstractDevice $jamf_class */
         $jamf_class = PluginJamfAbstractDevice::getJamfItemClassForGLPIItem($item::getType(), $item->getID());
         if ($jamf_class === null || !$jamf_class::canView()) {
             return false;

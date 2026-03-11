@@ -22,18 +22,19 @@
  * You should have received a copy of the GNU General Public License
  * along with JAMF plugin for GLPI. If not, see <http://www.gnu.org/licenses/>.
  * -------------------------------------------------------------------------
- * @copyright Copyright (C) 2024-2024 by Teclib'
+ * @copyright Copyright (C) 2024-2025 by Teclib'
  * @copyright Copyright (C) 2019-2024 by Curtis Conard
  * @license   GPLv2 https://www.gnu.org/licenses/gpl-2.0.html
  * @link      https://github.com/pluginsGLPI/jamf
  * -------------------------------------------------------------------------
  */
 
-include('../../../inc/includes.php');
+use Glpi\Exception\Http\BadRequestHttpException;
+use Glpi\Exception\Http\NotFoundHttpException;
 
 $plugin = new Plugin();
 if (!$plugin->isActivated('jamf')) {
-    Html::displayNotFoundError();
+    throw new NotFoundHttpException();
 }
 
 Html::header_nocache();
@@ -61,18 +62,17 @@ if (isset($_POST['fields'])) {
 $valid_types = ['MobileDevice'];
 
 if (!in_array($_POST['itemtype'], $valid_types, true)) {
-    die('Invalid itemtype. Cannot send Jamf MDM command.');
+    throw new BadRequestHttpException();
 }
 
 $items = [];
-if ($_POST['itemtype'] === 'MobileDevice') {
-    foreach ($_POST['items_id'] as $items_id) {
-        /** @var PluginJamfMobileDevice $item */
-        $item = new PluginJamfMobileDevice();
-        $item->getFromDB((int) $items_id);
-        $items[] = $item;
-    }
+foreach ($_POST['items_id'] as $items_id) {
+    /** @var PluginJamfMobileDevice $item */
+    $item = new PluginJamfMobileDevice();
+    $item->getFromDB((int) $items_id);
+    $items[] = $item;
 }
+
 
 foreach ($items as $k => $item) {
     $commands      = PluginJamfItem_MDMCommand::getApplicableCommands($item);
@@ -83,9 +83,9 @@ foreach ($items as $k => $item) {
     }
 }
 
-if (!count($items)) {
+if ($items === []) {
     // No applicable items or no right to send command
-    exit();
+    return;
 }
 
 // The API endpoint for sending MDM commands only accepts XML, so we need to build the XML payload
@@ -101,4 +101,5 @@ foreach ($items as $item) {
     $m           = $mobile_devices->addChild('mobile_device');
     $m->addChild('id', $jamf_id);
 }
+
 echo PluginJamfAPI::sendMDMCommand($payload->asXML(), true);

@@ -22,7 +22,7 @@
  * You should have received a copy of the GNU General Public License
  * along with JAMF plugin for GLPI. If not, see <http://www.gnu.org/licenses/>.
  * -------------------------------------------------------------------------
- * @copyright Copyright (C) 2024-2024 by Teclib'
+ * @copyright Copyright (C) 2024-2025 by Teclib'
  * @copyright Copyright (C) 2019-2024 by Curtis Conard
  * @license   GPLv2 https://www.gnu.org/licenses/gpl-2.0.html
  * @link      https://github.com/pluginsGLPI/jamf
@@ -30,6 +30,9 @@
  */
 
 use Glpi\Application\View\TemplateRenderer;
+
+use function Safe\file_get_contents;
+use function Safe\json_decode;
 
 /**
  * JSS Item_MDMCommand class
@@ -47,9 +50,13 @@ class PluginJamfItem_MDMCommand extends CommonDBTM
 
     public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0)
     {
+        if (!$item instanceof CommonDBTM) {
+            return '';
+        }
+
         $jamf_class = PluginJamfAbstractDevice::getJamfItemClassForGLPIItem($item::getType(), $item->getID());
         if ($jamf_class !== PluginJamfMobileDevice::class || !PluginJamfMobileDevice::canView()) {
-            return false;
+            return '';
         }
 
         return self::getTypeName(2);
@@ -57,11 +64,14 @@ class PluginJamfItem_MDMCommand extends CommonDBTM
 
     public static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0)
     {
+        if (!$item instanceof CommonDBTM) {
+            return false;
+        }
+
         return self::showForItem($item);
     }
 
     /**
-     * @param PluginJamfMobileDevice $mobiledevice
      * @return array
      * @since 1.0.0
      */
@@ -124,6 +134,7 @@ class PluginJamfItem_MDMCommand extends CommonDBTM
                     }
                 }
             }
+
             self::applySpecificParams($allcommands, $mobiledevice);
 
             return $allcommands;
@@ -138,11 +149,7 @@ class PluginJamfItem_MDMCommand extends CommonDBTM
 
         if ($data === null) {
             $pmv_file = GLPI_PLUGIN_DOC_DIR . '/jamf/pmv.json';
-            if (file_exists($pmv_file)) {
-                $data = json_decode(file_get_contents($pmv_file), true)['AssetSets'];
-            } else {
-                $data = [];
-            }
+            $data = file_exists($pmv_file) ? json_decode(file_get_contents($pmv_file), true)['AssetSets'] : [];
         }
 
         return $data;
@@ -151,27 +158,20 @@ class PluginJamfItem_MDMCommand extends CommonDBTM
     private static function getAvailableUpdates($model_identifier): array
     {
         $data = self::getPMVData();
-        if (empty($data)) {
+        if ($data === []) {
             return [];
         }
-        $data['iOS'] = array_filter($data['iOS'], static function ($item) use ($model_identifier) {
-            return $item['ExpirationDate'] > date('Y-m-d') && in_array($model_identifier, $item['SupportedDevices'], true);
-        });
-        $data['macOS'] = array_filter($data['macOS'], static function ($item) use ($model_identifier) {
-            return $item['ExpirationDate'] > date('Y-m-d') && in_array($model_identifier, $item['SupportedDevices'], true);
-        });
+
+        $data['iOS'] = array_filter($data['iOS'], static fn($item) => $item['ExpirationDate'] > date('Y-m-d') && in_array($model_identifier, $item['SupportedDevices'], true));
+        $data['macOS'] = array_filter($data['macOS'], static fn($item) => $item['ExpirationDate'] > date('Y-m-d') && in_array($model_identifier, $item['SupportedDevices'], true));
 
         // Sort so newest updates are first
-        usort($data['iOS'], static function ($a, $b) {
-            return version_compare($b['ProductVersion'], $a['ProductVersion']);
-        });
-        usort($data['macOS'], static function ($a, $b) {
-            return version_compare($b['ProductVersion'], $a['ProductVersion']);
-        });
+        usort($data['iOS'], static fn($a, $b) => version_compare($b['ProductVersion'], $a['ProductVersion']));
+        usort($data['macOS'], static fn($a, $b) => version_compare($b['ProductVersion'], $a['ProductVersion']));
 
-        if (count($data['iOS']) > 0) {
+        if ($data['iOS'] !== []) {
             return array_column($data['iOS'], 'ProductVersion');
-        } elseif (count($data['macOS']) > 0) {
+        } elseif ($data['macOS'] !== []) {
             return array_column($data['macOS'], 'ProductVersion');
         } else {
             return [];
@@ -182,7 +182,7 @@ class PluginJamfItem_MDMCommand extends CommonDBTM
     {
         if (isset($commands['ScheduleOSUpdate'])) {
             $applicable_updates = self::getAvailableUpdates($mobiledevice->getJamfDeviceData()['model_identifier']);
-            if (count($applicable_updates) > 0) {
+            if ($applicable_updates !== []) {
                 // Replace product_version plain-text field with a dropdown of versions
                 $commands['ScheduleOSUpdate']['params']['product_version']['type']   = 'dropdown';
                 $commands['ScheduleOSUpdate']['params']['product_version']['values'] = $applicable_updates;
@@ -197,7 +197,7 @@ class PluginJamfItem_MDMCommand extends CommonDBTM
         }
 
         $mobiledevice = PluginJamfMobileDevice::getJamfItemForGLPIItem($item);
-        if ($mobiledevice === null) {
+        if (!$mobiledevice instanceof PluginJamfMobileDevice) {
             return false;
         }
 

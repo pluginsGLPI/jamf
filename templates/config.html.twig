@@ -1,33 +1,31 @@
 {#
-/**
- * -------------------------------------------------------------------------
- * JAMF plugin for GLPI
- * -------------------------------------------------------------------------
- *
- * LICENSE
- *
- * This file is part of JAMF plugin for GLPI.
- *
- * JAMF plugin for GLPI is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * JAMF plugin for GLPI is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with JAMF plugin for GLPI. If not, see <http://www.gnu.org/licenses/>.
- * -------------------------------------------------------------------------
- * @copyright Copyright (C) 2024-2024 by Teclib'
- * @copyright Copyright (C) 2019-2024 by Curtis Conard
- * @license   GPLv2 https://www.gnu.org/licenses/gpl-2.0.html
- * @link      https://github.com/pluginsGLPI/jamf
- * -------------------------------------------------------------------------
- */
-#}
+ # -------------------------------------------------------------------------
+ # JAMF plugin for GLPI
+ # -------------------------------------------------------------------------
+ #
+ # LICENSE
+ #
+ # This file is part of JAMF plugin for GLPI.
+ #
+ # JAMF plugin for GLPI is free software; you can redistribute it and/or modify
+ # it under the terms of the GNU General Public License as published by
+ # the Free Software Foundation; either version 2 of the License, or
+ # (at your option) any later version.
+ #
+ # JAMF plugin for GLPI is distributed in the hope that it will be useful,
+ # but WITHOUT ANY WARRANTY; without even the implied warranty of
+ # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ # GNU General Public License for more details.
+ #
+ # You should have received a copy of the GNU General Public License
+ # along with JAMF plugin for GLPI. If not, see <http://www.gnu.org/licenses/>.
+ # -------------------------------------------------------------------------
+ # @copyright Copyright (C) 2024-2025 by Teclib'
+ # @copyright Copyright (C) 2019-2024 by Curtis Conard
+ # @license   GPLv2 https://www.gnu.org/licenses/gpl-2.0.html
+ # @link      https://github.com/pluginsGLPI/jamf
+ # -------------------------------------------------------------------------
+ #}
 
 {% import 'components/form/fields_macros.html.twig' as fields %}
 
@@ -36,7 +34,7 @@
    <input type="hidden" name="config_class" value="PluginJamfConfig" />
    <input type="hidden" name="config_context" value="plugin:Jamf" />
    <div class="card-body d-flex flex-wrap">
-      <div class="col-12 col-xxl-{{ item_has_pictures ? '9' : '12' }} flex-column">
+      <div class="col-12 col-xxl-12 flex-column">
          <div class="d-flex flex-row flex-wrap flex-xl-nowrap">
             <div class="row flex-row align-items-start flex-grow-1">
                <div class="row flex-row">
@@ -90,10 +88,7 @@
                   {{ fields.dropdownField('ComputerType', 'appletv_type', config.appletv_type|default(0), _x('config', 'AppleTV Type', 'jamf')) }}
                   {{ fields.dropdownField('State', 'default_status', config.default_status|default(0), _x('config', 'Default status', 'jamf'), {
                      entity: 0,
-                     condition: {
-                        is_visible_computer: true,
-                        is_visible_phone: true,
-                     }
+                     condition: states_condition
                   }) }}
 
                </div>
