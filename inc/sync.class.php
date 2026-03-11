@@ -223,7 +223,6 @@ abstract class PluginJamfSync
             throw new Exception('Item type class ' . $itemtype . ' must extend CommonDBTM');
         }
 
-        /** @var CommonDBTM $item */
         $item         = new $itemtype();
         $item_matches = $item->find($match_criteria);
         if (!count($item_matches)) {

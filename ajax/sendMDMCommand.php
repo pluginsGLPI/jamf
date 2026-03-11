@@ -67,7 +67,6 @@ if (!in_array($_POST['itemtype'], $valid_types, true)) {
 
 $items = [];
 foreach ($_POST['items_id'] as $items_id) {
-    /** @var PluginJamfMobileDevice $item */
     $item = new PluginJamfMobileDevice();
     $item->getFromDB((int) $items_id);
     $items[] = $item;
