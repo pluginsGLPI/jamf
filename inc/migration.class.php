@@ -164,7 +164,7 @@ final class PluginJamfMigration
         // Check imports table (Used to store newly discovered devices that haven't been imported yet)
         if (!$this->db->tableExists('glpi_plugin_jamf_imports')) {
             $query = 'CREATE TABLE `glpi_plugin_jamf_imports` (
-                  `id` int(11) NOT NULL auto_increment,
+                  `id` int unsigned NOT NULL AUTO_INCREMENT,
                   `jamf_items_id` int(11) NOT NULL,
                   `name` varchar(255) NOT NULL,
                   `type` varchar(100) NOT NULL,
@@ -179,8 +179,8 @@ final class PluginJamfMigration
         // Check mobile devices table (Extra data for mobile devices)
         if (!$this->db->tableExists('glpi_plugin_jamf_mobiledevices')) {
             $query = "CREATE TABLE `glpi_plugin_jamf_mobiledevices` (
-                  `id` int(11) NOT NULL auto_increment,
-                  `items_id` int(11) NOT NULL,
+                  `id` int unsigned NOT NULL AUTO_INCREMENT,
+                  `items_id` int unsigned NOT NULL DEFAULT '0',
                   `itemtype` varchar(100) NOT NULL,
                   `udid` varchar(100) NOT NULL,
                   `last_inventory` datetime NULL,
@@ -213,7 +213,7 @@ final class PluginJamfMigration
         // Check software table (Extra data for software). Also check the later name just to avoid useless SQL actions.
         if (!$this->db->tableExists('glpi_plugin_jamf_softwares') && !$this->db->tableExists('glpi_plugin_jamf_mobiledevicesoftwares')) {
             $query = 'CREATE TABLE `glpi_plugin_jamf_softwares` (
-                  `id` int(11) NOT NULL auto_increment,
+                  `id` int unsigned NOT NULL AUTO_INCREMENT,
                   `softwares_id` int(11) NOT NULL,
                   `bundle_id` varchar(255) NOT NULL,
                   `itunes_store_url` varchar(255) NOT NULL,
@@ -266,7 +266,7 @@ final class PluginJamfMigration
         // Check extension attribute tables
         if (!$this->db->tableExists('glpi_plugin_jamf_extensionattributes')) {
             $query = 'CREATE TABLE `glpi_plugin_jamf_extensionattributes` (
-                  `id` int(11) NOT NULL auto_increment,
+                  `id` int unsigned NOT NULL AUTO_INCREMENT,
                   `itemtype` varchar(100) NOT NULL,
                   `jamf_id` int(11) NOT NULL,
                   `name` varchar(255) NOT NULL,
@@ -281,7 +281,7 @@ final class PluginJamfMigration
 
         if (!$this->db->tableExists('glpi_plugin_jamf_items_extensionattributes')) {
             $query = 'CREATE TABLE `glpi_plugin_jamf_items_extensionattributes` (
-                  `id` int(11) NOT NULL auto_increment,
+                  `id` int unsigned NOT NULL AUTO_INCREMENT,
                   `itemtype` varchar(100) NOT NULL,
                   `items_id` int(11) NOT NULL,
                   `glpi_plugin_jamf_extensionattributes_id` int(11) NOT NULL,
@@ -295,7 +295,7 @@ final class PluginJamfMigration
 
         if (!$this->db->tableExists('glpi_plugin_jamf_extfields')) {
             $query = "CREATE TABLE `glpi_plugin_jamf_extfields` (
-                  `id` int(11) NOT NULL auto_increment,
+                  `id` int unsigned NOT NULL AUTO_INCREMENT,
                   `itemtype` varchar(100) NOT NULL,
                   `items_id` int(11) NOT NULL,
                   `name` varchar(100) NOT NULL,
@@ -309,7 +309,7 @@ final class PluginJamfMigration
 
         if (!$this->db->tableExists('glpi_plugin_jamf_users_jssaccounts')) {
             $query = 'CREATE TABLE `glpi_plugin_jamf_users_jssaccounts` (
-                  `id` int(11) NOT NULL auto_increment,
+                  `id` int unsigned NOT NULL AUTO_INCREMENT,
                   `users_id` int(11) NOT NULL,
                   `jssaccounts_id` int(11) NOT NULL,
                 PRIMARY KEY (`id`)
@@ -419,7 +419,7 @@ final class PluginJamfMigration
 
         if (!$this->db->tableExists('glpi_plugin_jamf_devices')) {
             $query = "CREATE TABLE `glpi_plugin_jamf_devices` (
-                  `id` int(11) NOT NULL auto_increment,
+                  `id` int unsigned NOT NULL AUTO_INCREMENT,
                   `jamf_type` varchar(100) DEFAULT 'MobileDevice',
                   `jamf_items_id` int(11) NOT NULL DEFAULT -1,
                   `items_id` int(11) NOT NULL,
@@ -463,7 +463,7 @@ final class PluginJamfMigration
         // Check computers table (Extra data for computers)
         if (!$this->db->tableExists('glpi_plugin_jamf_computers')) {
             $query = 'CREATE TABLE `glpi_plugin_jamf_computers` (
-                  `id` int(11) NOT NULL auto_increment,
+                  `id` int unsigned NOT NULL AUTO_INCREMENT,
                   `glpi_plugin_jamf_devices_id` int(11) NOT NULL,
                 PRIMARY KEY (`id`),
                 UNIQUE KEY `glpi_plugin_jamf_devices_id` (`glpi_plugin_jamf_devices_id`)
@@ -478,7 +478,7 @@ final class PluginJamfMigration
 
         if (!$this->db->tableExists('glpi_plugin_jamf_computersoftwares')) {
             $query = 'CREATE TABLE `glpi_plugin_jamf_computersoftwares` (
-                  `id` int(11) NOT NULL auto_increment,
+                  `id` int unsigned NOT NULL AUTO_INCREMENT,
                   `softwares_id` int(11) NOT NULL,
                   `bundle_id` varchar(255) NOT NULL,
                   `itunes_store_url` varchar(255) NOT NULL,
@@ -611,7 +611,9 @@ final class PluginJamfMigration
 
 
         //create dir if needed
-        mkdir(GLPI_PLUGIN_DOC_DIR . '/jamf');
+        if (!file_exists(GLPI_PLUGIN_DOC_DIR . '/jamf')) {
+            mkdir(GLPI_PLUGIN_DOC_DIR . '/jamf');
+        }
 
         // Copy default pmv from tools dir
         $pmv_file_path = GLPI_PLUGIN_DOC_DIR . '/jamf/pmv.json';
