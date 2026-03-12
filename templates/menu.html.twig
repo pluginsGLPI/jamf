@@ -1,8 +1,35 @@
-{# templates/votre_page.html.twig #}
+{#
+/**
+ * -------------------------------------------------------------------------
+ * JAMF plugin for GLPI
+ * -------------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of JAMF plugin for GLPI.
+ *
+ * JAMF plugin for GLPI is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * JAMF plugin for GLPI is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with JAMF plugin for GLPI. If not, see <http://www.gnu.org/licenses/>.
+ * -------------------------------------------------------------------------
+ * @copyright Copyright (C) 2024-2024 by Teclib'
+ * @copyright Copyright (C) 2019-2024 by Curtis Conard
+ * @license   GPLv2 https://www.gnu.org/licenses/gpl-2.0.html
+ * @link      https://github.com/pluginsGLPI/jamf
+ * -------------------------------------------------------------------------
+ */
+#}
 
 <div class="container d-flex flex-column justify-content-center mt-4">
-
-
     {% if can_configure %}
         <div class="d-flex justify-content-end mb-4">
             <a href="{{ config_url }}" class="btn btn-outline-secondary d-flex align-items-center shadow-sm">
@@ -10,21 +37,14 @@
             </a>
         </div>
     {% endif %}
-
-
     <div class="row justify-content-center">
-
         {% for link in links %}
             <div class="col-md-5 col-lg-4 mb-3">
-
                 <div class="card h-100 shadow-sm border-0">
                     <div class="d-flex justify-content-center align-items-center p-3">
                         <img src="{{ link.pics }}" class="card-img-top" style="width: 150px; height: 150px; color: var(--tblr-muted) !important;" alt="{{ link.name }}">
                     </div>
                     <div class="card-body text-center p-5">
-                        <div class="display-4 text-primary mb-3">
-                            <i class="bi bi-arrow-left-right"></i>
-                        </div>
                         <h5 class="card-title fw-bold">{{ link.name }}</h5>
                         <p class="card-text text-muted small">{{ link.description }}</p>
                         <a href="{{ link.url }}" class="btn btn-primary w-100 mt-3">
@@ -34,7 +54,6 @@
                 </div>
             </div>
         {% endfor %}
-
     </div>
 </div>
 
