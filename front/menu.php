@@ -43,26 +43,29 @@ Html::header('Jamf Plugin', '', 'tools', 'PluginJamfMenu', 'import');
 global $CFG_GLPI;
 
 $plugin_dir = $CFG_GLPI['root_doc'] . '/plugins/jamf';
+
 $links      = [];
 if (Session::haveRight('plugin_jamf_mobiledevice', CREATE)) {
     $links[] = [
-        'name' => _x('menu', 'Import devices', 'jamf'),
-        'url'  => PluginJamfImport::getSearchURL(),
+        'name'          => _x('menu', 'Import devices', 'jamf'),
+        'url'           => PluginJamfImport::getSearchURL(),
+        'description'   => __('Discover the devices in your Jamf Pro instance to ensure data integrity and prevent the creation of unwanted assets.', 'jamf'),
+        'action'        => __s('Import', 'jamf'),
+        'pics'          => $plugin_dir . '/pics/import.png',
     ];
     $links[] = [
-        'name' => _x('menu', 'Merge existing devices', 'jamf'),
-        'url'  => $plugin_dir . '/front/merge.php',
-    ];
-}
-
-if (Session::haveRight('config', UPDATE)) {
-    $links[] = [
-        'name' => _x('menu', 'Configuration', 'jamf'),
-        'url'  => Config::getFormURL() . '?forcetab=PluginJamfConfig$1',
+        'name'          => _x('menu', 'Merge existing devices', 'jamf'),
+        'url'           => $plugin_dir . '/front/merge.php',
+        'description'   => __('Compare imported devices with those already present in GLPI using unique identifiers and facilitate the consolidation.', 'jamf'),
+        'action'        => __s('Merge', 'jamf'),
+        'pics'          => $plugin_dir . '/pics/merge.png',
     ];
 }
 
 TemplateRenderer::getInstance()->display('@jamf/menu.html.twig', [
-    'links' => $links,
+    'links'         => $links,
+    'can_configure' => Session::haveRight('config', UPDATE),
+    'config_url'    => Config::getFormURL() . '?forcetab=PluginJamfConfig$1',
 ]);
+
 Html::footer();
