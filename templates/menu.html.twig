@@ -29,31 +29,32 @@
  */
 #}
 
-{% if links|length > 0 %}
-    <div class="text-center">
-        <table class="mx-auto table" style="width: 400px">
-            <thead>
-                <tr>
-                    <th>{{ _x('plugin_info', 'Jamf plugin', 'jamf') }}</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for link in links %}
-                    <tr>
-                        <td>
-                            <a href="{{ link.url }}">{{ link.name }}</a>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-{% else %}
-    <div class="text-center">
-        <div class="alert alert-warning" role="alert">
-            <i class="alert-icon ti ti-alert-triangle fa-2x"></i>
-            <p class="alert-title">{{ _x('error', 'You do not have access to any Jamf plugin items', 'jamf') }}</p>
-            <p>{{ _x('error', 'Please check your profile permissions', 'jamf') }}</p>
+<div class="container d-flex flex-column justify-content-center mt-4">
+    {% if can_configure %}
+        <div class="d-flex justify-content-end mb-4">
+            <a href="{{ config_url }}" class="btn btn-outline-secondary d-flex align-items-center shadow-sm">
+                <i class="ti ti-settings me-2"></i> {{ __('Configuration', 'jamf') }}
+            </a>
         </div>
+    {% endif %}
+    <div class="row justify-content-center">
+        {% for link in links %}
+            <div class="col-md-5 col-lg-4 mb-3">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="d-flex justify-content-center align-items-center p-3">
+                        <img src="{{ link.pics }}" class="card-img-top" style="width: 150px; height: 150px; color: var(--tblr-muted) !important;" alt="{{ link.name }}">
+                    </div>
+                    <div class="card-body text-center p-5">
+                        <h5 class="card-title fw-bold">{{ link.name }}</h5>
+                        <p class="card-text">{{ link.description }}</p>
+                        <a href="{{ link.url }}" class="btn btn-primary w-100 mt-3">
+                            {{ link.action }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
     </div>
-{% endif %}
+</div>
+
+
