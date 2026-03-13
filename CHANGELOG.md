@@ -2,6 +2,10 @@
 
 ## [UNRELEASED]
 
+### Added
+
+- Rework main menu
+
 ### Fixes
 
 - SQL error when merging the Jamf device linked to a GLPI asset
