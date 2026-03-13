@@ -2,7 +2,10 @@
 
 ## [UNRELEASED]
 
+### Added
+
 - GLPI 11 compatibility
+- Rework main menu
 
 ### Fixes
 
