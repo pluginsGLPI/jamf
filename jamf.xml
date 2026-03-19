@@ -18,6 +18,15 @@ Usage
 - The two automatic actions "importJamf' and 'syncJamf" can only be run in CLI/Cron mode due to how long they can take.
 - There is a rule engine used to filter out imported devices. The default import action is to allow the import.
             ]]></en>
+         <fr><![CDATA[
+Ce plugin vous permet de synchroniser les appareils mobiles et les ordinateurs depuis Jamf Pro vers GLPI ainsi que leurs données associées. Il permet également d'envoyer des commandes aux appareils mobiles depuis GLPI.
+
+Utilisation
+- La configuration du serveur et de la synchronisation se trouve dans Configuration > Générale sous l'onglet Plugin JAMF.
+- Le compte utilisateur JSS utilisé doit posséder au moins un accès en lecture aux appareils mobiles et aux ordinateurs. Des accès supplémentaires peuvent être requis selon les éléments synchronisés (logiciels, etc.).
+- Les deux actions automatiques "importJamf" et "syncJamf" ne peuvent être exécutées qu'en mode CLI/Cron en raison de leur durée d'exécution.
+- Un moteur de règles est utilisé pour filtrer les appareils importés. Par défaut, l'action d'importation est autorisée.
+            ]]></fr>
       </long>
    </description>
    <homepage>https://github.com/pluginsGLPI/jamf</homepage>
@@ -146,7 +155,7 @@ Usage
       </en>
    </tags>
    <screenshots>
-      <screenshot>https://raw.githubusercontent.com/pluginsGLPI/jamf/master/screenshots/imports.png</screenshot>
-      <screenshot>https://raw.githubusercontent.com/pluginsGLPI/jamf/master/screenshots/mobiledevice.png</screenshot>
+      <screenshot>https://raw.githubusercontent.com/pluginsGLPI/jamf/main/screenshots/imports.png</screenshot>
+      <screenshot>https://raw.githubusercontent.com/pluginsGLPI/jamf/main/screenshots/mobiledevice.png</screenshot>
    </screenshots>
 </root>
