@@ -55,7 +55,7 @@ if (!isset($_REQUEST['crontask'])) {
 }
 
 $accepted_tasks = ['importJamf', 'syncJamf'];
-if (!in_array($_REQUEST['crontask'], $accepted_tasks)) {
+if (!in_array($_REQUEST['crontask'], $accepted_tasks, true)) {
     throw new RuntimeException('Unacceptable cron task!');
 }
 

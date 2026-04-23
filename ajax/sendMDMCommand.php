@@ -56,7 +56,7 @@ if (!is_array($_POST['items_id'])) {
 
 $fields = [];
 if (isset($_POST['fields'])) {
-    parse_str($_POST['fields'], $fields);
+    parse_str((string) $_POST['fields'], $fields);
 }
 
 $valid_types = ['MobileDevice'];
