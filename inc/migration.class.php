@@ -618,9 +618,7 @@ final class PluginJamfMigration
         // Copy default pmv from tools dir
         $pmv_file_path = GLPI_PLUGIN_DOC_DIR . '/jamf/pmv.json';
         if (!file_exists($pmv_file_path)) {
-            Toolbox::logDebug($pmv_file_path);
-            Toolbox::logDebug(Plugin::getPhpDir('jamf') . '/tools/pmv.json');
-            copy(Plugin::getPhpDir('jamf') . '/tools/pmv.json', $pmv_file_path);
+            copy(Plugin::getPhpDir('jamf') . '/resources/pmv.json', $pmv_file_path);
         }
 
         // Register Cron task to update PMV periodically

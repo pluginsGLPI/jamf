@@ -1,6 +1,11 @@
 # Jamf Plugin for GLPI Changelog
 
+
+## [UNRELEASED]
+
 ## [3.2.0] - 2026-04-23
+
+- Fix failed to open stream: No such file or directory (`jamf/tools/pmv.json`)
 
 ### Added
 
