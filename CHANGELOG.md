@@ -2,6 +2,8 @@
 
 ## [UNRELEASED]
 
+## [3.2.1] - 2026-04-30
+
 ### Fixed
 
 - Fix failed to open stream: No such file or directory (`jamf/tools/pmv.json`)
