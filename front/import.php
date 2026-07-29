@@ -37,7 +37,7 @@ if (!$plugin->isActivated('jamf')) {
     throw new NotFoundHttpException();
 }
 
-Session::checkRight('plugin_jamf_mobiledevice', CREATE);
+Session::checkRight(PluginJamfMobileDevice::$rightname, CREATE);
 Html::header('Jamf Plugin', '', 'tools', 'PluginJamfMenu', 'import');
 
 global $DB, $CFG_GLPI;

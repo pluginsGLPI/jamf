@@ -40,7 +40,7 @@ if (!$plugin->isActivated('jamf')) {
 
 Html::header_nocache();
 
-Session::checkLoginUser();
+Session::checkRight(PluginJamfMobileDevice::$rightname, UPDATE);
 
 /** @var DBmysql $DB */
 global $DB;
@@ -52,6 +52,15 @@ parse_str($input, $_REQUEST);
 // An action must be specified
 if (!isset($_REQUEST['itemtype'], $_REQUEST['items_id'])) {
     throw new RuntimeException('Required argument missing!');
+}
+
+if (!is_a($_REQUEST['itemtype'], CommonDBTM::class, true)) {
+    throw new RuntimeException('Invalid itemtype!');
+}
+
+$synced_item = new $_REQUEST['itemtype']();
+if (!$synced_item->getFromDB((int) $_REQUEST['items_id']) || !Session::haveAccessToEntity($synced_item->fields['entities_id'])) {
+    throw new RuntimeException('Invalid item!');
 }
 
 try {
