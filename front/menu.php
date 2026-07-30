@@ -45,7 +45,7 @@ global $CFG_GLPI;
 $plugin_dir = $CFG_GLPI['root_doc'] . '/plugins/jamf';
 
 $links      = [];
-if (Session::haveRight('plugin_jamf_mobiledevice', CREATE)) {
+if (Session::haveRight(PluginJamfMobileDevice::$rightname, CREATE)) {
     $links[] = [
         'name'          => _x('menu', 'Import devices', 'jamf'),
         'url'           => PluginJamfImport::getSearchURL(),

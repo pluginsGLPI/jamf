@@ -40,7 +40,7 @@ if (!$plugin->isActivated('jamf')) {
 
 Html::header_nocache();
 
-Session::checkLoginUser();
+Session::checkRight('config', UPDATE);
 
 /** @var DBmysql $DB */
 global $DB;

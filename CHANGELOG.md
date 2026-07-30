@@ -2,6 +2,10 @@
 
 ## [UNRELEASED]
 
+### Fixed
+
+- Fix missing right checks on Jamf import, merge, sync, cron and MDM command endpoints
+
 ## [3.2.1] - 2026-04-30
 
 ### Fixed

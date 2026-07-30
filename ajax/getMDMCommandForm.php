@@ -36,7 +36,7 @@ if (!$plugin->isActivated('jamf')) {
     throw new NotFoundHttpException();
 }
 
-Session::checkLoginUser();
+Session::checkRight(PluginJamfMobileDevice::$rightname, READ);
 
 // An action must be specified
 if (!isset($_GET['command'])) {
@@ -44,13 +44,25 @@ if (!isset($_GET['command'])) {
 }
 
 if (isset($_GET['itemtype'], $_GET['items_id'])) {
+    /** @var class-string<PluginJamfAbstractDevice> $className */
     $className = 'PluginJamf' . $_GET['itemtype'];
-    if (is_a($className, 'CommonDBTM', true) === false) {
+    if (is_a($className, PluginJamfAbstractDevice::class, true) === false) {
         throw new RuntimeException('Invalid itemtype!');
     }
 
     $device = new $className();
     if (!$device->getFromDB($_GET['items_id'])) {
+        throw new RuntimeException('Invalid itemtype/items_id!');
+    }
+
+    $device_data = $device->getJamfDeviceData();
+    $glpi_itemtype = $device_data['itemtype'] ?? null;
+    if (!is_string($glpi_itemtype) || !is_a($glpi_itemtype, CommonDBTM::class, true)) {
+        throw new RuntimeException('Invalid itemtype/items_id!');
+    }
+
+    $glpi_item = new $glpi_itemtype();
+    if (!$glpi_item->getFromDB($device_data['items_id']) || !Session::haveAccessToEntity($glpi_item->fields['entities_id'])) {
         throw new RuntimeException('Invalid itemtype/items_id!');
     }
 } else {

@@ -40,7 +40,7 @@ if (!$plugin->isActivated('jamf')) {
 
 Html::header_nocache();
 
-Session::checkLoginUser();
+Session::checkRight(PluginJamfMobileDevice::$rightname, CREATE);
 
 /** @var DBmysql $DB */
 global $DB;
@@ -76,6 +76,11 @@ if ($_REQUEST['action'] === 'merge') {
             }
 
             $item = new $itemtype();
+            if (!$item->getFromDB($glpi_id) || !Session::haveAccessToEntity($item->fields['entities_id'])) {
+                $failures++;
+                continue;
+            }
+
             /** @var class-string<PluginJamfAbstractDevice> $plugin_itemtype */
             $plugin_itemtype = 'PluginJamf' . $data['jamf_type'];
             /** @var class-string<PluginJamfDeviceSync> $plugin_sync_itemtype */

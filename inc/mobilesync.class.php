@@ -66,7 +66,7 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
 
             foreach ($other_general_items as $jamf_field => $item_field) {
                 if ($general[$jamf_field] !== $this->item->fields[$item_field]) {
-                    $this->item_changes[$item_field] = $this->db->escape($general[$jamf_field]);
+                    $this->item_changes[$item_field] = $general[$jamf_field];
                 }
             }
 
