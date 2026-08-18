@@ -36,7 +36,7 @@ use Glpi\Application\View\TemplateRenderer;
  */
 class PluginJamfConfig extends CommonDBTM
 {
-    protected static $notable = true;
+    protected static bool $notable = true;
 
     public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0)
     {

@@ -42,7 +42,6 @@
 
 {% if can_edit %}
    <button name="update" type="submit" class="btn btn-primary">{{ _x('action', 'Update account link', 'jamf') }}</button>
-   <input type="hidden" name="_glpi_csrf_token" value="{{ csrf_token() }}" />
    </form>
 {% endif %}
 

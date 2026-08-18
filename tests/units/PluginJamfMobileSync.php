@@ -44,6 +44,7 @@ use PluginJamfItem_ExtensionAttribute;
 use PluginJamfMobileDevice;
 use PluginJamfSync;
 use ReflectionClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class PluginJamfMobileSync extends AbstractDBTest
 {
@@ -207,9 +208,7 @@ class PluginJamfMobileSync extends AbstractDBTest
         return $result;
     }
 
-    /**
-     * @dataProvider deviceSyncEnginesProvider
-     */
+    #[DataProvider('deviceSyncEnginesProvider')]
     public function testGetDeviceSyncEngineItem($device_class, $sync_class)
     {
         $rdc = new ReflectionClass($device_class);
