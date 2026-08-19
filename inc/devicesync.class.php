@@ -340,7 +340,7 @@ abstract class PluginJamfDeviceSync extends PluginJamfSync
             'glpi_plugin_jamf_devices_id' => $device_id,
         ]);
 
-        if ($this->jamfplugin_device === null || empty($this->jamfplugin_device->fields)) {
+        if ($this->jamfplugin_device === null || $this->jamfplugin_device->fields === []) {
 
             if (!is_a(static::$jamfplugin_itemtype, CommonDBTM::class, true)) {
                 throw new RuntimeException('Invalid jamfplugin_itemtype: ' . static::$jamfplugin_itemtype);

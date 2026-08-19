@@ -40,11 +40,11 @@ use Glpi\Application\View\TemplateRenderer;
  */
 class PluginJamfUser_JSSAccount extends CommonDBChild
 {
-    public static $itemtype  = 'User';
+    public static string $itemtype  = 'User';
 
-    public static $items_id  = 'users_id';
+    public static string $items_id  = 'users_id';
 
-    public static $rightname = 'plugin_jamf_jssaccount';
+    public static string $rightname = 'plugin_jamf_jssaccount';
 
     public const LINK = 256;
 

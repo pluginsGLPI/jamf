@@ -44,6 +44,7 @@ use PluginJamfItem_ExtensionAttribute;
 use PluginJamfMobileDevice;
 use PluginJamfSync;
 use ReflectionClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class PluginJamfMobileSync extends AbstractDBTest
 {
@@ -162,6 +163,7 @@ class PluginJamfMobileSync extends AbstractDBTest
 
         // Make sure the new phone is linked properly
         $link_iterator = $DB->request([
+            'SELECT'    => ['glpi_plugin_jamf_devices.jamf_items_id'],
             'FROM'      => 'glpi_plugin_jamf_devices',
             'LEFT JOIN' => [
                 PluginJamfMobileDevice::getTable() => [
@@ -207,9 +209,7 @@ class PluginJamfMobileSync extends AbstractDBTest
         return $result;
     }
 
-    /**
-     * @dataProvider deviceSyncEnginesProvider
-     */
+    #[DataProvider('deviceSyncEnginesProvider')]
     public function testGetDeviceSyncEngineItem($device_class, $sync_class)
     {
         $rdc = new ReflectionClass($device_class);

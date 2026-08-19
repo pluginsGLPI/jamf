@@ -36,7 +36,7 @@ use Glpi\Application\View\TemplateRenderer;
  */
 class PluginJamfConfig extends CommonDBTM
 {
-    protected static $notable = true;
+    protected static bool $notable = true;
 
     public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0)
     {
@@ -49,7 +49,7 @@ class PluginJamfConfig extends CommonDBTM
 
     public function showForm($ID = -1, array $options = [])
     {
-        if (!Session::haveRight('config', UPDATE)) {
+        if (!Session::haveRight(Config::$rightname, UPDATE)) {
             return false;
         }
 

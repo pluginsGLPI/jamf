@@ -37,11 +37,11 @@ use Glpi\Application\View\TemplateRenderer;
  */
 class PluginJamfMobileDevice extends PluginJamfAbstractDevice
 {
-    public static $itemtype  = 'itemtype';
+    public static string $itemtype  = 'itemtype';
 
-    public static $items_id  = 'items_id';
+    public static string $items_id  = 'items_id';
 
-    public static $rightname = 'plugin_jamf_mobiledevice';
+    public static string $rightname = 'plugin_jamf_mobiledevice';
 
     public static function getTypeName($nb = 1)
     {
@@ -401,9 +401,11 @@ JAVASCRIPT;
                 ],
                 'lost_location' => [
                     'caption' => _x('field', 'GPS', 'jamf'),
-                    'value'   => Html::link(sprintf('%s, %s', $lat, $long), sprintf('https://www.google.com/maps/place/%s,%s', $lat, $long), [
-                        'display' => false,
-                    ]),
+                    'value'   => sprintf(
+                        '<a href="%1$s">%2$s</a>',
+                        htmlescape(sprintf('https://www.google.com/maps/place/%s,%s', $lat, $long)),
+                        htmlescape(sprintf('%s, %s', $lat, $long)),
+                    ),
                 ],
                 'lost_location_altitude' => [
                     'caption' => _x('field', 'Altitude', 'jamf'),

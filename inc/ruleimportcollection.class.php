@@ -34,11 +34,11 @@
  */
 class PluginJamfRuleImportCollection extends RuleCollection
 {
-    public $stop_on_first_match = true;
+    public bool $stop_on_first_match = true;
 
-    public static $rightname    = 'plugin_jamf_ruleimport';
+    public static string $rightname    = 'plugin_jamf_ruleimport';
 
-    public $menu_option         = 'jamf_import';
+    public string $menu_option         = 'jamf_import';
 
     public function getTitle()
     {

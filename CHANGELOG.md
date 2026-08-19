@@ -2,6 +2,10 @@
 
 ## [UNRELEASED]
 
+### Added
+
+- GLPI 12 compatibility
+
 ### Fixed
 
 - Fix leftover data (profile rights and config values) after plugin uninstall

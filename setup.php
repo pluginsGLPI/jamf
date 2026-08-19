@@ -35,8 +35,8 @@ use function Safe\define;
 use function Safe\preg_replace;
 
 define('PLUGIN_JAMF_VERSION', '3.2.2');
-define('PLUGIN_JAMF_MIN_GLPI', '11.0.0');
-define('PLUGIN_JAMF_MAX_GLPI', '11.0.99');
+define('PLUGIN_JAMF_MIN_GLPI', '12.0.0');
+define('PLUGIN_JAMF_MAX_GLPI', '12.0.99');
 
 function plugin_init_jamf()
 {

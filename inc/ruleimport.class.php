@@ -36,7 +36,7 @@
  */
 class PluginJamfRuleImport extends Rule
 {
-    public static $rightname = 'plugin_jamf_ruleimport';
+    public static string $rightname = 'plugin_jamf_ruleimport';
 
     public $can_sort         = true;
 
