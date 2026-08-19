@@ -64,7 +64,7 @@ if (Session::haveRight(PluginJamfMobileDevice::$rightname, CREATE)) {
 
 TemplateRenderer::getInstance()->display('@jamf/menu.html.twig', [
     'links'         => $links,
-    'can_configure' => Session::haveRight('config', UPDATE),
+    'can_configure' => Session::haveRight(Config::$rightname, UPDATE),
     'config_url'    => Config::getFormURL() . '?forcetab=PluginJamfConfig$1',
 ]);
 

@@ -41,7 +41,7 @@ use function Safe\json_decode;
  */
 class PluginJamfItem_MDMCommand extends CommonDBTM
 {
-    public static $rightname = 'plugin_jamf_mdmcommand';
+    public static string $rightname = 'plugin_jamf_mdmcommand';
 
     public static function getTypeName($nb = 0)
     {

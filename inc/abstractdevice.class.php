@@ -35,13 +35,13 @@
  */
 abstract class PluginJamfAbstractDevice extends CommonDBChild
 {
-    public static $itemtype       = 'itemtype';
+    public static string $itemtype       = 'itemtype';
 
-    public static $items_id       = 'items_id';
+    public static string $items_id       = 'items_id';
 
     public static $jamftype_name;
 
-    public static $mustBeAttached = false;
+    public static bool $mustBeAttached = false;
 
     /**
      * Display the extra information for Jamf devices on the main Computer or Phone tab.

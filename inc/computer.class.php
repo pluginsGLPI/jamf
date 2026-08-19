@@ -37,7 +37,7 @@ use Glpi\Application\View\TemplateRenderer;
  */
 class PluginJamfComputer extends PluginJamfAbstractDevice
 {
-    public static $rightname = 'plugin_jamf_computer';
+    public static string $rightname = 'plugin_jamf_computer';
 
     public static $jamftype_name = 'Computer';
 
