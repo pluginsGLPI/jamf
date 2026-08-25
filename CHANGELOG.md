@@ -1,5 +1,11 @@
 # Jamf Plugin for GLPI Changelog
 
+## [UNRELEASED]
+
+### Fixed
+
+- Fix leftover data (profile rights and config values) after plugin uninstall
+
 ## [3.2.2] - 2026-08-03
 
 ### Fixed

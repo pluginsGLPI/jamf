@@ -137,6 +137,13 @@ final class PluginJamfMigration
             'plugin_version',
         ]);
         CronTask::unregister('Jamf');
+        ProfileRight::deleteProfileRights([
+            PluginJamfMobileDevice::$rightname,
+            PluginJamfRuleImport::$rightname,
+            PluginJamfUser_JSSAccount::$rightname,
+            PluginJamfItem_MDMCommand::$rightname,
+            PluginJamfComputer::$rightname,
+        ]);
         if (is_dir(GLPI_PLUGIN_DOC_DIR . "/jamf/")) {
             Toolbox::deleteDir(GLPI_PLUGIN_DOC_DIR . "/jamf/");
         }
@@ -381,15 +388,15 @@ final class PluginJamfMigration
 
         // Add default status config option
         if (!isset($config['default_status'])) {
-            $this->glpiMigration->addConfig(['default_status', null], 'plugin:Jamf');
+            $this->glpiMigration->addConfig(['default_status' => null], 'plugin:Jamf');
         }
 
         if (!isset($config['sync_components'])) {
-            $this->glpiMigration->addConfig(['sync_components', 0], 'plugin:Jamf');
+            $this->glpiMigration->addConfig(['sync_components' => 0], 'plugin:Jamf');
         }
 
         if (!isset($config['jssignorecert'])) {
-            $this->glpiMigration->addConfig(['jssignorecert', 0], 'plugin:Jamf');
+            $this->glpiMigration->addConfig(['jssignorecert' => 0], 'plugin:Jamf');
         }
     }
 
