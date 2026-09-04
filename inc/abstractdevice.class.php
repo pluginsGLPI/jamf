@@ -67,7 +67,7 @@ abstract class PluginJamfAbstractDevice extends CommonDBChild
         /** @var DBmysql $DB */
         global $DB;
 
-        $jamf_class = static::getJamfItemClassForGLPIItem($item::getType(), $item->getID());
+        $jamf_class = static::getJamfItemClassForGLPIItem($item::class, $item->getID());
         if (!is_string($jamf_class)) {
             return;
         }
@@ -108,7 +108,7 @@ abstract class PluginJamfAbstractDevice extends CommonDBChild
 
         self::purgeItemCommon($item);
         $DB->delete(Item_OperatingSystem::getTable(), [
-            'itemtype' => $item::getType(),
+            'itemtype' => $item::class,
             'items_id' => $item->getID(),
         ]);
     }
@@ -176,7 +176,7 @@ abstract class PluginJamfAbstractDevice extends CommonDBChild
                     ],
                 ],
                 'WHERE' => [
-                    'itemtype' => $item::getType(),
+                    'itemtype' => $item::class,
                     'items_id' => $item->getID(),
                 ],
             ]);
@@ -256,7 +256,7 @@ abstract class PluginJamfAbstractDevice extends CommonDBChild
                 ],
             ],
             'WHERE' => [
-                $item_ext_table . '.itemtype' => static::getType(),
+                $item_ext_table . '.itemtype' => static::class,
                 'items_id'                    => $this->getID(),
             ],
         ]);

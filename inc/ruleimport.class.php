@@ -90,8 +90,8 @@ class PluginJamfRuleImport extends Rule
     {
         if (isset($crit['field']) && $crit['field'] === 'itemtype') {
             Dropdown::showFromArray($name, [
-                Computer::getType() => Computer::getTypeName(1),
-                Phone::getType()    => Phone::getTypeName(1),
+                Computer::class => Computer::getTypeName(1),
+                Phone::class    => Phone::getTypeName(1),
             ]);
             return true;
         }

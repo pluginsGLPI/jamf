@@ -53,7 +53,7 @@ class PluginJamfItem_ExtensionAttribute extends CommonDBChild
             return '';
         }
 
-        $jamf_class = PluginJamfAbstractDevice::getJamfItemClassForGLPIItem($item::getType(), $item->getID());
+        $jamf_class = PluginJamfAbstractDevice::getJamfItemClassForGLPIItem($item::class, $item->getID());
         if ($jamf_class === null) {
             return '';
         }
@@ -85,7 +85,7 @@ class PluginJamfItem_ExtensionAttribute extends CommonDBChild
 
     public static function showForItem(CommonDBTM $item)
     {
-        $jamf_class = PluginJamfAbstractDevice::getJamfItemClassForGLPIItem($item::getType(), $item->getID());
+        $jamf_class = PluginJamfAbstractDevice::getJamfItemClassForGLPIItem($item::class, $item->getID());
         if ($jamf_class === null || !$jamf_class::canView()) {
             return false;
         }
