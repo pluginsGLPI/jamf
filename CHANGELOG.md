@@ -5,6 +5,7 @@
 ### Added
 
 - GLPI 12 compatibility
+- Enable `sudo` mode for `Config`
 
 ### Fixed
 
