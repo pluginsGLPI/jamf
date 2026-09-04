@@ -90,9 +90,7 @@ class PluginJamfConnection
     public function getServerVersion()
     {
         static $version = null;
-        if (is_null($version)) {
-            $version = PluginJamfAPI::getJamfProVersion();
-        }
+        $version ??= PluginJamfAPI::getJamfProVersion();
 
         return $version;
     }

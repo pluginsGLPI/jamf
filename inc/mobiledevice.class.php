@@ -77,7 +77,7 @@ class PluginJamfMobileDevice extends PluginJamfAbstractDevice
         global $DB;
 
         $DB->delete(self::getTable(), [
-            'itemtype' => $item::getType(),
+            'itemtype' => $item::class,
             'items_id' => $item->getID(),
         ]);
     }
@@ -101,7 +101,7 @@ class PluginJamfMobileDevice extends PluginJamfAbstractDevice
 
         self::purgeItemCommon($item);
         $DB->delete(Item_OperatingSystem::getTable(), [
-            'itemtype' => $item::getType(),
+            'itemtype' => $item::class,
             'items_id' => $item->getID(),
         ]);
     }
@@ -271,7 +271,7 @@ class PluginJamfMobileDevice extends PluginJamfAbstractDevice
         /** @var CommonDBTM $item */
         $item = $params['item'];
 
-        if (!self::canView() || ($item::getType() !== 'Computer' && $item::getType() !== 'Phone')) {
+        if (!self::canView() || ($item::class !== 'Computer' && $item::class !== 'Phone')) {
             return false;
         }
 
@@ -356,7 +356,7 @@ JAVASCRIPT;
                     ],
                     'sync' => [
                         'caption'  => _x('action', 'Sync now', 'jamf'),
-                        'on_click' => sprintf('syncDevice("%s", %d); return false;', $item::getType(), $item->getID()),
+                        'on_click' => sprintf('syncDevice("%s", %d); return false;', $item::class, $item->getID()),
                     ],
                 ],
                 'extra_js' => $js,

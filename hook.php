@@ -75,7 +75,7 @@ function plugin_jamf_getAddSearchOptions($itemtype)
     $opt    = [];
     $plugin = new Plugin();
     if ($plugin->isActivated('jamf') && ($itemtype === 'Computer' || $itemtype === 'Phone')) {
-        $opt = [
+        return [
             '22002' => [
                 'table'         => 'glpi_plugin_jamf_devices',
                 'field'         => 'last_inventory',
@@ -236,9 +236,7 @@ function plugin_jamf_getAddSearchOptions($itemtype)
 
 function plugin_jamf_dashboardCards($cards = [])
 {
-    if (is_null($cards)) {
-        $cards = [];
-    }
+    $cards ??= [];
 
     $cards = array_merge($cards, PluginJamfExtensionAttribute::dashboardCards());
 
