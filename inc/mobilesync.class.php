@@ -720,12 +720,12 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
 
         $imported = [];
         $iterator = $DB->request([
-            'SELECT' => ['udid'],
+            'SELECT' => ['jamf_items_id'],
             'FROM'   => 'glpi_plugin_jamf_devices',
             'WHERE'  => ['jamf_type' => static::$jamf_itemtype],
         ]);
         foreach ($iterator as $data) {
-            $imported[] = $data['udid'];
+            $imported[] = (int) $data['jamf_items_id'];
         }
 
         $pending_iterator = $DB->request([
@@ -742,7 +742,7 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
 
         $config = Config::getConfigurationValues('plugin:Jamf');
         foreach ($jamf_devices as $jamf_device) {
-            if (!in_array($jamf_device['id'], $imported, true)) {
+            if (!in_array((int) $jamf_device['id'], $imported, true)) {
                 $itemtype = str_contains((string) $jamf_device['model_identifier'], 'iPhone') ? 'Phone' : 'Computer';
                 if (isset($config['autoimport']) && $config['autoimport']) {
                     try {
