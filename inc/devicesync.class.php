@@ -314,12 +314,12 @@ abstract class PluginJamfDeviceSync extends PluginJamfSync
             'id' => $this->item->getID(),
         ] + $this->item_changes);
         foreach ($this->extitem_changes as $key => $value) {
-            PluginJamfExtField::setValue($this->item::getType(), $this->item->getID(), $key, $value);
+            PluginJamfExtField::setValue($this->item::class, $this->item->getID(), $key, $value);
         }
 
         // Update or Add Jamf Item
         $this->db->updateOrInsert('glpi_plugin_jamf_devices', $this->commondevice_changes, [
-            'itemtype' => $this->item::getType(),
+            'itemtype' => $this->item::class,
             'items_id' => $this->item->getID(),
         ]);
         $device_id = -1;
@@ -328,7 +328,7 @@ abstract class PluginJamfDeviceSync extends PluginJamfSync
             'SELECT' => ['id'],
             'FROM'   => 'glpi_plugin_jamf_devices',
             'WHERE'  => [
-                'itemtype' => $this->item::getType(),
+                'itemtype' => $this->item::class,
                 'items_id' => $this->item->getID(),
             ],
         ]);
@@ -340,7 +340,7 @@ abstract class PluginJamfDeviceSync extends PluginJamfSync
             'glpi_plugin_jamf_devices_id' => $device_id,
         ]);
 
-        if ($this->jamfplugin_device === null || empty($this->jamfplugin_device->fields)) {
+        if ($this->jamfplugin_device === null || $this->jamfplugin_device->fields === []) {
 
             if (!is_a(static::$jamfplugin_itemtype, CommonDBTM::class, true)) {
                 throw new RuntimeException('Invalid jamfplugin_itemtype: ' . static::$jamfplugin_itemtype);
@@ -351,7 +351,7 @@ abstract class PluginJamfDeviceSync extends PluginJamfSync
                 'SELECT' => ['id'],
                 'FROM'   => static::$jamfplugin_itemtype::getTable(),
                 'WHERE'  => [
-                    'itemtype' => $this->item::getType(),
+                    'itemtype' => $this->item::class,
                     'items_id' => $this->item->getID(),
                 ],
                 'LEFT JOIN' => [

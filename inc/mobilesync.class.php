@@ -48,7 +48,7 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
 
         try {
             $general  = $this->data['general'];
-            $itemtype = $this->item::getType();
+            $itemtype = $this->item::class;
 
             if (($general['name'] !== $this->item->fields['name'])) {
                 $this->item_changes['name'] = $general['name'];
@@ -156,7 +156,7 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
                 'operatingsystemversions_id' => $os_version->getID(),
                 'date_creation'              => $_SESSION['glpi_currenttime'],
             ], [
-                'itemtype' => $this->item::getType(),
+                'itemtype' => $this->item::class,
                 'items_id' => $this->item->getID(),
             ]);
         } catch (Exception) {
@@ -242,13 +242,13 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
 
                 $item_softwareversion         = new Item_SoftwareVersion();
                 $item_softwareversion_matches = $item_softwareversion->find([
-                    'itemtype'            => $this->item::getType(),
+                    'itemtype'            => $this->item::class,
                     'items_id'            => $this->item->getID(),
                     'softwareversions_id' => $softwareversion_id,
                 ]);
                 if (!count($item_softwareversion_matches)) {
                     $item_softwareversion->add([
-                        'itemtype'            => $this->item::getType(),
+                        'itemtype'            => $this->item::class,
                         'items_id'            => $this->item->getID(),
                         'softwareversions_id' => $softwareversion_id,
                         'entities_id'         => $this->item->fields['entities_id'],
@@ -265,7 +265,7 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
             foreach ($to_remove_software as $to_remove) {
                 $DB->delete(Item_SoftwareVersion::getTable(), [
                     SoftwareVersion::getTable() . '.softwares_id' => $to_remove['softwares_id'],
-                    'itemtype'                                    => $this->item::getType(),
+                    'itemtype'                                    => $this->item::class,
                     'items_id'                                    => $this->item->getID(),
                 ], [
                     'LEFT JOIN' => [
@@ -354,7 +354,7 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
             }
 
             $this->db->updateOrInsert(Infocom::getTable(), $infocom_changes, [
-                'itemtype' => $this->item::getType(),
+                'itemtype' => $this->item::class,
                 'items_id' => $this->item->getID(),
             ]);
         } catch (Exception) {
@@ -372,11 +372,11 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
     {
         if (!$this->config['sync_general'] || !isset($this->data['extension_attributes'])) {
             $this->status['syncExtensionAttributes'] = self::STATUS_SKIPPED;
-
             return $this;
-        } elseif ($this->config['sync_general'] && ($this->jamfplugin_device === null || empty($this->jamfplugin_device->fields))) {
-            $this->status['syncExtensionAttributes'] = self::STATUS_DEFERRED;
+        }
 
+        if ($this->jamfplugin_device === null || $this->jamfplugin_device->fields === []) {
+            $this->status['syncExtensionAttributes'] = self::STATUS_DEFERRED;
             return $this;
         }
 
@@ -395,7 +395,7 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
                     $this->db->updateOrInsert(PluginJamfItem_ExtensionAttribute::getTable(), ['value' => $attr['value']], [
                         'glpi_plugin_jamf_extensionattributes_id' => $attr_match['id'],
                         'items_id'                                => $this->jamfplugin_device->getID(),
-                        'itemtype'                                => $this->jamfplugin_device::getType(),
+                        'itemtype'                                => $this->jamfplugin_device::class,
                     ]);
                 }
             }
@@ -473,11 +473,11 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
                     'comment'                    => 'Created by Jamf Plugin for GLPI',
                 ]);
                 $item_wifi = $this->createOrGetItem('Item_DeviceNetworkCard', [
-                    'itemtype'              => $this->item->getType(),
+                    'itemtype'              => $this->item::class,
                     'items_id'              => $this->item->getID(),
                     'devicenetworkcards_id' => $wifi->getID(),
                 ], [
-                    'itemtype'              => $this->item->getType(),
+                    'itemtype'              => $this->item::class,
                     'items_id'              => $this->item->getID(),
                     'devicenetworkcards_id' => $wifi->getID(),
                     'is_dynamic'            => 1,
@@ -486,12 +486,12 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
                 ]);
 
                 $netport = $this->createOrGetItem('NetworkPort', [
-                    'itemtype'           => $this->item->getType(),
+                    'itemtype'           => $this->item::class,
                     'items_id'           => $this->item->getID(),
                     'instantiation_type' => 'NetworkPortWifi',
                     'logical_number'     => 0,
                 ], [
-                    'itemtype'                    => $this->item->getType(),
+                    'itemtype'                    => $this->item::class,
                     'items_id'                    => $this->item->getID(),
                     'instantiation_type'          => 'NetworkPortWifi',
                     'logical_number'              => 0,
@@ -517,7 +517,7 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
                     'entities_id'  => $this->item->fields['entities_id'],
                     'itemtype'     => 'NetworkName',
                     'items_id'     => $network_name->getID(),
-                    'mainitemtype' => $this->item->getType(),
+                    'mainitemtype' => $this->item::class,
                     'mainitems_id' => $this->item->getID(),
                     'is_dynamic'   => 1,
                 ]);
@@ -526,7 +526,7 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
                         'entities_id'  => $this->item->fields['entities_id'],
                         'itemtype'     => 'NetworkName',
                         'items_id'     => $network_name->getID(),
-                        'mainitemtype' => $this->item->getType(),
+                        'mainitemtype' => $this->item::class,
                         'mainitems_id' => $this->item->getID(),
                         'is_dynamic'   => 1,
                         'name'         => $general['ip_address'],
@@ -554,11 +554,11 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
                     'comment'                    => 'Created by Jamf Plugin for GLPI',
                 ]);
                 $item_bt = $this->createOrGetItem('Item_DeviceNetworkCard', [
-                    'itemtype'              => $this->item->getType(),
+                    'itemtype'              => $this->item::class,
                     'items_id'              => $this->item->getID(),
                     'devicenetworkcards_id' => $bt->getID(),
                 ], [
-                    'itemtype'              => $this->item->getType(),
+                    'itemtype'              => $this->item::class,
                     'items_id'              => $this->item->getID(),
                     'devicenetworkcards_id' => $bt->getID(),
                     'is_dynamic'            => 1,
@@ -567,12 +567,12 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
                 ]);
 
                 $this->createOrGetItem('NetworkPort', [
-                    'itemtype'           => $this->item->getType(),
+                    'itemtype'           => $this->item::class,
                     'items_id'           => $this->item->getID(),
                     'instantiation_type' => 'NetworkPortWifi',
                     'logical_number'     => 1,
                 ], [
-                    'itemtype'                    => $this->item->getType(),
+                    'itemtype'                    => $this->item::class,
                     'items_id'                    => $this->item->getID(),
                     'instantiation_type'          => 'NetworkPortWifi',
                     'logical_number'              => 1,
@@ -618,7 +618,7 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
                 $this->commondevice_changes['enroll_date'] = $enroll_date;
             }
 
-            $this->commondevice_changes['itemtype']                = $this->item::getType();
+            $this->commondevice_changes['itemtype']                = $this->item::class;
             $this->commondevice_changes['items_id']                = $this->item->getID();
             $this->commondevice_changes['jamf_items_id']           = $general['id'];
             $this->commondevice_changes['udid']                    = $general['udid'];
@@ -651,11 +651,11 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
 
             // Volume
             $this->createOrGetItem(Item_Disk::class, [
-                'itemtype'   => $this->item::getType(),
+                'itemtype'   => $this->item::class,
                 'items_id'   => $this->item->getID(),
                 'mountpoint' => '/',
             ], [
-                'itemtype'    => $this->item::getType(),
+                'itemtype'    => $this->item::class,
                 'items_id'    => $this->item->getID(),
                 'name'        => 'OS',
                 'mountpoint'  => '/',
@@ -682,11 +682,11 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
                     'caller_num' => $general['phone_number'],
                 ]);
                 $this->createOrGetItem(Item_DeviceSimcard::class, [
-                    'itemtype'          => $this->item::getType(),
+                    'itemtype'          => $this->item::class,
                     'items_id'          => $this->item->getID(),
                     'devicesimcards_id' => $simcard->getID(),
                 ], [
-                    'itemtype'          => $this->item::getType(),
+                    'itemtype'          => $this->item::class,
                     'items_id'          => $this->item->getID(),
                     'devicesimcards_id' => $simcard->getID(),
                     'is_dynamic'        => 1,
@@ -862,7 +862,7 @@ class PluginJamfMobileSync extends PluginJamfDeviceSync
         if ($items_id) {
             // Link
             $r = $DB->insert('glpi_plugin_jamf_devices', [
-                'itemtype'         => $item::getType(),
+                'itemtype'         => $item::class,
                 'items_id'         => $items_id,
                 'udid'             => $jamf_item['general']['udid'],
                 'jamf_type'        => static::$jamf_itemtype,

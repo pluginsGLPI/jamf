@@ -35,7 +35,7 @@
  */
 class PluginJamfProfile extends Profile
 {
-    public static $rightname = 'config';
+    public static string $rightname = 'config';
 
     public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0)
     {

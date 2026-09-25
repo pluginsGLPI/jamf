@@ -52,19 +52,7 @@ class PluginJamfDBUtil
             return true;
         }
 
-        $res = $DB->doQuery('DROP TABLE' . $DB::quoteName($table));
-        if (!$res) {
-            //TRANS: %1$s is the description, %2$s is the query, %3$s is the error message
-            $message = sprintf(
-                _x('error', '%1$s - Error during the drop of the table %2$s - Error is %3$s', 'jamf'),
-                $message,
-                $table,
-                $DB->error(),
-            );
-            throw new RuntimeException($message);
-        }
-
-        return $res;
+        return $DB->doQuery('DROP TABLE' . $DB::quoteName($table));
     }
 
     public static function truncate($table)

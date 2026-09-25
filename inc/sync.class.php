@@ -163,11 +163,11 @@ abstract class PluginJamfSync
             'id' => $this->item->getID(),
         ] + $this->item_changes);
         foreach ($this->extitem_changes as $key => $value) {
-            PluginJamfExtField::setValue($this->item::getType(), $this->item->getID(), $key, $value);
+            PluginJamfExtField::setValue($this->item::class, $this->item->getID(), $key, $value);
         }
 
         $this->db->updateOrInsert(static::$jamfplugin_itemtype::getTable(), $this->jamfplugin_item_changes, [
-            'itemtype' => $this->item::getType(),
+            'itemtype' => $this->item::class,
             'items_id' => $this->item->getID(),
         ]);
 
@@ -178,7 +178,7 @@ abstract class PluginJamfSync
 
             $jamf_item  = new static::$jamfplugin_itemtype();
             $jamf_match = $jamf_item->find([
-                'itemtype' => $this->item::getType(),
+                'itemtype' => $this->item::class,
                 'items_id' => $this->item->getID()], [], 1);
             if (count($jamf_match) > 0) {
                 $jamf_item->getFromDB(reset($jamf_match)['id']);

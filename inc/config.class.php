@@ -36,12 +36,12 @@ use Glpi\Application\View\TemplateRenderer;
  */
 class PluginJamfConfig extends CommonDBTM
 {
-    protected static $notable = true;
+    protected static bool $notable = true;
 
     public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0)
     {
-        if (!$withtemplate && $item::getType() === Config::class) {
-            return self::createTabEntry(__s("Jamf", "jamf"), 0, $item::getType(), self::getIcon());
+        if (!$withtemplate && $item::class === Config::class) {
+            return self::createTabEntry(__s("Jamf", "jamf"), 0, $item::class, self::getIcon());
         }
 
         return '';
@@ -49,7 +49,7 @@ class PluginJamfConfig extends CommonDBTM
 
     public function showForm($ID = -1, array $options = [])
     {
-        if (!Session::haveRight('config', UPDATE)) {
+        if (!Session::haveRight(Config::$rightname, UPDATE)) {
             return false;
         }
 
@@ -73,7 +73,7 @@ class PluginJamfConfig extends CommonDBTM
 
     public static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0)
     {
-        if ($item::getType() === Config::class) {
+        if ($item::class === Config::class) {
             return (new self())->showForm();
         }
 
@@ -95,9 +95,7 @@ class PluginJamfConfig extends CommonDBTM
     public static function getConfig(bool $force_all = false): array
     {
         static $config = null;
-        if ($config === null) {
-            $config = Config::getConfigurationValues('plugin:Jamf');
-        }
+        $config ??= Config::getConfigurationValues('plugin:Jamf');
 
         if (!$force_all) {
             return self::undiscloseConfigValue($config);

@@ -41,7 +41,7 @@ use function Safe\json_decode;
  */
 class PluginJamfItem_MDMCommand extends CommonDBTM
 {
-    public static $rightname = 'plugin_jamf_mdmcommand';
+    public static string $rightname = 'plugin_jamf_mdmcommand';
 
     public static function getTypeName($nb = 0)
     {
@@ -54,7 +54,7 @@ class PluginJamfItem_MDMCommand extends CommonDBTM
             return '';
         }
 
-        $jamf_class = PluginJamfAbstractDevice::getJamfItemClassForGLPIItem($item::getType(), $item->getID());
+        $jamf_class = PluginJamfAbstractDevice::getJamfItemClassForGLPIItem($item::class, $item->getID());
         if ($jamf_class !== PluginJamfMobileDevice::class || !PluginJamfMobileDevice::canView()) {
             return '';
         }
@@ -168,14 +168,15 @@ class PluginJamfItem_MDMCommand extends CommonDBTM
         // Sort so newest updates are first
         usort($data['iOS'], static fn($a, $b) => version_compare($b['ProductVersion'], $a['ProductVersion']));
         usort($data['macOS'], static fn($a, $b) => version_compare($b['ProductVersion'], $a['ProductVersion']));
-
         if ($data['iOS'] !== []) {
             return array_column($data['iOS'], 'ProductVersion');
-        } elseif ($data['macOS'] !== []) {
-            return array_column($data['macOS'], 'ProductVersion');
-        } else {
-            return [];
         }
+
+        if ($data['macOS'] !== []) {
+            return array_column($data['macOS'], 'ProductVersion');
+        }
+
+        return [];
     }
 
     public static function applySpecificParams(&$commands, PluginJamfAbstractDevice $mobiledevice): void
@@ -209,7 +210,7 @@ class PluginJamfItem_MDMCommand extends CommonDBTM
             'commands'         => $commands,
             'pending_commands' => $item_commands['pending'],
             'failed_commands'  => $item_commands['failed'],
-            'itemtype'         => $item->getType(),
+            'itemtype'         => $item::class,
             'items_id'         => $item->getID(),
             'jamf_itemtype'    => 'MobileDevice',
             'jamf_items_id'    => $mobiledevice->getID(),

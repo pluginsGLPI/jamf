@@ -40,11 +40,11 @@ use Glpi\Application\View\TemplateRenderer;
  */
 class PluginJamfUser_JSSAccount extends CommonDBChild
 {
-    public static $itemtype  = 'User';
+    public static string $itemtype  = 'User';
 
-    public static $items_id  = 'users_id';
+    public static string $items_id  = 'users_id';
 
-    public static $rightname = 'plugin_jamf_jssaccount';
+    public static string $rightname = 'plugin_jamf_jssaccount';
 
     public const LINK = 256;
 
@@ -85,9 +85,7 @@ class PluginJamfUser_JSSAccount extends CommonDBChild
         // Cache JSS account privileges information to avoid extra, costly API calls.
         static $privileges = [];
 
-        if (!isset($privileges[$this->fields['jssaccounts_id']])) {
-            $privileges[$this->fields['jssaccounts_id']] = PluginJamfAPI::getJSSAccountRights($this->fields['jssaccounts_id']);
-        }
+        $privileges[$this->fields['jssaccounts_id']] ??= PluginJamfAPI::getJSSAccountRights($this->fields['jssaccounts_id']);
 
         return $privileges[$this->fields['jssaccounts_id']];
     }
@@ -95,23 +93,21 @@ class PluginJamfUser_JSSAccount extends CommonDBChild
     private static function getItemRightMap()
     {
         static $map = null;
-        if ($map === null) {
-            $map = [
-                'accounts'                        => ['Accounts'],
-                'advancedcomputersearches'        => ['Advanced Computer Searches'],
-                'advancedmobiledevicesearches'    => ['Advanced Mobile Device Searches'],
-                'advancedusersearches'            => ['Advanced User Searches'],
-                'buildings'                       => ['Buildings'],
-                'categories'                      => ['Categories'],
-                'classes'                         => ['Classes'],
-                'departments'                     => ['Departments'],
-                'mobiledeviceapplications'        => ['Mobile Device Applications'],
-                'mobiledeviceextensionattributes' => ['Mobile Device Extension Attributes'],
-                'mobiledevicegroups'              => ['Smart Mobile Device Groups', 'Static Mobile Device Groups'],
-                'mobiledevices'                   => ['Mobile Devices'],
-                'users'                           => ['Users'],
-            ];
-        }
+        $map ??= [
+            'accounts'                        => ['Accounts'],
+            'advancedcomputersearches'        => ['Advanced Computer Searches'],
+            'advancedmobiledevicesearches'    => ['Advanced Mobile Device Searches'],
+            'advancedusersearches'            => ['Advanced User Searches'],
+            'buildings'                       => ['Buildings'],
+            'categories'                      => ['Categories'],
+            'classes'                         => ['Classes'],
+            'departments'                     => ['Departments'],
+            'mobiledeviceapplications'        => ['Mobile Device Applications'],
+            'mobiledeviceextensionattributes' => ['Mobile Device Extension Attributes'],
+            'mobiledevicegroups'              => ['Smart Mobile Device Groups', 'Static Mobile Device Groups'],
+            'mobiledevices'                   => ['Mobile Devices'],
+            'users'                           => ['Users'],
+        ];
 
         return $map;
     }
@@ -205,11 +201,9 @@ class PluginJamfUser_JSSAccount extends CommonDBChild
         $user_jssaccount = new self();
         static $matches  = null;
 
-        if ($matches === null) {
-            $matches = $user_jssaccount->find([
-                'users_id' => Session::getLoginUserID(),
-            ]);
-        }
+        $matches ??= $user_jssaccount->find([
+            'users_id' => Session::getLoginUserID(),
+        ]);
 
         if (count($matches) === 0) {
             // No JSS account link

@@ -40,7 +40,7 @@ if (!$plugin->isActivated('jamf')) {
 
 Html::header_nocache();
 
-Session::checkRight('config', UPDATE);
+Session::checkRight(Config::$rightname, UPDATE);
 
 /** @var DBmysql $DB */
 global $DB;
