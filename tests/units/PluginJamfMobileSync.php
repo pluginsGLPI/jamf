@@ -193,6 +193,32 @@ class PluginJamfMobileSync extends AbstractDBTest
         $this->assertEquals('1aec6610a9401d2cc47cb55e1a2f7b500ab75864', $ext_field['value']);
     }
 
+    public function testDiscoverSkipsAlreadyImportedDevices()
+    {
+        /** @var DBmysql $DB */
+        global $DB;
+
+        // Ensure the device is imported (may already be done by a previous test)
+        PluginJamfMobileTestSync::import('Phone', 5, false);
+        $this->assertGreaterThan(0, countElementsInTable('glpi_plugin_jamf_devices', [
+            'jamf_type'     => 'MobileDevice',
+            'jamf_items_id' => 5,
+        ]));
+
+        $DB->delete(PluginJamfImport::getTable(), ['jamf_type' => 'MobileDevice']);
+        PluginJamfMobileTestSync::discover();
+
+        // The imported device must not be queued again for import
+        $this->assertEquals(0, countElementsInTable(PluginJamfImport::getTable(), [
+            'jamf_type'     => 'MobileDevice',
+            'jamf_items_id' => 5,
+        ]));
+        // The other devices are still discovered
+        $this->assertEquals(5, countElementsInTable(PluginJamfImport::getTable(), [
+            'jamf_type' => 'MobileDevice',
+        ]));
+    }
+
     public static function deviceSyncEnginesProvider()
     {
         $engines = PluginJamfSync::getDeviceSyncEngines();
