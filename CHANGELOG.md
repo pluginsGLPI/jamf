@@ -6,6 +6,7 @@
 
 - Fix mobile devices duplication during mobile sync
 - Fix leftover data (profile rights and config values) after plugin uninstall
+- CI: fix Psalm cache directory, drop the stray `glpi-project/tools` composer dependency, declare a unique composer autoloader suffix
 
 ## [3.2.2] - 2026-08-03
 

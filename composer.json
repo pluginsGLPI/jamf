@@ -2,10 +2,8 @@
     "require": {
         "php": ">=8.2"
     },
-    "require-dev": {
-        "glpi-project/tools": "^0.8.1"
-    },
     "config": {
+        "autoloader-suffix": "PluginJamf",
         "optimize-autoloader": true,
         "platform": {
             "php": "8.2.99"
