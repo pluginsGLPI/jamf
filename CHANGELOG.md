@@ -2,6 +2,10 @@
 
 ## [UNRELEASED]
 
+### Added
+
+- GLPI 12 compatibility
+
 ### Fixed
 
 - Fix mobile devices duplication during mobile sync

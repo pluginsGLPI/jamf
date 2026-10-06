@@ -133,7 +133,7 @@ class PluginJamfComputerSync extends PluginJamfDeviceSync
                 'operatingsystemversions_id' => $os_version->getID(),
                 'date_creation'              => $_SESSION['glpi_currenttime'],
             ], [
-                'itemtype' => $this->item::getType(),
+                'itemtype' => $this->item::class,
                 'items_id' => $this->item->getID(),
             ]);
         } catch (Exception) {
@@ -186,11 +186,11 @@ class PluginJamfComputerSync extends PluginJamfDeviceSync
                     'is_recursive' => $this->item->fields['is_recursive'],
                 ]);
                 $this->applyDesiredState('Item_SoftwareVersion', [
-                    'itemtype'            => $this->item::getType(),
+                    'itemtype'            => $this->item::class,
                     'items_id'            => $this->item->getID(),
                     'softwareversions_id' => $software_version->getID(),
                 ], [
-                    'itemtype'            => $this->item::getType(),
+                    'itemtype'            => $this->item::class,
                     'items_id'            => $this->item->getID(),
                     'softwareversions_id' => $software_version->getID(),
                     'entities_id'         => $this->item->fields['entities_id'],
@@ -206,7 +206,7 @@ class PluginJamfComputerSync extends PluginJamfDeviceSync
             foreach ($to_remove_software as $to_remove) {
                 $DB->delete(Item_SoftwareVersion::getTable(), [
                     SoftwareVersion::getTable() . '.softwares_id' => $to_remove['softwares_id'],
-                    'itemtype'                                    => $this->item::getType(),
+                    'itemtype'                                    => $this->item::class,
                     'items_id'                                    => $this->item->getID(),
                 ], [
                     'LEFT JOIN' => [
@@ -294,7 +294,7 @@ class PluginJamfComputerSync extends PluginJamfDeviceSync
             }
 
             $this->db->updateOrInsert(Infocom::getTable(), $infocom_changes, [
-                'itemtype' => $this->item::getType(),
+                'itemtype' => $this->item::class,
                 'items_id' => $this->item->getID(),
             ]);
         } catch (Exception) {
@@ -312,11 +312,11 @@ class PluginJamfComputerSync extends PluginJamfDeviceSync
     {
         if (!$this->config['sync_general'] || !isset($this->data['extension_attributes'])) {
             $this->status['syncExtensionAttributes'] = self::STATUS_SKIPPED;
-
             return $this;
-        } elseif ($this->config['sync_general'] && $this->jamfplugin_device === null) {
-            $this->status['syncExtensionAttributes'] = self::STATUS_DEFERRED;
+        }
 
+        if ($this->jamfplugin_device === null) {
+            $this->status['syncExtensionAttributes'] = self::STATUS_DEFERRED;
             return $this;
         }
 
@@ -336,7 +336,7 @@ class PluginJamfComputerSync extends PluginJamfDeviceSync
                     $this->db->updateOrInsert(PluginJamfItem_ExtensionAttribute::getTable(), ['value' => $attr['value']], [
                         'glpi_plugin_jamf_extensionattributes_id' => $attr_match['id'],
                         'items_id'                                => $this->jamfplugin_device->getID(),
-                        'itemtype'                                => $this->jamfplugin_device::getType(),
+                        'itemtype'                                => $this->jamfplugin_device::class,
                     ]);
                 }
             }
@@ -398,11 +398,11 @@ class PluginJamfComputerSync extends PluginJamfDeviceSync
                     'comment'                    => 'Created by Jamf Plugin for GLPI',
                 ]);
                 $item_wifi = $this->createOrGetItem('Item_DeviceNetworkCard', [
-                    'itemtype'              => $this->item->getType(),
+                    'itemtype'              => $this->item::class,
                     'items_id'              => $this->item->getID(),
                     'devicenetworkcards_id' => $wifi->getID(),
                 ], [
-                    'itemtype'              => $this->item->getType(),
+                    'itemtype'              => $this->item::class,
                     'items_id'              => $this->item->getID(),
                     'devicenetworkcards_id' => $wifi->getID(),
                     'is_dynamic'            => 1,
@@ -411,12 +411,12 @@ class PluginJamfComputerSync extends PluginJamfDeviceSync
                 ]);
 
                 $netport = $this->createOrGetItem('NetworkPort', [
-                    'itemtype'           => $this->item->getType(),
+                    'itemtype'           => $this->item::class,
                     'items_id'           => $this->item->getID(),
                     'instantiation_type' => 'NetworkPortWifi',
                     'logical_number'     => 0,
                 ], [
-                    'itemtype'                    => $this->item->getType(),
+                    'itemtype'                    => $this->item::class,
                     'items_id'                    => $this->item->getID(),
                     'instantiation_type'          => 'NetworkPortWifi',
                     'logical_number'              => 0,
@@ -442,7 +442,7 @@ class PluginJamfComputerSync extends PluginJamfDeviceSync
                     'entities_id'  => $this->item->fields['entities_id'],
                     'itemtype'     => 'NetworkName',
                     'items_id'     => $network_name->getID(),
-                    'mainitemtype' => $this->item->getType(),
+                    'mainitemtype' => $this->item::class,
                     'mainitems_id' => $this->item->getID(),
                     'is_dynamic'   => 1,
                 ]);
@@ -451,7 +451,7 @@ class PluginJamfComputerSync extends PluginJamfDeviceSync
                         'entities_id'  => $this->item->fields['entities_id'],
                         'itemtype'     => 'NetworkName',
                         'items_id'     => $network_name->getID(),
-                        'mainitemtype' => $this->item->getType(),
+                        'mainitemtype' => $this->item::class,
                         'mainitems_id' => $this->item->getID(),
                         'is_dynamic'   => 1,
                         'name'         => $general['ip_address'],
@@ -500,7 +500,7 @@ class PluginJamfComputerSync extends PluginJamfDeviceSync
                 $this->commondevice_changes['enroll_date'] = $enroll_date;
             }
 
-            $this->commondevice_changes['itemtype']      = $this->item::getType();
+            $this->commondevice_changes['itemtype']      = $this->item::class;
             $this->commondevice_changes['items_id']      = $this->item->getID();
             $this->commondevice_changes['jamf_items_id'] = $general['id'];
             $this->commondevice_changes['udid']          = $general['udid'];
@@ -538,11 +538,11 @@ class PluginJamfComputerSync extends PluginJamfDeviceSync
                 'is_recursive'     => '1',
             ]);
             $this->applyDesiredState('Item_DeviceFirmware', [
-                'itemtype'           => $this->item::getType(),
+                'itemtype'           => $this->item::class,
                 'items_id'           => $this->item->getID(),
                 'devicefirmwares_id' => $boot_rom->getID(),
             ], [
-                'itemtype'           => $this->item::getType(),
+                'itemtype'           => $this->item::class,
                 'items_id'           => $this->item->getID(),
                 'devicefirmwares_id' => $boot_rom->getID(),
                 'is_deleted'         => 0,
@@ -558,12 +558,12 @@ class PluginJamfComputerSync extends PluginJamfDeviceSync
                 foreach ($disk['partitions'] as $partition) {
                     // Volume
                     $this->applyDesiredState(Item_Disk::class, [
-                        'itemtype'   => $this->item::getType(),
+                        'itemtype'   => $this->item::class,
                         'items_id'   => $this->item->getID(),
                         'mountpoint' => '',
                         'name'       => $partition['name'],
                     ], [
-                        'itemtype'    => $this->item::getType(),
+                        'itemtype'    => $this->item::class,
                         'items_id'    => $this->item->getID(),
                         'name'        => $partition['name'],
                         'mountpoint'  => '',
@@ -712,7 +712,7 @@ class PluginJamfComputerSync extends PluginJamfDeviceSync
         if ($items_id) {
             // Link
             $r = $DB->insert('glpi_plugin_jamf_devices', [
-                'itemtype'         => $item::getType(),
+                'itemtype'         => $item::class,
                 'items_id'         => $items_id,
                 'udid'             => $jamf_item['general']['udid'],
                 'jamf_type'        => static::$jamf_itemtype,

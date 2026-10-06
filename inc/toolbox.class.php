@@ -41,9 +41,7 @@ class PluginJamfToolbox
             return null;
         }
 
-        if ($end === null) {
-            $end = $_SESSION['glpi_currenttime'];
-        }
+        $end ??= $_SESSION['glpi_currenttime'];
 
         $diff     = date_diff(date_create($start), date_create($end));
         $text_arr = [];
@@ -92,9 +90,7 @@ class PluginJamfToolbox
 
         $mask = 'Y-m-d H:i:s';
 
-        if ($format === null) {
-            $format = $_SESSION['glpidate_format'];
-        }
+        $format ??= $_SESSION['glpidate_format'];
 
         switch ($format) {
             case 1: // DD-MM-YYYY

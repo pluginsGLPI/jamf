@@ -87,7 +87,7 @@ class PluginJamfSoftware extends CommonDBTM
                 ],
             ],
             'WHERE' => [
-                'itemtype' => $item::getType(),
+                'itemtype' => $item::class,
                 'items_id' => $item->getID(),
             ],
         ]);
