@@ -1,6 +1,6 @@
 # Jamf Plugin for GLPI Changelog
 
-## [UNRELEASED]
+## [3.3.0] - 2026-10-06
 
 ### Added
 
