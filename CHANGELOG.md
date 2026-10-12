@@ -1,5 +1,11 @@
 # Jamf Plugin for GLPI Changelog
 
+## [UNRELEASED]
+
+### Fixed
+
+- Fix `migration:unsigned_keys` failure on `glpi_plugin_jamf_devices.jamf_items_id` (negative default value)
+
 ## [3.2.3] - 2026-10-06
 
 ### Fixed

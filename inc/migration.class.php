@@ -648,4 +648,12 @@ final class PluginJamfMigration
         // Unicity should be on jamf_type (The type in Jamf: Computer/MobileDevice) and jamf_items_id, not jamf_items_id and type (The type of asset in GLPI)
         $this->glpiMigration->addKey('glpi_plugin_jamf_imports', ['jamf_type', 'jamf_items_id'], 'unicity', 'UNIQUE');
     }
+
+    public function apply_3_2_4_migration(): void
+    {
+        // jamf_items_id was created signed with a -1 default, which blocks the core `migration:unsigned_keys` command
+        $this->db->update('glpi_plugin_jamf_devices', ['jamf_items_id' => 0], ['jamf_items_id' => ['<', 0]]);
+        $this->glpiMigration->changeField('glpi_plugin_jamf_devices', 'jamf_items_id', 'jamf_items_id', 'fkey');
+        $this->glpiMigration->migrationOneTable('glpi_plugin_jamf_devices');
+    }
 }
