@@ -1,5 +1,11 @@
 # Jamf Plugin for GLPI Changelog
 
+## [Unreleased]
+
+### Added
+
+- Add Transifex translations link to README
+
 ## [3.3.0] - 2026-10-06
 
 ### Added

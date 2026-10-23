@@ -92,3 +92,7 @@ We welcome contributions! Here's how you can help:
 [![Instagram GLPI](https://img.shields.io/badge/Instagram-GLPI-E1306C.svg?style=for-the-badge)](https://www.instagram.com/glpi_project/)
 [![LinkedIn GLPI](https://img.shields.io/badge/LinkedIn-GLPI-0A66C2.svg?style=for-the-badge)](https://www.linkedin.com/products/teclib-glpi/)
 [![Telegram GLPI](https://img.shields.io/badge/Telegram-GLPI-blue.svg?style=for-the-badge)](https://t.me/glpien)
+
+## Additional resources
+
+* [Translations on Transifex](https://explore.transifex.com/teclib/glpi-plugin-jamf/)
