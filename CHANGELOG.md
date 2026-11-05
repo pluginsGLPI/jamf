@@ -6,6 +6,12 @@
 
 - Add Transifex translations link to README
 
+## [3.2.4] - 2026-11-05
+
+### Fixed
+
+- Fix `migration:unsigned_keys` failure on `glpi_plugin_jamf_devices.jamf_items_id` (negative default value)
+
 ## [3.3.0] - 2026-10-06
 
 ### Added
