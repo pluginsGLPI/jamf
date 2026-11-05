@@ -44,6 +44,11 @@ Utilisation
          <download_url>https://github.com/pluginsGLPI/jamf/releases/download/3.3.0/glpi-jamf-3.3.0.tar.bz2</download_url>
       </version>
       <version>
+         <num>3.2.4</num>
+         <compatibility>~11.0.0</compatibility>
+         <download_url>https://github.com/pluginsGLPI/jamf/releases/download/3.2.4/glpi-jamf-3.2.4.tar.bz2</download_url>
+      </version>
+      <version>
          <num>3.2.3</num>
          <compatibility>~11.0.0</compatibility>
          <download_url>https://github.com/pluginsGLPI/jamf/releases/download/3.2.3/glpi-jamf-3.2.3.tar.bz2</download_url>
