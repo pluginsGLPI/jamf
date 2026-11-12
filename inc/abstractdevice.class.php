@@ -86,6 +86,8 @@ abstract class PluginJamfAbstractDevice extends CommonDBChild
                 'glpi_plugin_jamf_devices_id' => $device['id'],
             ]);
         }
+
+        unset(self::$jamf_item_class_cache[$item::getType() . ':' . $item->getID()]);
     }
 
     /**
@@ -120,12 +122,24 @@ abstract class PluginJamfAbstractDevice extends CommonDBChild
         }
     }
 
+    /**
+     * Jamf class of each GLPI item already looked up in this request: forms ask for it once per tab and once for the main block.
+     * @var array<string, ?string>
+     */
+    private static array $jamf_item_class_cache = [];
+
     public static function getJamfItemClassForGLPIItem(string $itemtype, $items_id): ?string
     {
         /** @var DBmysql $DB */
         global $DB;
 
-        $iterator = $DB->request([
+        $cache_key = $itemtype . ':' . $items_id;
+        if (array_key_exists($cache_key, self::$jamf_item_class_cache)) {
+            return self::$jamf_item_class_cache[$cache_key];
+        }
+
+        $jamf_class = null;
+        $iterator   = $DB->request([
             'SELECT' => [
                 'jamf_type',
             ],
@@ -136,17 +150,14 @@ abstract class PluginJamfAbstractDevice extends CommonDBChild
             ],
         ]);
         if (count($iterator) > 0) {
-            $jamf_type = $iterator->current()['jamf_type'];
-            if ($jamf_type === 'Computer') {
-                return PluginJamfComputer::class;
-            }
-
-            if ($jamf_type === 'MobileDevice') {
-                return PluginJamfMobileDevice::class;
-            }
+            $jamf_class = match ($iterator->current()['jamf_type']) {
+                'Computer'     => PluginJamfComputer::class,
+                'MobileDevice' => PluginJamfMobileDevice::class,
+                default        => null,
+            };
         }
 
-        return null;
+        return self::$jamf_item_class_cache[$cache_key] = $jamf_class;
     }
 
     public static function getJamfItemForGLPIItem(CommonDBTM $item, $limit_to_type = false): ?PluginJamfAbstractDevice

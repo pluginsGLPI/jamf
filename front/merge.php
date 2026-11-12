@@ -54,21 +54,21 @@ $pending     = iterator_to_array($DB->request([
     'LIMIT' => $_SESSION['glpilist_limit'],
 ]));
 
-$linked_devices = $DB->request([
-    'SELECT' => ['jamf_type', 'itemtype', 'items_id'],
-    'FROM'   => 'glpi_plugin_jamf_devices',
-]);
-
-$linked = [];
-foreach ($linked_devices as $data) {
-    $linked[$data['itemtype']][] = $data;
-}
-
+// Hide already linked items with a subquery: the dropdown keeps it in session under a short hash,
+// instead of inlining every linked id in each row
+$conditions = [];
 foreach ($pending as &$data) {
     $itemtype = $data['type'];
     if (is_a($itemtype, 'CommonDBTM', true) === false) {
         throw new BadRequestHttpException();
     }
+
+    $conditions[$itemtype] ??= [
+        new QueryExpression(
+            $DB->quoteName($itemtype::getTable() . '.id') . ' NOT IN (SELECT `items_id` FROM `glpi_plugin_jamf_devices` WHERE `itemtype` = '
+            . $DB->quoteValue($itemtype) . ')',
+        ),
+    ];
 
     $item     = new $itemtype();
     $jamftype = ('PluginJamf' . $data['jamf_type']);
@@ -92,6 +92,6 @@ foreach ($pending as &$data) {
 TemplateRenderer::getInstance()->display('@jamf/merge.html.twig', [
     'pending'     => $pending,
     'total_count' => $importcount,
-    'linked'      => $linked,
+    'conditions'  => $conditions,
 ]);
 Html::footer();

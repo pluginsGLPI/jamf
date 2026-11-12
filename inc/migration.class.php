@@ -655,5 +655,8 @@ final class PluginJamfMigration
         $this->db->update('glpi_plugin_jamf_devices', ['jamf_items_id' => 0], ['jamf_items_id' => ['<', 0]]);
         $this->glpiMigration->changeField('glpi_plugin_jamf_devices', 'jamf_items_id', 'jamf_items_id', 'fkey');
         $this->glpiMigration->migrationOneTable('glpi_plugin_jamf_devices');
+
+        // Joined from glpi_plugin_jamf_devices on every Phone form; without it the whole table is scanned
+        $this->glpiMigration->addKey('glpi_plugin_jamf_mobiledevices', 'glpi_plugin_jamf_devices_id');
     }
 }

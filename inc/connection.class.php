@@ -42,6 +42,11 @@ use function Safe\curl_init;
  */
 class PluginJamfConnection
 {
+    /** Seconds; a slow or unreachable Jamf server must not hold a GLPI page or worker forever */
+    private const CONNECT_TIMEOUT = 5;
+
+    private const TIMEOUT = 30;
+
     private $config;
 
     private ?string $bearer_token = null;
@@ -135,6 +140,8 @@ class PluginJamfConnection
 
         // Set user agent
         curl_setopt($curl, CURLOPT_USERAGENT, self::getUserAgentString());
+        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, self::CONNECT_TIMEOUT);
+        curl_setopt($curl, CURLOPT_TIMEOUT, self::TIMEOUT);
     }
 
     /**
@@ -157,6 +164,8 @@ class PluginJamfConnection
             curl_setopt($auth_curl, CURLOPT_POST, true);
             curl_setopt($auth_curl, CURLOPT_POSTFIELDS, []);
             curl_setopt($auth_curl, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($auth_curl, CURLOPT_CONNECTTIMEOUT, self::CONNECT_TIMEOUT);
+            curl_setopt($auth_curl, CURLOPT_TIMEOUT, self::TIMEOUT);
             // token will be in 'token' property of the json response
             $response = json_decode(curl_exec($auth_curl), true);
             curl_close($auth_curl);
@@ -199,6 +208,8 @@ class PluginJamfConnection
         curl_setopt($auth_curl, CURLOPT_POST, true);
         curl_setopt($auth_curl, CURLOPT_POSTFIELDS, []);
         curl_setopt($auth_curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($auth_curl, CURLOPT_CONNECTTIMEOUT, self::CONNECT_TIMEOUT);
+        curl_setopt($auth_curl, CURLOPT_TIMEOUT, self::TIMEOUT);
         $response = json_decode(curl_exec($auth_curl), true);
         curl_close($auth_curl);
         if (isset($response['token'])) {
@@ -220,7 +231,9 @@ class PluginJamfConnection
             }
 
             $options = [
-                'headers' => [
+                'connect_timeout' => self::CONNECT_TIMEOUT,
+                'timeout'         => self::TIMEOUT,
+                'headers'         => [
                     'Authorization' => 'Bearer ' . $this->bearer_token,
                     'User-Agent'    => self::getUserAgentString(),
                     'Content-Type'  => 'application/json',
