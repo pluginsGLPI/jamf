@@ -80,9 +80,9 @@
     </div>
     <br>
     <div class="text-center">
-        <button name="import" type="button" class="btn btn-primary" onclick="importDevices();">{{ _x('action', 'Import', 'jamf') }}</button>
-        <button name="discover" type="button" class="btn btn-primary" onclick="discoverNow();">{{ _x('action', 'Discover now', 'jamf') }}</button>
-        <button name="clear" type="button" class="btn btn-danger" onclick="clearPendingImports();">{{ _x('action', 'Clear pending imports', 'jamf') }}</button>
+        <button name="import" type="button" class="btn btn-primary">{{ _x('action', 'Import', 'jamf') }}</button>
+        <button name="discover" type="button" class="btn btn-primary">{{ _x('action', 'Discover now', 'jamf') }}</button>
+        <button name="clear" type="button" class="btn btn-danger">{{ _x('action', 'Clear pending imports', 'jamf') }}</button>
         <script>
             function importDevices() {
                 const import_ids = $(':checkbox:checked').filter(':not([name^="_checkall"])').map(function() {
@@ -147,6 +147,9 @@
                 });
             }
 
+            $('button[name="import"]').on('click', () => importDevices());
+            $('button[name="discover"]').on('click', () => discoverNow());
+            $('button[name="clear"]').on('click', () => clearPendingImports());
         </script>
     </div>
 </form>

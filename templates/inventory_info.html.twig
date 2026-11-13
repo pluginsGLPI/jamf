@@ -43,7 +43,7 @@
             {% if button.url %}
                <a class="btn btn-outline-secondary {{ loop.index0 != 0 ? 'ms-3' : '' }}" href="{{ button.url }}">{{ button.caption }}</a>
             {% else %}
-               <button class="btn btn-outline-secondary {{ loop.index0 != 0 ? 'ms-3' : '' }}" type="button" onclick="{{ button.on_click|default('') }}">{{ button.caption }}</button>
+               <button class="btn btn-outline-secondary {{ loop.index0 != 0 ? 'ms-3' : '' }}" type="button" id="{{ button.id }}">{{ button.caption }}</button>
             {% endif %}
          {% endfor %}
       </div>

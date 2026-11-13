@@ -82,7 +82,7 @@
     </div>
     <br>
     <div class="text-center">
-        <button name="merge" type="button" class="btn btn-primary" onclick="mergeDevices();">{{ _x('action', 'Merge', 'jamf') }}</button>
+        <button name="merge" type="button" class="btn btn-primary">{{ _x('action', 'Merge', 'jamf') }}</button>
         <script>
             function mergeDevices() {
                 const post_data = {};
@@ -113,6 +113,8 @@
                     }
                 });
             }
+
+            $('button[name="merge"]').on('click', () => mergeDevices());
         </script>
     </div>
 </form>
