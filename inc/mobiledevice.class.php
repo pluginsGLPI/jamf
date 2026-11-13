@@ -287,8 +287,11 @@ class PluginJamfMobileDevice extends PluginJamfAbstractDevice
         $match = array_merge($match, $jamf_item->getJamfDeviceData());
 
         $js = '';
+        $sync_button_id = 'jamf_sync_' . $item->getID();
         if ($item->canUpdate()) {
             $ajax_url = $CFG_GLPI['root_doc'] . '/plugins/jamf/ajax/sync.php';
+            $itemtype = $item::getType();
+            $items_id = $item->getID();
             $js       = <<<JAVASCRIPT
                function syncDevice(itemtype, items_id) {
                   $.ajax({
@@ -301,6 +304,7 @@ class PluginJamfMobileDevice extends PluginJamfAbstractDevice
                      }
                   });
                }
+               $('#{$sync_button_id}').on('click', () => syncDevice("{$itemtype}", {$items_id}));
 JAVASCRIPT;
         }
 
@@ -355,8 +359,8 @@ JAVASCRIPT;
                         'url'     => self::getJamfDeviceURL($match['jamf_items_id']),
                     ],
                     'sync' => [
-                        'caption'  => _x('action', 'Sync now', 'jamf'),
-                        'on_click' => sprintf('syncDevice("%s", %d); return false;', $item::getType(), $item->getID()),
+                        'caption' => _x('action', 'Sync now', 'jamf'),
+                        'id'      => $sync_button_id,
                     ],
                 ],
                 'extra_js' => $js,
@@ -401,9 +405,11 @@ JAVASCRIPT;
                 ],
                 'lost_location' => [
                     'caption' => _x('field', 'GPS', 'jamf'),
-                    'value'   => Html::link(sprintf('%s, %s', $lat, $long), sprintf('https://www.google.com/maps/place/%s,%s', $lat, $long), [
-                        'display' => false,
-                    ]),
+                    'value'   => sprintf(
+                        '<a href="%s">%s</a>',
+                        htmlescape(sprintf('https://www.google.com/maps/place/%s,%s', $lat, $long)),
+                        htmlescape(sprintf('%s, %s', $lat, $long)),
+                    ),
                 ],
                 'lost_location_altitude' => [
                     'caption' => _x('field', 'Altitude', 'jamf'),

@@ -74,9 +74,12 @@ class PluginJamfComputer extends PluginJamfAbstractDevice
         $match = $jamf_item->fields;
         $match = array_merge($match, $jamf_item->getJamfDeviceData());
 
+        $sync_button_id = 'jamf_sync_' . $item->getID();
         $js = '';
         if ($item->canUpdate()) {
             $ajax_url = $CFG_GLPI['root_doc'] . '/plugins/jamf/ajax/sync.php';
+            $itemtype = $item::getType();
+            $items_id = $item->getID();
             $js       = <<<JAVASCRIPT
                function syncDevice(itemtype, items_id) {
                   $.ajax({
@@ -89,6 +92,7 @@ class PluginJamfComputer extends PluginJamfAbstractDevice
                      }
                   });
                }
+               $('#{$sync_button_id}').on('click', () => syncDevice("{$itemtype}", {$items_id}));
 JAVASCRIPT;
         }
 
@@ -135,8 +139,8 @@ JAVASCRIPT;
                         'url'     => self::getJamfDeviceURL($match['jamf_items_id']),
                     ],
                     'sync' => [
-                        'caption'  => _x('action', 'Sync now', 'jamf'),
-                        'on_click' => sprintf('syncDevice("%s", %s); return false;', $item::getType(), $item->getID()),
+                        'caption' => _x('action', 'Sync now', 'jamf'),
+                        'id'      => $sync_button_id,
                     ],
                 ],
                 'extra_js' => $js,
