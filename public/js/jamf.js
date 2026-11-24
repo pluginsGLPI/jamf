@@ -305,7 +305,7 @@
     const initMdmCommands = () => {
         $('[data-jamf-mdm-commands]:not([data-jamf-mdm-ready])').each(function () {
             $(this).attr('data-jamf-mdm-ready', '');
-            window.jamfPlugin = new JamfPlugin();
+            window.jamfPlugin = new window.JamfPlugin();
             window.jamfPlugin.init({
                 commands: JSON.parse(this.dataset.jamfMdmCommands),
                 jamf_id: this.dataset.jamfId,
