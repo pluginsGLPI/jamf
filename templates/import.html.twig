@@ -80,76 +80,8 @@
     </div>
     <br>
     <div class="text-center">
-        <button name="import" type="button" class="btn btn-primary">{{ _x('action', 'Import', 'jamf') }}</button>
-        <button name="discover" type="button" class="btn btn-primary">{{ _x('action', 'Discover now', 'jamf') }}</button>
-        <button name="clear" type="button" class="btn btn-danger">{{ _x('action', 'Clear pending imports', 'jamf') }}</button>
-        <script>
-            function importDevices() {
-                const import_ids = $(':checkbox:checked').filter(':not([name^="_checkall"])').map(function() {
-                    return this.name.replace("import","").substring(1).split('_');
-                }).toArray();
-
-                $.ajax({
-                    type: "POST",
-                    url: "{{ path('/plugins/jamf/ajax/import.php') }}",
-                    data: {
-                        action: "import",
-                        import_ids: import_ids
-                    },
-                    contentType: 'application/json',
-                    beforeSend: () => {
-                        $('button[name="import"]').prop('disabled', true)
-                            .html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>{{ _x("action", "Importing", "jamf") }}');
-                        $('button[name="discover"]').prop('disabled', true);
-                        $('button[name="clear"]').prop('disabled', true);
-                    },
-                    complete: () => {
-                        window.location.reload();
-                    }
-                });
-            }
-
-            function discoverNow() {
-                $.ajax({
-                    type: "POST",
-                    url: "{{ path('/plugins/jamf/ajax/cron.php') }}",
-                    data: { crontask: "importJamf" },
-                    contentType: 'application/json',
-                    beforeSend: () => {
-                        $('button[name="import"]').prop('disabled', true);
-                        $('button[name="discover"]').prop('disabled', true)
-                            .html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>{{ _x("action", "Discovering", "jamf") }}');
-                        $('button[name="clear"]').prop('disabled', true);
-                    },
-                    complete: () => {
-                        window.location.reload();
-                    }
-                });
-            }
-
-            function clearPendingImports() {
-                $.ajax({
-                    type: "POST",
-                    url: "{{ path('/plugins/jamf/ajax/import.php') }}",
-                    data: {
-                        action: "clear"
-                    },
-                    contentType: 'application/json',
-                    beforeSend: () => {
-                        $('button[name="import"]').prop('disabled', true);
-                        $('button[name="discover"]').prop('disabled', true);
-                        $('button[name="clear"]').prop('disabled', true)
-                            .html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>{{ _x("action", "Clearing", "jamf") }}');
-                    },
-                    complete: () => {
-                        window.location.reload();
-                    }
-                });
-            }
-
-            $('button[name="import"]').on('click', () => importDevices());
-            $('button[name="discover"]').on('click', () => discoverNow());
-            $('button[name="clear"]').on('click', () => clearPendingImports());
-        </script>
+        <button name="import" type="button" class="btn btn-primary" data-jamf-action="import" data-jamf-busy-label="{{ _x('action', 'Importing', 'jamf') }}">{{ _x('action', 'Import', 'jamf') }}</button>
+        <button name="discover" type="button" class="btn btn-primary" data-jamf-action="discover" data-jamf-busy-label="{{ _x('action', 'Discovering', 'jamf') }}">{{ _x('action', 'Discover now', 'jamf') }}</button>
+        <button name="clear" type="button" class="btn btn-danger" data-jamf-action="clear" data-jamf-busy-label="{{ _x('action', 'Clearing', 'jamf') }}">{{ _x('action', 'Clear pending imports', 'jamf') }}</button>
     </div>
 </form>

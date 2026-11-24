@@ -82,39 +82,6 @@
     </div>
     <br>
     <div class="text-center">
-        <button name="merge" type="button" class="btn btn-primary">{{ _x('action', 'Merge', 'jamf') }}</button>
-        <script>
-            function mergeDevices() {
-                const post_data = {};
-                const table = $("#merge_table")[0];
-                const row_count = table.rows.length;
-                for (let i = 1; i < row_count; i++) {
-                    const row = table.rows[i];
-                    const jamf_id = row.cells[0].innerText;
-                    const itemtype = row.cells[2].innerText;
-                    const jamf_type = row.cells[3].innerText;
-                    const glpi_sel = $(row.cells[6]).find('select')[0];
-                    const glpi_id = glpi_sel.value;
-                    if (glpi_id && glpi_id > 0) {
-                        data = [];
-                        post_data[glpi_id] = {'itemtype': itemtype, 'jamf_id': jamf_id, 'jamf_type': jamf_type};
-                    }
-                }
-                $.ajax({
-                    type: "POST",
-                    url: "{{ path('/plugins/jamf/ajax/merge.php') }}",
-                    data: {action: "merge", item_ids: post_data},
-                    contentType: 'application/json',
-                    beforeSend: () => {
-                        $('button[name="merge"]').prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> {{ _x('action', 'Merging', 'jamf') }}');
-                    },
-                    complete: () => {
-                        location.reload();
-                    }
-                });
-            }
-
-            $('button[name="merge"]').on('click', () => mergeDevices());
-        </script>
+        <button name="merge" type="button" class="btn btn-primary" data-jamf-action="merge" data-jamf-busy-label="{{ _x('action', 'Merging', 'jamf') }}">{{ _x('action', 'Merge', 'jamf') }}</button>
     </div>
 </form>

@@ -55,9 +55,6 @@ class PluginJamfComputer extends PluginJamfAbstractDevice
      */
     public static function showForItem(array $params)
     {
-        /** @var array $CFG_GLPI */
-        global $CFG_GLPI;
-
         $item = $params['item'];
 
         if (!self::canView() || $item::getType() !== 'Computer') {
@@ -74,26 +71,13 @@ class PluginJamfComputer extends PluginJamfAbstractDevice
         $match = $jamf_item->fields;
         $match = array_merge($match, $jamf_item->getJamfDeviceData());
 
-        $sync_button_id = 'jamf_sync_' . $item->getID();
-        $js = '';
+        $sync_attributes = [];
         if ($item->canUpdate()) {
-            $ajax_url = $CFG_GLPI['root_doc'] . '/plugins/jamf/ajax/sync.php';
-            $itemtype = $item::getType();
-            $items_id = $item->getID();
-            $js       = <<<JAVASCRIPT
-               function syncDevice(itemtype, items_id) {
-                  $.ajax({
-                     type: "POST",
-                     url: "{$ajax_url}",
-                     data: {"itemtype": itemtype, "items_id": items_id},
-                     contentType: 'application/json',
-                     success: function() {
-                        location.reload();
-                     }
-                  });
-               }
-               $('#{$sync_button_id}').on('click', () => syncDevice("{$itemtype}", {$items_id}));
-JAVASCRIPT;
+            $sync_attributes = [
+                'data-jamf-sync'          => '',
+                'data-jamf-sync-itemtype' => $item::getType(),
+                'data-jamf-sync-items-id' => $item->getID(),
+            ];
         }
 
         $info = [
@@ -139,11 +123,10 @@ JAVASCRIPT;
                         'url'     => self::getJamfDeviceURL($match['jamf_items_id']),
                     ],
                     'sync' => [
-                        'caption' => _x('action', 'Sync now', 'jamf'),
-                        'id'      => $sync_button_id,
+                        'caption'    => _x('action', 'Sync now', 'jamf'),
+                        'attributes' => $sync_attributes,
                     ],
                 ],
-                'extra_js' => $js,
             ],
         ];
 

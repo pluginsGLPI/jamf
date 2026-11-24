@@ -36,7 +36,7 @@
    no_label: true,
 }) }}
 
-<div class="mdm-button-group">
+<div class="mdm-button-group" data-jamf-mdm-commands="{{ commands|json_encode }}" data-jamf-id="{{ jamf_id }}" data-jamf-itemtype="{{ jamf_itemtype }}" data-jamf-items-id="{{ jamf_items_id }}">
    {% for command, command_params in commands %}
       <div class="mdm-button p-2 me-2 mb-2 d-inline-block cursor-pointer btn btn-outline-secondary" data-jamf-mdm-command="{{ command }}"
            style="border-radius: 30px">
@@ -93,18 +93,3 @@
    {% endfor %}
    </tbody>
 </table>
-
-<script>
-   $(function() {
-       jamfPlugin = new JamfPlugin();
-       jamfPlugin.init({
-           commands: {{ commands|json_encode|raw }},
-           jamf_id: {{ jamf_id }},
-           itemtype: "{{ jamf_itemtype }}",
-           items_id: {{ jamf_items_id }},
-       });
-       $('[data-jamf-mdm-command]').on('click', (e) => {
-           jamfPlugin.onMDMCommandButtonClick(e.currentTarget.dataset.jamfMdmCommand, e);
-       });
-   });
-</script>

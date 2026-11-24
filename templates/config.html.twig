@@ -44,7 +44,7 @@
                   {% set password_set = config.jsspassword is defined and config.jsspassword|length > 0 %}
                   {% if password_set %}
                      {% set field_value %}
-                        <button name="reset_password" type="button" class="btn btn-outline-secondary btn-sm">
+                        <button name="reset_password" type="button" class="btn btn-outline-secondary btn-sm" data-jamf-action="reset-password">
                            <i class="ti ti-key"></i>
                            {{ _x('button', 'Reset password', 'jamf') }}
                         </button>
@@ -52,14 +52,6 @@
                      {{ fields.field('password_reset_btn', field_value, _x('config', 'JSS Password', 'jamf'), {
                         add_field_class: 'align-items-center',
                      }) }}
-                     <script>
-                        $('button[name="reset_password"]').on('click', (e) => {
-                           const password_input = $('input[name="jsspassword"]');
-                           $(e.currentTarget).closest('div.form-field').hide();
-                           password_input.val('');
-                           password_input.closest('div.form-field').attr('hidden', null);
-                        });
-                     </script>
                   {% endif %}
                   {{ fields.passwordField('jsspassword', config.jsspassword|default(null), _x('config', 'JSS Password', 'jamf'), {
                      add_field_attribs: password_set ? {'hidden': 'hidden'} : {},

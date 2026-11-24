@@ -173,3 +173,170 @@
         };
     };
 })();
+
+(function () {
+    /**
+     * Replace the button content by a spinner and a label, and disable it.
+     * The label comes from the button's data-jamf-busy-label attribute.
+     */
+    const setBusy = (button, spinner_class, text_prefix) => {
+        button.prop('disabled', true).empty()
+            .append($('<span>', {
+                class: `spinner-border spinner-border-sm ${spinner_class}`,
+                role: 'status',
+                'aria-hidden': 'true'
+            }))
+            .append(document.createTextNode(text_prefix + button.data('jamfBusyLabel')));
+    };
+
+    const importDevices = () => {
+        const import_ids = $(':checkbox:checked').filter(':not([name^="_checkall"])').map(function () {
+            return this.name.replace("import", "").substring(1).split('_');
+        }).toArray();
+
+        $.ajax({
+            type: "POST",
+            url: `${CFG_GLPI.root_doc}/plugins/jamf/ajax/import.php`,
+            data: {
+                action: "import",
+                import_ids: import_ids
+            },
+            contentType: 'application/json',
+            beforeSend: () => {
+                setBusy($('[data-jamf-action="import"]'), 'me-2', '');
+                $('[data-jamf-action="discover"]').prop('disabled', true);
+                $('[data-jamf-action="clear"]').prop('disabled', true);
+            },
+            complete: () => {
+                window.location.reload();
+            }
+        });
+    };
+
+    const discoverNow = () => {
+        $.ajax({
+            type: "POST",
+            url: `${CFG_GLPI.root_doc}/plugins/jamf/ajax/cron.php`,
+            data: { crontask: "importJamf" },
+            contentType: 'application/json',
+            beforeSend: () => {
+                $('[data-jamf-action="import"]').prop('disabled', true);
+                setBusy($('[data-jamf-action="discover"]'), 'me-2', '');
+                $('[data-jamf-action="clear"]').prop('disabled', true);
+            },
+            complete: () => {
+                window.location.reload();
+            }
+        });
+    };
+
+    const clearPendingImports = () => {
+        $.ajax({
+            type: "POST",
+            url: `${CFG_GLPI.root_doc}/plugins/jamf/ajax/import.php`,
+            data: {
+                action: "clear"
+            },
+            contentType: 'application/json',
+            beforeSend: () => {
+                $('[data-jamf-action="import"]').prop('disabled', true);
+                $('[data-jamf-action="discover"]').prop('disabled', true);
+                setBusy($('[data-jamf-action="clear"]'), 'me-2', '');
+            },
+            complete: () => {
+                window.location.reload();
+            }
+        });
+    };
+
+    const mergeDevices = () => {
+        const post_data = {};
+        const table = $("#merge_table")[0];
+        const row_count = table.rows.length;
+        for (let i = 1; i < row_count; i++) {
+            const row = table.rows[i];
+            const jamf_id = row.cells[0].innerText;
+            const itemtype = row.cells[2].innerText;
+            const jamf_type = row.cells[3].innerText;
+            const glpi_sel = $(row.cells[6]).find('select')[0];
+            const glpi_id = glpi_sel.value;
+            if (glpi_id && glpi_id > 0) {
+                post_data[glpi_id] = {'itemtype': itemtype, 'jamf_id': jamf_id, 'jamf_type': jamf_type};
+            }
+        }
+        $.ajax({
+            type: "POST",
+            url: `${CFG_GLPI.root_doc}/plugins/jamf/ajax/merge.php`,
+            data: {action: "merge", item_ids: post_data},
+            contentType: 'application/json',
+            beforeSend: () => {
+                setBusy($('[data-jamf-action="merge"]'), '', ' ');
+            },
+            complete: () => {
+                location.reload();
+            }
+        });
+    };
+
+    $(document).on('click', '[data-jamf-action="import"]', () => importDevices());
+    $(document).on('click', '[data-jamf-action="discover"]', () => discoverNow());
+    $(document).on('click', '[data-jamf-action="clear"]', () => clearPendingImports());
+    $(document).on('click', '[data-jamf-action="merge"]', () => mergeDevices());
+
+    $(document).on('click', '[data-jamf-action="reset-password"]', (e) => {
+        const password_input = $('input[name="jsspassword"]');
+        $(e.currentTarget).closest('div.form-field').hide();
+        password_input.val('');
+        password_input.closest('div.form-field').attr('hidden', null);
+    });
+
+    $(document).on('click', '[data-jamf-sync]', function () {
+        $.ajax({
+            type: "POST",
+            url: `${CFG_GLPI.root_doc}/plugins/jamf/ajax/sync.php`,
+            data: {"itemtype": this.dataset.jamfSyncItemtype, "items_id": this.dataset.jamfSyncItemsId},
+            contentType: 'application/json',
+            success: () => {
+                location.reload();
+            }
+        });
+    });
+
+    const initMdmCommands = () => {
+        $('[data-jamf-mdm-commands]:not([data-jamf-mdm-ready])').each(function () {
+            $(this).attr('data-jamf-mdm-ready', '');
+            window.jamfPlugin = new JamfPlugin();
+            window.jamfPlugin.init({
+                commands: JSON.parse(this.dataset.jamfMdmCommands),
+                jamf_id: this.dataset.jamfId,
+                itemtype: this.dataset.jamfItemtype,
+                items_id: this.dataset.jamfItemsId,
+            });
+        });
+    };
+
+    $(document).on('click', '[data-jamf-mdm-command]', (e) => {
+        window.jamfPlugin.onMDMCommandButtonClick(e.currentTarget.dataset.jamfMdmCommand, e);
+    });
+
+    const initInventoryInfo = () => {
+        const markers = $('[data-jamf-inventory-info]:not([data-jamf-inventory-info-ready])');
+        if (markers.length === 0) {
+            return;
+        }
+        markers.attr('data-jamf-inventory-info-ready', '');
+        // Assets are marked dynamic by this plugin, so the native inventory section is removed
+        const card_title_icon = $('form[name="asset_form"]').next('.card').find('.card-header .ribbon i');
+        if (card_title_icon.length > 0 && card_title_icon.eq(0).hasClass('fa-cloud-download-alt')) {
+            card_title_icon.closest('.card').remove();
+        }
+    };
+
+    const initPluginMarkup = () => {
+        initMdmCommands();
+        initInventoryInfo();
+    };
+
+    $(initPluginMarkup);
+    $(document).on('glpi.tab.loaded', initPluginMarkup);
+})();
