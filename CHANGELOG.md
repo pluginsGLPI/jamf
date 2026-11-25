@@ -5,6 +5,9 @@
 ### Fixed
 
 - Fix `migration:unsigned_keys` failure on `glpi_plugin_jamf_devices.jamf_items_id` (negative default value)
+- Fix main tab of Jamf-linked computers and phones crashing when Twig strict variables are enabled
+- Fix SQL queries and page weight added by the plugin: no plugin state check on every request, index on mobile devices, lighter merge page, `jamf.js` only loaded on the MDM commands tab
+- Fix Jamf API calls without timeout (5 s to connect, 30 s in total)
 
 ## [3.2.3] - 2026-10-06
 
