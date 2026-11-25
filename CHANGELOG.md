@@ -1,5 +1,11 @@
 # Jamf Plugin for GLPI Changelog
 
+## [Unreleased]
+
+### Changed
+
+- Make the plugin compatible with the Content Security Policy
+
 ## [3.2.4] - 2026-11-05
 
 ### Fixed
