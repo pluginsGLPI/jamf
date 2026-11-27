@@ -89,6 +89,7 @@ function plugin_version_jamf()
         'author'       => "<a href=\"mailto:contact@teclib.com\">Teclib'</a> & Curtis Conard",
         'license'      => 'GPLv2',
         'homepage'     => 'https://github.com/pluginsGLPI/jamf',
+        'csp_compliant' => true,
         'requirements' => [
             'glpi' => [
                 'min' => PLUGIN_JAMF_MIN_GLPI,

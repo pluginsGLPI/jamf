@@ -265,9 +265,6 @@ class PluginJamfMobileDevice extends PluginJamfAbstractDevice
 
     public static function showForItem(array $params)
     {
-        /** @var array $CFG_GLPI */
-        global $CFG_GLPI;
-
         /** @var CommonDBTM $item */
         $item = $params['item'];
 
@@ -286,22 +283,13 @@ class PluginJamfMobileDevice extends PluginJamfAbstractDevice
         $match = $jamf_item->fields;
         $match = array_merge($match, $jamf_item->getJamfDeviceData());
 
-        $js = '';
+        $sync_attributes = [];
         if ($item->canUpdate()) {
-            $ajax_url = $CFG_GLPI['root_doc'] . '/plugins/jamf/ajax/sync.php';
-            $js       = <<<JAVASCRIPT
-               function syncDevice(itemtype, items_id) {
-                  $.ajax({
-                     type: "POST",
-                     url: "{$ajax_url}",
-                     data: {"itemtype": itemtype, "items_id": items_id},
-                     contentType: 'application/json',
-                     success: function() {
-                        location.reload();
-                     }
-                  });
-               }
-JAVASCRIPT;
+            $sync_attributes = [
+                'data-jamf-sync'          => '',
+                'data-jamf-sync-itemtype' => $item::class,
+                'data-jamf-sync-items-id' => $item->getID(),
+            ];
         }
 
         $info = [
@@ -355,11 +343,10 @@ JAVASCRIPT;
                         'url'     => self::getJamfDeviceURL($match['jamf_items_id']),
                     ],
                     'sync' => [
-                        'caption'  => _x('action', 'Sync now', 'jamf'),
-                        'on_click' => sprintf('syncDevice("%s", %d); return false;', $item::class, $item->getID()),
+                        'caption'    => _x('action', 'Sync now', 'jamf'),
+                        'attributes' => $sync_attributes,
                     ],
                 ],
-                'extra_js' => $js,
             ],
             'lost_mode' => [
                 'caption' => _x('form_section', 'Jamf Lost Mode Information', 'jamf'),

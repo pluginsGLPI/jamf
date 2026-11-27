@@ -6,6 +6,10 @@
 
 - Add Transifex translations link to README
 
+### Changed
+
+- Make the plugin compatible with the Content Security Policy
+
 ## [3.3.0] - 2026-10-06
 
 ### Added
